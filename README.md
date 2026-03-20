@@ -1,16 +1,16 @@
 ﻿# RL-Based quantum circuit routing
 
-## The qoal
-[cite_start]Quantum computers can only run gates between adjacent qubits[cite: 3]. We use Deep Reinforcement Learning to move qubits (via SWAPs) as efficiently as possible. [cite_start]Our target is a **15-25% reduction in SWAP gates** compared to IBM's SABRE compiler[cite: 8].
+## The goal
+Quantum computers can only run gates between adjacent qubits. We use Deep Reinforcement Learning to move qubits (via SWAPs) as efficiently as possible. Our target is a **15-25% reduction in SWAP gates** compared to IBM's SABRE compiler.
 
 ## Hardware & benchmarks
-- [cite_start]**Target Topology:** IBM Falcon 27q (Heavy-Hex layout)[cite: 10, 11].
-- [cite_start]**Data:** QASMBench (Grover, QFT, QAOA, VQE)[cite: 11].
+- **Target Topology:** 19-qubit Heavy-Hex (`CouplingMap.from_heavy_hex(3)`).
+- **Data:** QASMBench (Grover, QFT, QAOA, VQE).
 
 ## The environment (MDP)
-- [cite_start]**State:** Current mapping ($\pi$), front layer of gates, lookahead window ($K$), and the hardware distance matrix[cite: 10].
-- [cite_start]**Actions:** Discrete SWAPs on hardware edges or "Execute" ready gates[cite: 10].
-- [cite_start]**Rewards:** -1 per SWAP, +0.1 per executed gate, +5 on completion, -0.01 per step[cite: 10].
+- **State:** 3-channel N×N matrix — adjacency (topology), qubit assignment (current mapping), gate demand (front layer interactions).
+- **Actions:** Discrete SWAPs on hardware edges. Routable gates execute automatically after each SWAP.
+- **Rewards:** -1 per SWAP, +1 per gate auto-executed, +0.01 × distance reduction, +5 on completion.
 
 ## How to run
 1. Install dependencies: `pip install -r requirements.txt`
