@@ -25,8 +25,13 @@ Quantum computers can only run two-qubit gates between adjacent physical qubits.
 ## Tracking and artifacts
 - Each run writes to `runs/<run_name>/`.
 - `metrics.csv` stores training metrics by update.
+- `metrics.csv` also includes periodic holdout evaluation vs SABRE (`eval_improvement_pct`, `eval_win_rate`).
 - `best_model.pt`, `last_model.pt`, and periodic checkpoints are saved automatically.
 - `config.json` stores the exact run configuration.
 
 ## Colab notebook
 - Use `notebooks/train_ppo_colab.ipynb` for Drive mount, GPU training, and metric plots.
+
+## Final evaluation vs SABRE
+Use:
+`python benchmark.py --model-path <path_to_best_model.pt> --qasmbench-root <path_to_qasm_files>`

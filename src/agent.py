@@ -22,6 +22,19 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
+try:
+    from .circuit_utils import (
+        generate_random_circuit,
+        get_sabre_initial_mapping,
+        get_sabre_swap_count,
+    )
+except ImportError:
+    from circuit_utils import (
+        generate_random_circuit,
+        get_sabre_initial_mapping,
+        get_sabre_swap_count,
+    )
+
 
 @dataclass
 class PPOConfig:
@@ -40,6 +53,11 @@ class PPOConfig:
     target_kl: float = 0.015
     log_interval_updates: int = 5
     checkpoint_interval_updates: int = 25
+    eval_interval_updates: int = 10
+    eval_circuits_per_topology: int = 4
+    eval_circuit_depth: int = 20
+    # Chosen above training seed range [0, 2**31) to avoid overlap by design.
+    eval_seed_base: int = 3_000_000_000
     run_dir: str = ""
     seed: int = 42
     device: str = "cpu"
@@ -143,7 +161,9 @@ class PPOAgent:
         self.best_mean_episode_return = -np.inf
         self._running_ep_return = 0.0
         self._running_ep_len = 0
+        self.eval_cases: List[Dict] = []
         self._init_logging()
+        self.eval_cases = self._build_eval_cases()
 
     def _unwrap_env(self):
         env = self.env
@@ -185,6 +205,11 @@ class PPOAgent:
                     "approx_kl",
                     "entropy_coef",
                     "explained_var",
+                    "eval_cases",
+                    "eval_mean_ppo_swaps",
+                    "eval_mean_sabre_swaps",
+                    "eval_improvement_pct",
+                    "eval_win_rate",
                 ]
             )
 
@@ -377,9 +402,23 @@ class PPOAgent:
         mean_episode_return: float,
         episodes_completed: int,
         metrics: Dict[str, float],
+        eval_metrics: Dict[str, float] | None,
     ) -> None:
         if self.metrics_path is None:
             return
+
+        eval_cases = float("nan")
+        eval_mean_ppo_swaps = float("nan")
+        eval_mean_sabre_swaps = float("nan")
+        eval_improvement_pct = float("nan")
+        eval_win_rate = float("nan")
+        if eval_metrics is not None:
+            eval_cases = eval_metrics["eval_cases"]
+            eval_mean_ppo_swaps = eval_metrics["eval_mean_ppo_swaps"]
+            eval_mean_sabre_swaps = eval_metrics["eval_mean_sabre_swaps"]
+            eval_improvement_pct = eval_metrics["eval_improvement_pct"]
+            eval_win_rate = eval_metrics["eval_win_rate"]
+
         with self.metrics_path.open("a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(
@@ -396,8 +435,99 @@ class PPOAgent:
                     metrics["approx_kl"],
                     metrics["entropy_coef"],
                     metrics["explained_var"],
+                    eval_cases,
+                    eval_mean_ppo_swaps,
+                    eval_mean_sabre_swaps,
+                    eval_improvement_pct,
+                    eval_win_rate,
                 ]
             )
+
+    def _build_eval_cases(self) -> List[Dict]:
+        """
+        Build a fixed random holdout set for periodic evaluation.
+        This set uses a disjoint seed range to avoid overlap with training data.
+        """
+        if self.cfg.eval_circuits_per_topology <= 0:
+            return []
+
+        unwrapped = self._unwrap_env()
+        cases: List[Dict] = []
+        seed = int(self.cfg.eval_seed_base)
+
+        for topo_idx, topo in enumerate(unwrapped._topologies):
+            n_q = int(topo["n_physical"])
+            cmap = topo["coupling_map"]
+            for _ in range(self.cfg.eval_circuits_per_topology):
+                circuit = generate_random_circuit(
+                    num_qubits=n_q,
+                    depth=self.cfg.eval_circuit_depth,
+                    seed=seed,
+                )
+                seed += 1
+
+                sabre_init = get_sabre_initial_mapping(circuit, cmap)
+                sabre_swaps = int(get_sabre_swap_count(circuit, cmap))
+
+                cases.append(
+                    {
+                        "topology_index": topo_idx,
+                        "circuit": circuit,
+                        "initial_mapping": [int(x) for x in sabre_init],
+                        "sabre_swaps": sabre_swaps,
+                    }
+                )
+        return cases
+
+    def _greedy_action(self, obs: np.ndarray) -> int:
+        edge_index, action_mask = self._current_edges_and_mask()
+        obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
+        edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
+        mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+
+        with torch.no_grad():
+            dist, _ = self.model.get_action_distribution(obs_t, edge_t, mask_t)
+            action = int(torch.argmax(dist.logits, dim=-1).item())
+        return action
+
+    def _evaluate_against_sabre(self) -> Dict[str, float] | None:
+        if not self.eval_cases:
+            return None
+
+        ppo_swaps: List[int] = []
+        sabre_swaps: List[int] = []
+
+        for case in self.eval_cases:
+            obs, _ = self.env.reset(
+                options={
+                    "topology_index": case["topology_index"],
+                    "circuit": case["circuit"],
+                    "initial_mapping": case["initial_mapping"],
+                }
+            )
+            done = False
+            truncated = False
+            info = {}
+            while not done and not truncated:
+                action = self._greedy_action(obs)
+                obs, _, done, truncated, info = self.env.step(action)
+
+            ppo_swaps.append(int(info.get("total_swaps", 0)))
+            sabre_swaps.append(int(case["sabre_swaps"]))
+
+        ppo_arr = np.asarray(ppo_swaps, dtype=np.float32)
+        sabre_arr = np.asarray(sabre_swaps, dtype=np.float32)
+        safe_sabre = np.where(sabre_arr <= 0, 1.0, sabre_arr)
+        improvement_pct = ((sabre_arr - ppo_arr) / safe_sabre) * 100.0
+        win_rate = float(np.mean(ppo_arr <= sabre_arr))
+
+        return {
+            "eval_cases": float(len(self.eval_cases)),
+            "eval_mean_ppo_swaps": float(np.mean(ppo_arr)),
+            "eval_mean_sabre_swaps": float(np.mean(sabre_arr)),
+            "eval_improvement_pct": float(np.mean(improvement_pct)),
+            "eval_win_rate": win_rate,
+        }
 
     def train(self) -> None:
         obs, _ = self.env.reset(seed=self.cfg.seed)
@@ -437,6 +567,14 @@ class PPOAgent:
             else:
                 mean_episode_return = float("nan")
 
+            eval_metrics = None
+            if (
+                self.cfg.eval_interval_updates > 0
+                and self.eval_cases
+                and update_idx % self.cfg.eval_interval_updates == 0
+            ):
+                eval_metrics = self._evaluate_against_sabre()
+
             self._append_metrics_row(
                 update_idx=update_idx,
                 global_step=global_step,
@@ -445,6 +583,7 @@ class PPOAgent:
                 mean_episode_return=mean_episode_return,
                 episodes_completed=len(ep_returns),
                 metrics=metrics,
+                eval_metrics=eval_metrics,
             )
 
             if ep_returns and mean_episode_return > self.best_mean_episode_return:
@@ -458,6 +597,12 @@ class PPOAgent:
                 self._save_checkpoint(f"checkpoint_update_{update_idx:05d}.pt")
 
             if update_idx % self.cfg.log_interval_updates == 0:
+                eval_msg = ""
+                if eval_metrics is not None:
+                    eval_msg = (
+                        f" eval_improve={eval_metrics['eval_improvement_pct']:+.2f}%"
+                        f" eval_win_rate={eval_metrics['eval_win_rate']:.2f}"
+                    )
                 print(
                     f"[Update {update_idx:04d}] "
                     f"steps={global_step:>7d} "
@@ -468,6 +613,7 @@ class PPOAgent:
                     f"v_loss={metrics['value_loss']:.4f} "
                     f"entropy={metrics['entropy']:.4f} "
                     f"kl={metrics['approx_kl']:.5f}"
+                    f"{eval_msg}"
                 )
 
         self._save_checkpoint("last_model.pt")

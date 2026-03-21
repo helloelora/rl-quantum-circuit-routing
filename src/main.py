@@ -97,6 +97,10 @@ def parse_args():
     parser.add_argument("--target-kl", type=float, default=0.015)
     parser.add_argument("--log-interval-updates", type=int, default=5)
     parser.add_argument("--checkpoint-interval-updates", type=int, default=25)
+    parser.add_argument("--eval-interval-updates", type=int, default=10)
+    parser.add_argument("--eval-circuits-per-topology", type=int, default=4)
+    parser.add_argument("--eval-circuit-depth", type=int, default=20)
+    parser.add_argument("--eval-seed-base", type=int, default=3000000000)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -156,6 +160,10 @@ def main():
         target_kl=args.target_kl,
         log_interval_updates=args.log_interval_updates,
         checkpoint_interval_updates=args.checkpoint_interval_updates,
+        eval_interval_updates=args.eval_interval_updates,
+        eval_circuits_per_topology=args.eval_circuits_per_topology,
+        eval_circuit_depth=args.eval_circuit_depth,
+        eval_seed_base=args.eval_seed_base,
         run_dir=str(run_dir),
         seed=args.seed,
         device=device,
@@ -180,6 +188,8 @@ def main():
     print("  strategy_masking=off (topology validity mask only)")
     print("  gamma_decay=0.5")
     print(f"  device={cfg.device}")
+    print(f"  eval_interval_updates={cfg.eval_interval_updates}")
+    print(f"  eval_circuits_per_topology={cfg.eval_circuits_per_topology}")
     print(f"  torch_version={torch.__version__}")
     print(f"  cuda_available={torch.cuda.is_available()}")
     print(
