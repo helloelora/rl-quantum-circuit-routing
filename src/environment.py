@@ -13,16 +13,28 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
-from circuit_utils import (
-    extract_two_qubit_gates,
-    build_dependency_graph,
-    compute_front_layer,
-    compute_dag_depths,
-    build_coupling_graph,
-    generate_random_circuit,
-    get_coupling_map,
-    get_sabre_initial_mapping,
-)
+try:
+    from .circuit_utils import (
+        extract_two_qubit_gates,
+        build_dependency_graph,
+        compute_front_layer,
+        compute_dag_depths,
+        build_coupling_graph,
+        generate_random_circuit,
+        get_coupling_map,
+        get_sabre_initial_mapping,
+    )
+except ImportError:
+    from circuit_utils import (
+        extract_two_qubit_gates,
+        build_dependency_graph,
+        compute_front_layer,
+        compute_dag_depths,
+        build_coupling_graph,
+        generate_random_circuit,
+        get_coupling_map,
+        get_sabre_initial_mapping,
+    )
 
 
 class QubitRoutingEnv(gym.Env):
@@ -70,7 +82,7 @@ class QubitRoutingEnv(gym.Env):
         completion_bonus=5.0,
         timeout_penalty=-10.0,
         matrix_size=27,
-        initial_mapping_strategy="random",
+        initial_mapping_strategy="mixed",
         seed=None,
     ):
         """
@@ -96,10 +108,10 @@ class QubitRoutingEnv(gym.Env):
                          Must be >= largest topology's qubit count. Default 27.
             initial_mapping_strategy: How to set the initial qubit-to-position
                          mapping each episode. One of:
-                         - "random": random permutation (default, most variety)
+                         - "random": random permutation
                          - "identity": logical qubit q → physical position q
                          - "sabre": use SABRE's layout pass (realistic, slower)
-                         - "mixed": 80% random, 20% SABRE (best for training)
+                         - "mixed": 80% random, 20% SABRE (default)
             seed: Random seed for reproducibility.
         """
         super().__init__()

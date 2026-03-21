@@ -699,3 +699,11 @@ The environment only needs to provide the data used to compute masks (coupling m
 - Each episode is unique — prevents overfitting to specific circuit patterns.
 - QASMBench circuits are reserved exclusively for evaluation — tests true generalization from random circuits to real quantum algorithms.
 - Circuit depth is configurable (`circuit_depth` parameter, default 20) and can be varied during training to expose the agent to different complexity levels.
+
+---
+
+## 13. Recent Validation (March 21, 2026)
+
+- Training mapping policy: no strategy masking for now (topology-validity masking only).
+- Project target: generalization across different topologies up to 27 qubits with a shared model.
+- Gate-demand decay: standardize on `gamma_decay = 0.5` for both PPO and DQN baselines.
