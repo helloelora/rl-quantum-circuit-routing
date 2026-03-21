@@ -82,9 +82,9 @@ def parse_args():
     parser.add_argument("--curriculum", action="store_true")
     parser.add_argument("--stage1-topologies", type=str, default="linear_5")
     parser.add_argument("--stage2-topologies", type=str, default="linear_5,grid_3x3")
-    parser.add_argument("--stage1-steps", type=int, default=120000)
-    parser.add_argument("--stage2-steps", type=int, default=80000)
-    parser.add_argument("--stage3-steps", type=int, default=120000)
+    parser.add_argument("--stage1-steps", type=int, default=200000)
+    parser.add_argument("--stage2-steps", type=int, default=200000)
+    parser.add_argument("--stage3-steps", type=int, default=600000)
     parser.add_argument("--stage1-depth", type=int, default=10)
     parser.add_argument("--stage2-depth", type=int, default=14)
     parser.add_argument("--stage3-depth", type=int, default=20)
@@ -93,9 +93,11 @@ def parse_args():
     parser.add_argument("--max-steps", type=int, default=500)
     parser.add_argument("--distance-reward-coeff", type=float, default=0.01)
     parser.add_argument("--distance-reward-coeff-start", type=float, default=0.03)
-    parser.add_argument("--distance-reward-coeff-end", type=float, default=0.01)
-    parser.add_argument("--completion-bonus", type=float, default=5.0)
-    parser.add_argument("--timeout-penalty", type=float, default=-10.0)
+    parser.add_argument("--distance-reward-coeff-end", type=float, default=0.015)
+    parser.add_argument("--completion-bonus", type=float, default=8.0)
+    parser.add_argument("--timeout-penalty", type=float, default=-25.0)
+    parser.add_argument("--min-two-qubit-gates", type=int, default=6)
+    parser.add_argument("--circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--seed", type=int, default=42)
 
     parser.add_argument("--total-timesteps", type=int, default=200000)
@@ -114,11 +116,16 @@ def parse_args():
     parser.add_argument("--log-interval-updates", type=int, default=5)
     parser.add_argument("--checkpoint-interval-updates", type=int, default=25)
     parser.add_argument("--eval-interval-updates", type=int, default=10)
-    parser.add_argument("--eval-circuits-per-topology", type=int, default=4)
+    parser.add_argument("--eval-circuits-per-topology", type=int, default=12)
     parser.add_argument("--eval-circuit-depth", type=int, default=20)
+    parser.add_argument(
+        "--eval-min-two-qubit-gates",
+        type=int,
+        default=-1,
+        help="Min 2-qubit gates for eval holdout circuits; -1 means use --min-two-qubit-gates.",
+    )
+    parser.add_argument("--eval-circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--eval-seed-base", type=int, default=3000000000)
-    parser.add_argument("--early-stop-eval-patience", type=int, default=4)
-    parser.add_argument("--early-stop-min-improve-pct", type=float, default=0.1)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -136,6 +143,9 @@ def train_phase(
     device: str,
     model_state_dict,
     eval_seed_offset: int,
+    eval_circuit_depth: int,
+    min_two_qubit_gates: int,
+    eval_min_two_qubit_gates: int,
 ):
     env = QubitRoutingEnv(
         topologies=topologies,
@@ -147,6 +157,8 @@ def train_phase(
         distance_reward_coeff=args.distance_reward_coeff_start,
         completion_bonus=args.completion_bonus,
         timeout_penalty=args.timeout_penalty,
+        min_two_qubit_gates=min_two_qubit_gates,
+        circuit_generation_attempts=args.circuit_generation_attempts,
         initial_mapping_strategy="mixed",
         seed=args.seed,
     )
@@ -169,12 +181,12 @@ def train_phase(
         checkpoint_interval_updates=args.checkpoint_interval_updates,
         eval_interval_updates=args.eval_interval_updates,
         eval_circuits_per_topology=args.eval_circuits_per_topology,
-        eval_circuit_depth=args.eval_circuit_depth,
+        eval_circuit_depth=eval_circuit_depth,
+        eval_min_two_qubit_gates=eval_min_two_qubit_gates,
+        eval_circuit_generation_attempts=args.eval_circuit_generation_attempts,
         eval_seed_base=args.eval_seed_base + eval_seed_offset,
         distance_reward_coeff_start=args.distance_reward_coeff_start,
         distance_reward_coeff_end=args.distance_reward_coeff_end,
-        early_stop_eval_patience=args.early_stop_eval_patience,
-        early_stop_min_improve_pct=args.early_stop_min_improve_pct,
         run_dir=str(phase_run_dir),
         seed=args.seed,
         device=device,
@@ -183,6 +195,9 @@ def train_phase(
     print(f"\n=== {phase_name} ===")
     print(f"  topologies={topologies}")
     print(f"  circuit_depth={circuit_depth}")
+    print(f"  min_two_qubit_gates={min_two_qubit_gates}")
+    print(f"  eval_circuit_depth={eval_circuit_depth}")
+    print(f"  eval_min_two_qubit_gates={eval_min_two_qubit_gates}")
     print(f"  total_timesteps={total_timesteps}")
     print(f"  run_dir={phase_run_dir}")
 
@@ -209,6 +224,20 @@ def main():
     topologies = parse_topologies(args.topologies)
     if not topologies:
         raise ValueError("No valid topology names were provided.")
+    if args.min_two_qubit_gates < 0:
+        raise ValueError("--min-two-qubit-gates must be >= 0.")
+    if args.eval_min_two_qubit_gates < -1:
+        raise ValueError("--eval-min-two-qubit-gates must be >= -1.")
+    if args.circuit_generation_attempts < 1:
+        raise ValueError("--circuit-generation-attempts must be >= 1.")
+    if args.eval_circuit_generation_attempts < 1:
+        raise ValueError("--eval-circuit-generation-attempts must be >= 1.")
+
+    resolved_eval_min_twoq = (
+        args.min_two_qubit_gates
+        if args.eval_min_two_qubit_gates < 0
+        else args.eval_min_two_qubit_gates
+    )
 
     if args.device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -221,6 +250,7 @@ def main():
     config_dump["data_root"] = str(data_root)
     config_dump["run_root"] = str(run_root)
     config_dump["run_dir"] = str(run_dir)
+    config_dump["resolved_eval_min_two_qubit_gates"] = int(resolved_eval_min_twoq)
     with (run_dir / "config.json").open("w", encoding="utf-8") as f:
         json.dump(config_dump, f, indent=2)
 
@@ -233,7 +263,11 @@ def main():
     print("  initial_mapping_strategy=mixed (80% random, 20% SABRE)")
     print("  strategy_masking=off (topology validity mask only)")
     print("  gamma_decay=0.5")
+    print(f"  completion_bonus={args.completion_bonus}")
+    print(f"  timeout_penalty={args.timeout_penalty}")
     print(f"  distance_reward_coeff schedule={args.distance_reward_coeff_start} -> {args.distance_reward_coeff_end}")
+    print(f"  min_two_qubit_gates(train)={args.min_two_qubit_gates}")
+    print(f"  min_two_qubit_gates(eval)={resolved_eval_min_twoq}")
     print(f"  entropy_coef schedule={args.entropy_coef_start} -> {args.entropy_coef_end}")
     print(f"  device={device}")
     print(f"  eval_interval_updates={args.eval_interval_updates}")
@@ -265,6 +299,9 @@ def main():
                 continue
             phase_run_dir = run_dir / phase_name
             phase_run_dir.mkdir(parents=True, exist_ok=True)
+            phase_eval_depth = max(1, min(args.eval_circuit_depth, phase_depth))
+            phase_train_min_twoq = max(0, min(args.min_two_qubit_gates, phase_depth))
+            phase_eval_min_twoq = max(0, min(resolved_eval_min_twoq, phase_eval_depth))
             model_state = train_phase(
                 phase_name=phase_name,
                 phase_run_dir=phase_run_dir,
@@ -275,12 +312,18 @@ def main():
                 device=device,
                 model_state_dict=model_state,
                 eval_seed_offset=eval_seed_offset,
+                eval_circuit_depth=phase_eval_depth,
+                min_two_qubit_gates=phase_train_min_twoq,
+                eval_min_two_qubit_gates=phase_eval_min_twoq,
             )
             eval_seed_offset += 1_000_000
         final_state = copy.deepcopy(model_state)
     else:
         phase_run_dir = run_dir / "single_stage"
         phase_run_dir.mkdir(parents=True, exist_ok=True)
+        phase_eval_depth = max(1, args.eval_circuit_depth)
+        phase_train_min_twoq = max(0, min(args.min_two_qubit_gates, args.circuit_depth))
+        phase_eval_min_twoq = max(0, min(resolved_eval_min_twoq, phase_eval_depth))
         final_state = train_phase(
             phase_name="single_stage",
             phase_run_dir=phase_run_dir,
@@ -291,6 +334,9 @@ def main():
             device=device,
             model_state_dict=None,
             eval_seed_offset=0,
+            eval_circuit_depth=phase_eval_depth,
+            min_two_qubit_gates=phase_train_min_twoq,
+            eval_min_two_qubit_gates=phase_eval_min_twoq,
         )
 
     final_model_path = run_dir / "final_model.pt"

@@ -12,6 +12,7 @@ Implements a symmetry-aware actor-critic network:
 from __future__ import annotations
 
 import csv
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -24,12 +25,14 @@ from torch.distributions import Categorical
 
 try:
     from .circuit_utils import (
+        count_two_qubit_gates,
         generate_random_circuit,
         get_sabre_initial_mapping,
         get_sabre_swap_count,
     )
 except ImportError:
     from circuit_utils import (
+        count_two_qubit_gates,
         generate_random_circuit,
         get_sabre_initial_mapping,
         get_sabre_swap_count,
@@ -56,14 +59,13 @@ class PPOConfig:
     eval_interval_updates: int = 10
     eval_circuits_per_topology: int = 4
     eval_circuit_depth: int = 20
+    eval_min_two_qubit_gates: int = 0
+    eval_circuit_generation_attempts: int = 16
     # Chosen above training seed range [0, 2**31) to avoid overlap by design.
     eval_seed_base: int = 3_000_000_000
     # Reward shaping annealing across training.
     distance_reward_coeff_start: float = 0.03
-    distance_reward_coeff_end: float = 0.01
-    # Optional early stop on flat validation.
-    early_stop_eval_patience: int = 0
-    early_stop_min_improve_pct: float = 0.1
+    distance_reward_coeff_end: float = 0.015
     run_dir: str = ""
     seed: int = 42
     device: str = "cpu"
@@ -167,8 +169,6 @@ class PPOAgent:
         self.run_dir = Path(config.run_dir) if config.run_dir else None
         self.metrics_path = None
         self.best_mean_episode_return = -np.inf
-        self.best_eval_improvement_pct = -np.inf
-        self._no_improve_eval_count = 0
         self._running_ep_return = 0.0
         self._running_ep_len = 0
         self.eval_cases: List[Dict] = []
@@ -228,6 +228,7 @@ class PPOAgent:
                     "eval_improvement_pct",
                     "eval_win_rate",
                     "eval_timeout_rate",
+                    "eval_mean_two_qubit_gates",
                 ]
             )
 
@@ -432,6 +433,7 @@ class PPOAgent:
         eval_improvement_pct = float("nan")
         eval_win_rate = float("nan")
         eval_timeout_rate = float("nan")
+        eval_mean_two_qubit_gates = float("nan")
         if eval_metrics is not None:
             eval_cases = eval_metrics["eval_cases"]
             eval_mean_ppo_swaps = eval_metrics["eval_mean_ppo_swaps"]
@@ -439,6 +441,7 @@ class PPOAgent:
             eval_improvement_pct = eval_metrics["eval_improvement_pct"]
             eval_win_rate = eval_metrics["eval_win_rate"]
             eval_timeout_rate = eval_metrics["eval_timeout_rate"]
+            eval_mean_two_qubit_gates = eval_metrics["eval_mean_two_qubit_gates"]
 
         with self.metrics_path.open("a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -463,6 +466,7 @@ class PPOAgent:
                     eval_improvement_pct,
                     eval_win_rate,
                     eval_timeout_rate,
+                    eval_mean_two_qubit_gates,
                 ]
             )
 
@@ -486,11 +490,14 @@ class PPOAgent:
                     num_qubits=n_q,
                     depth=self.cfg.eval_circuit_depth,
                     seed=seed,
+                    min_two_qubit_gates=self.cfg.eval_min_two_qubit_gates,
+                    max_attempts=self.cfg.eval_circuit_generation_attempts,
                 )
                 seed += 1
 
                 sabre_init = get_sabre_initial_mapping(circuit, cmap)
                 sabre_swaps = int(get_sabre_swap_count(circuit, cmap))
+                twoq_count = int(count_two_qubit_gates(circuit))
 
                 cases.append(
                     {
@@ -498,6 +505,7 @@ class PPOAgent:
                         "circuit": circuit,
                         "initial_mapping": [int(x) for x in sabre_init],
                         "sabre_swaps": sabre_swaps,
+                        "two_qubit_gates": twoq_count,
                     }
                 )
         return cases
@@ -519,6 +527,7 @@ class PPOAgent:
 
         ppo_swaps: List[int] = []
         sabre_swaps: List[int] = []
+        twoq_counts: List[int] = []
         timeout_count = 0
 
         for case in self.eval_cases:
@@ -540,6 +549,7 @@ class PPOAgent:
 
             ppo_swaps.append(int(info.get("total_swaps", 0)))
             sabre_swaps.append(int(case["sabre_swaps"]))
+            twoq_counts.append(int(case["two_qubit_gates"]))
 
         ppo_arr = np.asarray(ppo_swaps, dtype=np.float32)
         sabre_arr = np.asarray(sabre_swaps, dtype=np.float32)
@@ -554,12 +564,14 @@ class PPOAgent:
             "eval_improvement_pct": float(np.mean(improvement_pct)),
             "eval_win_rate": win_rate,
             "eval_timeout_rate": float(timeout_count / len(self.eval_cases)),
+            "eval_mean_two_qubit_gates": float(np.mean(np.asarray(twoq_counts, dtype=np.float32))),
         }
 
     def train(self) -> None:
         obs, _ = self.env.reset(seed=self.cfg.seed)
         global_step = 0
         update_idx = 0
+        start_time = time.time()
 
         while global_step < self.cfg.total_timesteps:
             current_dist_coeff = self._distance_reward_coeff(global_step)
@@ -628,12 +640,16 @@ class PPOAgent:
                 self._save_checkpoint(f"checkpoint_update_{update_idx:05d}.pt")
 
             if update_idx % self.cfg.log_interval_updates == 0:
+                elapsed_s = max(1e-6, time.time() - start_time)
+                progress = min(1.0, global_step / max(1, self.cfg.total_timesteps))
+                eta_s = (elapsed_s / progress - elapsed_s) if progress > 0 else float("nan")
                 eval_msg = ""
                 if eval_metrics is not None:
                     eval_msg = (
                         f" eval_improve={eval_metrics['eval_improvement_pct']:+.2f}%"
                         f" eval_win_rate={eval_metrics['eval_win_rate']:.2f}"
                         f" eval_timeout={eval_metrics['eval_timeout_rate']:.2f}"
+                        f" eval_2q={eval_metrics['eval_mean_two_qubit_gates']:.1f}"
                     )
                 print(
                     f"[Update {update_idx:04d}] "
@@ -646,22 +662,9 @@ class PPOAgent:
                     f"entropy={metrics['entropy']:.4f} "
                     f"kl={metrics['approx_kl']:.5f}"
                     f" dist_coeff={current_dist_coeff:.4f}"
+                    f" elapsed_min={elapsed_s/60.0:.1f}"
+                    f" eta_min={eta_s/60.0:.1f}"
                     f"{eval_msg}"
                 )
-
-            if eval_metrics is not None and self.cfg.early_stop_eval_patience > 0:
-                eval_improve = eval_metrics["eval_improvement_pct"]
-                if eval_improve > self.best_eval_improvement_pct + self.cfg.early_stop_min_improve_pct:
-                    self.best_eval_improvement_pct = eval_improve
-                    self._no_improve_eval_count = 0
-                else:
-                    self._no_improve_eval_count += 1
-
-                if self._no_improve_eval_count >= self.cfg.early_stop_eval_patience:
-                    print(
-                        f"[EarlyStop] No eval improvement for "
-                        f"{self._no_improve_eval_count} eval checkpoints."
-                    )
-                    break
 
         self._save_checkpoint("last_model.pt")

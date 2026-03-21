@@ -19,9 +19,50 @@ def load_circuit(path):
     return QuantumCircuit.from_qasm_file(path)
 
 
-def generate_random_circuit(num_qubits, depth, seed=None):
-    """Generate a random quantum circuit for training."""
-    return random_circuit(num_qubits, depth, max_operands=2, seed=seed)
+def count_two_qubit_gates(circuit):
+    """Count 2-qubit operations in a circuit."""
+    return sum(1 for inst in circuit.data if len(inst.qubits) == 2)
+
+
+def generate_random_circuit(
+    num_qubits,
+    depth,
+    seed=None,
+    min_two_qubit_gates=0,
+    max_attempts=16,
+):
+    """
+    Generate a random circuit with a minimum number of 2-qubit gates.
+
+    If the threshold is not reached after `max_attempts`, the best sampled
+    circuit (highest 2-qubit gate count) is returned.
+    """
+    min_two_qubit_gates = max(0, int(min_two_qubit_gates))
+    max_attempts = max(1, int(max_attempts))
+
+    if min_two_qubit_gates == 0:
+        return random_circuit(num_qubits, depth, max_operands=2, seed=seed)
+
+    rng = np.random.default_rng(seed)
+    best_circuit = None
+    best_twoq = -1
+
+    for _ in range(max_attempts):
+        attempt_seed = int(rng.integers(0, 2**31))
+        circuit = random_circuit(
+            num_qubits,
+            depth,
+            max_operands=2,
+            seed=attempt_seed,
+        )
+        twoq = count_two_qubit_gates(circuit)
+        if twoq >= min_two_qubit_gates:
+            return circuit
+        if twoq > best_twoq:
+            best_twoq = twoq
+            best_circuit = circuit
+
+    return best_circuit
 
 
 def extract_two_qubit_gates(circuit):

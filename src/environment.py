@@ -63,7 +63,8 @@ class QubitRoutingEnv(gym.Env):
              Actions beyond the current topology's edge count are invalid.
 
     Reward per step:
-        r_t = (gates_auto_executed) - 1 + 0.01 * delta_distance [+ 5 if done]
+        r_t = (gates_auto_executed) - 1 + distance_reward_coeff * delta_distance
+              [+ completion_bonus if done]
     """
 
     metadata = {"render_modes": ["human"]}
@@ -79,8 +80,10 @@ class QubitRoutingEnv(gym.Env):
         max_steps=500,
         gamma_decay=0.5,
         distance_reward_coeff=0.01,
-        completion_bonus=5.0,
-        timeout_penalty=-10.0,
+        completion_bonus=8.0,
+        timeout_penalty=-25.0,
+        min_two_qubit_gates=0,
+        circuit_generation_attempts=16,
         matrix_size=27,
         initial_mapping_strategy="mixed",
         seed=None,
@@ -104,6 +107,10 @@ class QubitRoutingEnv(gym.Env):
             distance_reward_coeff: Coefficient for distance reduction shaping.
             completion_bonus: Reward bonus when all gates are routed.
             timeout_penalty: Penalty when max_steps is reached.
+            min_two_qubit_gates: Minimum number of 2-qubit gates required
+                         for randomly generated circuits.
+            circuit_generation_attempts: Number of random samples to try to
+                         satisfy `min_two_qubit_gates`.
             matrix_size: Side length N of the padded state matrices.
                          Must be >= largest topology's qubit count. Default 27.
             initial_mapping_strategy: How to set the initial qubit-to-position
@@ -169,6 +176,8 @@ class QubitRoutingEnv(gym.Env):
         self.distance_reward_coeff = distance_reward_coeff
         self.completion_bonus = completion_bonus
         self.timeout_penalty = timeout_penalty
+        self.min_two_qubit_gates = max(0, int(min_two_qubit_gates))
+        self.circuit_generation_attempts = max(1, int(circuit_generation_attempts))
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
 
         # --- RNG ---
@@ -256,6 +265,8 @@ class QubitRoutingEnv(gym.Env):
                 num_qubits,
                 self.circuit_depth,
                 seed=int(self._rng.integers(0, 2**31)),
+                min_two_qubit_gates=self.min_two_qubit_gates,
+                max_attempts=self.circuit_generation_attempts,
             )
 
         # --- Extract gates and build DAG ---
