@@ -12,6 +12,7 @@ Implements a symmetry-aware actor-critic network:
 from __future__ import annotations
 
 import csv
+import json
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,6 +64,11 @@ class PPOConfig:
     eval_circuit_generation_attempts: int = 16
     # Chosen above training seed range [0, 2**31) to avoid overlap by design.
     eval_seed_base: int = 3_000_000_000
+    # Periodic episode traces for behavior diagnostics during training.
+    trace_interval_updates: int = 20
+    trace_cases_per_topology: int = 1
+    trace_max_steps: int = 500
+    trace_dir_name: str = "traces"
     # Reward shaping annealing across training.
     distance_reward_coeff_start: float = 0.03
     distance_reward_coeff_end: float = 0.015
@@ -172,8 +178,11 @@ class PPOAgent:
         self._running_ep_return = 0.0
         self._running_ep_len = 0
         self.eval_cases: List[Dict] = []
+        self.trace_cases: List[Dict] = []
+        self.trace_dir = None
         self._init_logging()
         self.eval_cases = self._build_eval_cases()
+        self.trace_cases = self._build_trace_cases()
 
     def _unwrap_env(self):
         env = self.env
@@ -205,6 +214,8 @@ class PPOAgent:
 
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.metrics_path = self.run_dir / "metrics.csv"
+        self.trace_dir = self.run_dir / self.cfg.trace_dir_name
+        self.trace_dir.mkdir(parents=True, exist_ok=True)
         with self.metrics_path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(
@@ -229,6 +240,15 @@ class PPOAgent:
                     "eval_win_rate",
                     "eval_timeout_rate",
                     "eval_mean_two_qubit_gates",
+                    "trace_cases",
+                    "trace_done_rate",
+                    "trace_timeout_rate",
+                    "trace_backtrack_rate",
+                    "trace_action_dom_ratio",
+                    "trace_mean_remaining_gates_end",
+                    "trace_mean_ppo_swaps",
+                    "trace_mean_sabre_swaps",
+                    "trace_improvement_pct",
                 ]
             )
 
@@ -422,6 +442,7 @@ class PPOAgent:
         episodes_completed: int,
         metrics: Dict[str, float],
         eval_metrics: Dict[str, float] | None,
+        trace_metrics: Dict[str, float] | None,
         distance_reward_coeff: float,
     ) -> None:
         if self.metrics_path is None:
@@ -442,6 +463,26 @@ class PPOAgent:
             eval_win_rate = eval_metrics["eval_win_rate"]
             eval_timeout_rate = eval_metrics["eval_timeout_rate"]
             eval_mean_two_qubit_gates = eval_metrics["eval_mean_two_qubit_gates"]
+
+        trace_cases = float("nan")
+        trace_done_rate = float("nan")
+        trace_timeout_rate = float("nan")
+        trace_backtrack_rate = float("nan")
+        trace_action_dom_ratio = float("nan")
+        trace_mean_remaining_gates_end = float("nan")
+        trace_mean_ppo_swaps = float("nan")
+        trace_mean_sabre_swaps = float("nan")
+        trace_improvement_pct = float("nan")
+        if trace_metrics is not None:
+            trace_cases = trace_metrics["trace_cases"]
+            trace_done_rate = trace_metrics["trace_done_rate"]
+            trace_timeout_rate = trace_metrics["trace_timeout_rate"]
+            trace_backtrack_rate = trace_metrics["trace_backtrack_rate"]
+            trace_action_dom_ratio = trace_metrics["trace_action_dom_ratio"]
+            trace_mean_remaining_gates_end = trace_metrics["trace_mean_remaining_gates_end"]
+            trace_mean_ppo_swaps = trace_metrics["trace_mean_ppo_swaps"]
+            trace_mean_sabre_swaps = trace_metrics["trace_mean_sabre_swaps"]
+            trace_improvement_pct = trace_metrics["trace_improvement_pct"]
 
         with self.metrics_path.open("a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -467,6 +508,15 @@ class PPOAgent:
                     eval_win_rate,
                     eval_timeout_rate,
                     eval_mean_two_qubit_gates,
+                    trace_cases,
+                    trace_done_rate,
+                    trace_timeout_rate,
+                    trace_backtrack_rate,
+                    trace_action_dom_ratio,
+                    trace_mean_remaining_gates_end,
+                    trace_mean_ppo_swaps,
+                    trace_mean_sabre_swaps,
+                    trace_improvement_pct,
                 ]
             )
 
@@ -510,6 +560,37 @@ class PPOAgent:
                 )
         return cases
 
+    def _build_trace_cases(self) -> List[Dict]:
+        """
+        Build a fixed small subset of eval cases for periodic step-by-step tracing.
+        """
+        if self.cfg.trace_cases_per_topology <= 0:
+            return []
+        if not self.eval_cases:
+            return []
+
+        grouped: Dict[int, List[Dict]] = {}
+        for case in self.eval_cases:
+            topo_idx = int(case["topology_index"])
+            grouped.setdefault(topo_idx, []).append(case)
+
+        trace_cases: List[Dict] = []
+        per_topo = int(self.cfg.trace_cases_per_topology)
+        for topo_idx in sorted(grouped.keys()):
+            topo_cases = grouped[topo_idx][:per_topo]
+            for case_idx, case in enumerate(topo_cases):
+                trace_cases.append(
+                    {
+                        "topology_index": topo_idx,
+                        "case_index": int(case_idx),
+                        "circuit": case["circuit"],
+                        "initial_mapping": [int(x) for x in case["initial_mapping"]],
+                        "sabre_swaps": int(case["sabre_swaps"]),
+                        "two_qubit_gates": int(case["two_qubit_gates"]),
+                    }
+                )
+        return trace_cases
+
     def _greedy_action(self, obs: np.ndarray) -> int:
         edge_index, action_mask = self._current_edges_and_mask()
         obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
@@ -520,6 +601,165 @@ class PPOAgent:
             dist, _ = self.model.get_action_distribution(obs_t, edge_t, mask_t)
             action = int(torch.argmax(dist.logits, dim=-1).item())
         return action
+
+    def _greedy_action_with_prob(self, obs: np.ndarray) -> Tuple[int, float]:
+        edge_index, action_mask = self._current_edges_and_mask()
+        obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
+        edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
+        mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+
+        with torch.no_grad():
+            dist, _ = self.model.get_action_distribution(obs_t, edge_t, mask_t)
+            logits = dist.logits.squeeze(0)
+            probs = torch.softmax(logits, dim=-1)
+            action = int(torch.argmax(logits, dim=-1).item())
+            action_prob = float(probs[action].item())
+        return action, action_prob
+
+    def _trace_case(self, case: Dict, update_idx: int) -> Dict[str, float]:
+        unwrapped = self._unwrap_env()
+        topo_idx = int(case["topology_index"])
+        topo_name = str(unwrapped._topologies[topo_idx]["name"])
+        case_idx = int(case["case_index"])
+
+        obs, info = self.env.reset(
+            options={
+                "topology_index": topo_idx,
+                "circuit": case["circuit"],
+                "initial_mapping": case["initial_mapping"],
+            }
+        )
+
+        rows: List[Dict] = []
+        done = False
+        truncated = False
+        step_reward_sum = 0.0
+        prev_total_exec = int(info.get("total_gates_executed", 0))
+        last_action = None
+        action_counts: Dict[int, int] = {}
+        step_count_cap = max(1, int(self.cfg.trace_max_steps))
+
+        while not done and not truncated:
+            action, action_prob = self._greedy_action_with_prob(obs)
+            current_topo = unwrapped._current_topo
+            edge_i, edge_j = current_topo["edges"][action]
+            front_before = float(unwrapped._compute_front_layer_distance())
+
+            next_obs, reward, done, truncated, info = self.env.step(action)
+            front_after = float(unwrapped._compute_front_layer_distance())
+            delta_dist = front_before - front_after
+            step_exec = int(info["total_gates_executed"]) - prev_total_exec
+            prev_total_exec = int(info["total_gates_executed"])
+            was_immediate_backtrack = int(last_action is not None and action == last_action)
+            last_action = int(action)
+            step_reward_sum += float(reward)
+            action_counts[action] = action_counts.get(action, 0) + 1
+
+            rows.append(
+                {
+                    "update": int(update_idx),
+                    "topology": topo_name,
+                    "trace_case_index": case_idx,
+                    "step": int(info["step_count"]),
+                    "action_index": int(action),
+                    "edge_i": int(edge_i),
+                    "edge_j": int(edge_j),
+                    "action_prob": float(action_prob),
+                    "reward": float(reward),
+                    "step_gates_executed": int(step_exec),
+                    "total_gates_executed": int(info["total_gates_executed"]),
+                    "remaining_gates": int(info["remaining_gates"]),
+                    "front_dist_before": float(front_before),
+                    "front_dist_after": float(front_after),
+                    "delta_dist": float(delta_dist),
+                    "was_immediate_backtrack": int(was_immediate_backtrack),
+                    "done": int(done),
+                    "truncated": int(truncated),
+                }
+            )
+            obs = next_obs
+
+            if int(info.get("step_count", 0)) >= step_count_cap and not done:
+                truncated = True
+
+        ppo_swaps = int(info.get("total_swaps", 0))
+        sabre_swaps = int(case["sabre_swaps"])
+        improvement_pct = float(100.0 * (sabre_swaps - ppo_swaps) / max(1, sabre_swaps))
+        backtrack_rate = float(np.mean([r["was_immediate_backtrack"] for r in rows])) if rows else 0.0
+        dominant_action_ratio = (
+            float(max(action_counts.values()) / max(1, len(rows)))
+            if action_counts
+            else 0.0
+        )
+
+        summary = {
+            "update": int(update_idx),
+            "topology": topo_name,
+            "trace_case_index": int(case_idx),
+            "steps": int(info.get("step_count", 0)),
+            "episode_return": float(step_reward_sum),
+            "done": bool(done),
+            "truncated": bool(truncated),
+            "ppo_swaps": int(ppo_swaps),
+            "sabre_swaps": int(sabre_swaps),
+            "improvement_pct_vs_sabre": float(improvement_pct),
+            "remaining_gates_end": int(info.get("remaining_gates", 0)),
+            "total_gates_executed_end": int(info.get("total_gates_executed", 0)),
+            "backtrack_rate": float(backtrack_rate),
+            "dominant_action_ratio": float(dominant_action_ratio),
+            "two_qubit_gates": int(case["two_qubit_gates"]),
+        }
+
+        if self.trace_dir is not None:
+            update_dir = self.trace_dir / f"update_{update_idx:05d}"
+            update_dir.mkdir(parents=True, exist_ok=True)
+            base = f"{topo_name}_case{case_idx:02d}"
+            trace_csv = update_dir / f"{base}_trace.csv"
+            summary_json = update_dir / f"{base}_summary.json"
+
+            with trace_csv.open("w", newline="", encoding="utf-8") as f:
+                if rows:
+                    writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                    writer.writeheader()
+                    writer.writerows(rows)
+
+            with summary_json.open("w", encoding="utf-8") as f:
+                json.dump(summary, f, indent=2)
+
+        return summary
+
+    def _run_periodic_traces(self, update_idx: int) -> Dict[str, float] | None:
+        if not self.trace_cases:
+            return None
+        if self.cfg.trace_interval_updates <= 0:
+            return None
+        if update_idx % self.cfg.trace_interval_updates != 0:
+            return None
+
+        summaries = [self._trace_case(case, update_idx) for case in self.trace_cases]
+        if not summaries:
+            return None
+
+        ppo_arr = np.asarray([s["ppo_swaps"] for s in summaries], dtype=np.float32)
+        sabre_arr = np.asarray([s["sabre_swaps"] for s in summaries], dtype=np.float32)
+        done_arr = np.asarray([1.0 if s["done"] else 0.0 for s in summaries], dtype=np.float32)
+        trunc_arr = np.asarray([1.0 if s["truncated"] else 0.0 for s in summaries], dtype=np.float32)
+        backtrack_arr = np.asarray([s["backtrack_rate"] for s in summaries], dtype=np.float32)
+        dom_ratio_arr = np.asarray([s["dominant_action_ratio"] for s in summaries], dtype=np.float32)
+        remaining_arr = np.asarray([s["remaining_gates_end"] for s in summaries], dtype=np.float32)
+        improve_arr = np.asarray([s["improvement_pct_vs_sabre"] for s in summaries], dtype=np.float32)
+
+        return {
+            "trace_cases": float(len(summaries)),
+            "trace_done_rate": float(np.mean(done_arr)),
+            "trace_timeout_rate": float(np.mean(trunc_arr)),
+            "trace_backtrack_rate": float(np.mean(backtrack_arr)),
+            "trace_action_dom_ratio": float(np.mean(dom_ratio_arr)),
+            "trace_mean_remaining_gates_end": float(np.mean(remaining_arr)),
+            "trace_mean_ppo_swaps": float(np.mean(ppo_arr)),
+            "trace_mean_sabre_swaps": float(np.mean(sabre_arr)),
+            "trace_improvement_pct": float(np.mean(improve_arr)),
+        }
 
     def _evaluate_against_sabre(self) -> Dict[str, float] | None:
         if not self.eval_cases:
@@ -616,6 +856,7 @@ class PPOAgent:
                 and update_idx % self.cfg.eval_interval_updates == 0
             ):
                 eval_metrics = self._evaluate_against_sabre()
+            trace_metrics = self._run_periodic_traces(update_idx)
 
             self._append_metrics_row(
                 update_idx=update_idx,
@@ -626,6 +867,7 @@ class PPOAgent:
                 episodes_completed=len(ep_returns),
                 metrics=metrics,
                 eval_metrics=eval_metrics,
+                trace_metrics=trace_metrics,
                 distance_reward_coeff=current_dist_coeff,
             )
 
@@ -651,6 +893,14 @@ class PPOAgent:
                         f" eval_timeout={eval_metrics['eval_timeout_rate']:.2f}"
                         f" eval_2q={eval_metrics['eval_mean_two_qubit_gates']:.1f}"
                     )
+                trace_msg = ""
+                if trace_metrics is not None:
+                    trace_msg = (
+                        f" trace_timeout={trace_metrics['trace_timeout_rate']:.2f}"
+                        f" trace_backtrack={trace_metrics['trace_backtrack_rate']:.2f}"
+                        f" trace_dom={trace_metrics['trace_action_dom_ratio']:.2f}"
+                        f" trace_improve={trace_metrics['trace_improvement_pct']:+.2f}%"
+                    )
                 print(
                     f"[Update {update_idx:04d}] "
                     f"steps={global_step:>7d} "
@@ -665,6 +915,7 @@ class PPOAgent:
                     f" elapsed_min={elapsed_s/60.0:.1f}"
                     f" eta_min={eta_s/60.0:.1f}"
                     f"{eval_msg}"
+                    f"{trace_msg}"
                 )
 
         self._save_checkpoint("last_model.pt")
