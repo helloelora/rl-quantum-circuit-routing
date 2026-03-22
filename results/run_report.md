@@ -209,3 +209,46 @@ Interpretation: validation episodes are almost certainly hitting the episode cap
 - Keep only a small `reverse_swap_penalty` for immediate backtracking.
 - Rationale: allows useful return moves when globally beneficial, while still
   discouraging trivial oscillation loops.
+
+## 12) Run4 Deep Analysis (results/Run4)
+### Stage mapping
+- `metrics.csv` -> stage1 (`~150k`, 37 updates)
+- `metrics (1).csv` -> stage2 (`~250k`, 62 updates)
+- `metrics (2).csv` -> stage3 (`~600k`, 147 updates)
+
+### Training dynamics
+- Stage1:
+  - `mean_step_reward` improves (`~0.484 -> ~0.583` on first10/last10 windows)
+  - `done_rate` improves (`~0.0155 -> ~0.0187`)
+  - `mean_ep_return` stays strongly positive (`~31`)
+- Stage2:
+  - positive rewards and returns (`mean_ep_return ~17.5 -> ~21.4`)
+  - `done_rate` slightly up (`~0.0046 -> ~0.0051`)
+- Stage3:
+  - positive rewards and returns (`mean_ep_return ~22.1 -> ~22.3`)
+  - `done_rate` stays low (`~0.004`)
+
+### Evaluation vs SABRE
+- Still far from target absolute performance, but not flat-failing anymore:
+  - stage1 last eval: `ppo=458.79`, `timeout=0.917`, `win=0.083`
+  - stage2 last eval: `ppo=459.25`, `timeout=0.917`, `win=0.028`
+  - stage3 last eval: `ppo=433.14`, `timeout=0.861`, `win=0.083`
+
+### Delta vs previous Long run (same stage mapping)
+- stage1:
+  - `ppo_swaps 500 -> 458.79`
+  - `timeout 1.00 -> 0.917`
+  - `win_rate 0.00 -> 0.083`
+- stage2:
+  - `ppo_swaps 500 -> 459.25`
+  - `timeout 1.00 -> 0.917`
+  - `win_rate 0.00 -> 0.028`
+- stage3:
+  - `ppo_swaps 500 -> 433.14`
+  - `timeout 1.00 -> 0.861`
+  - `win_rate 0.00 -> 0.083`
+
+### Conclusion
+- Run4 is a clear step in the right direction (timeouts reduced, first wins vs SABRE).
+- Main blocker remains: success rate is still too low, and swap counts remain far
+  above SABRE on holdout circuits.
