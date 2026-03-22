@@ -320,10 +320,124 @@ Interpretation: validation episodes are almost certainly hitting the episode cap
   - `eval_interval_updates=20`
   - `eval_circuits_per_topology=12`
   - `trace_interval_updates=20`
-  - `trace_cases_per_topology=1`
+  - `trace_cases_per_topology=2`
   - `trace_max_steps=500`
 
 ### Run5 monitoring rules (during training)
 - If `trace_action_dom_ratio > 0.60` and `trace_backtrack_rate > 0.50` for several trace checkpoints, policy is collapsing to repetitive behavior.
 - If `trace_timeout_rate` stays close to `1.0`, routing is still mostly not solved in held-out traces.
 - If `trace_improvement_pct` remains very negative with flat `eval_win_rate`, prioritize reward/architecture changes before spending more compute.
+
+## 15) Run5 Analysis (results/Run5/ppo_run5_20260322_163629_analysis_only)
+### Stage-level training behavior
+- Stage1 (`37` updates, `151,552` steps):
+  - `mean_step_reward`: `0.491 -> 0.528` (first10/last10)
+  - `done_rate`: `0.0156 -> 0.0170`
+  - `mean_ep_return`: `31.37 -> 31.01` (flat)
+- Stage2 (`62` updates, `253,952` steps):
+  - `mean_step_reward`: `0.0838 -> 0.0930`
+  - `done_rate`: `0.0045 -> 0.0045` (flat, low)
+  - `mean_ep_return`: `17.80 -> 17.86` (flat)
+- Stage3 (`147` updates, `602,112` steps):
+  - `mean_step_reward`: `0.0973 -> 0.0970` (flat)
+  - `done_rate`: `0.0040 -> 0.0039` (flat, very low)
+  - `mean_ep_return`: `22.33 -> 23.02` (slight increase)
+
+### Evaluation vs SABRE (critical)
+- Stage1 (only update 20 eval):
+  - `eval_improve=-5618.52%`, `win=0.00`, `timeout=1.00`, `ppo=500`, `sabre=9.5`
+- Stage2 (updates 20/40/60):
+  - best eval at update 60: `eval_improve=-2026.05%`, `win=0.028`, `timeout=0.889`
+- Stage3 (updates 20..140):
+  - best eval at update 120: `eval_improve=-1298.24%`, `win=0.028`, `timeout=0.889`
+  - final eval at update 140 regresses to:
+    - `eval_improve=-1537.63%`, `win=0.028`, `timeout=0.972`
+    - `ppo=486.39`, `sabre=77.92`
+
+### Trace diagnostics (integrated in training)
+- Stage1 trace checkpoint (update 20):
+  - `trace_timeout=1.0`, `trace_backtrack=0.995`, `trace_dom=0.997`
+  - strong immediate collapse.
+- Stage2 traces (3 checkpoints):
+  - averages: `trace_timeout=0.944`, `trace_backtrack=0.953`, `trace_dom=0.970`
+  - still severe action collapse.
+- Stage3 traces (7 checkpoints):
+  - averages: `trace_timeout=0.833`, `trace_backtrack=0.877`, `trace_dom=0.929`
+  - little/no evolution across checkpoints (`trace_improve` nearly constant).
+
+### Topology-specific trace signal (stage3, 42 summaries)
+- `grid_3x3`:
+  - timeout `14/14`, mean improvement `-2172.73%`
+  - mean backtrack `0.994`, dominant action ratio `0.996`
+- `heavy_hex_19`:
+  - timeout `14/14`, mean improvement `-155.10%`
+  - mean backtrack `0.990`, dominant action ratio `0.993`
+- `linear_5`:
+  - done `7/14`, timeout `7/14`, mean improvement `-1338.89%`
+  - two fixed trace cases split:
+    - one solved repeatedly (`ppo=10`, `sabre=10`, done)
+    - one collapsed repeatedly (`ppo=500`, `sabre=18`, timeout)
+
+### Comparison vs Run4 (stage3 final checkpoint)
+- Run4 final stage3:
+  - `eval_improve=-1256.88%`, `win=0.083`, `timeout=0.861`, `ppo=433.14`
+- Run5 final stage3:
+  - `eval_improve=-1537.63%`, `win=0.028`, `timeout=0.972`, `ppo=486.39`
+- Conclusion: Run5 underperforms Run4 on final stage3 holdout metrics.
+
+### Conclusion
+- Run5 confirms the core blocker: policy collapse to repetitive swap behavior
+  on non-trivial topologies.
+- The integrated traces were useful: they clearly reveal near-deterministic
+  action loops (`trace_dom` high) with very high immediate backtracking.
+
+## 16) Run6 Planned Changes (Implemented in Code)
+### Goal alignment
+- Primary objective remains unchanged:
+  - beat SABRE on held-out evaluation circuits,
+  - and generalize across different topologies.
+
+### A) Best-model selection aligned with SABRE objective
+- `best_model.pt` is now selected by periodic eval metrics (not train return).
+- Selection priority (lexicographic):
+  1. higher `eval_improvement_pct`
+  2. higher `eval_win_rate`
+  3. lower `eval_timeout_rate`
+- Training-return checkpoint is still saved separately as `best_train_model.pt`.
+- `best_eval_metrics.json` is written for reproducibility.
+
+### B) Progressive anti-loop penalty (no hard masking)
+- New environment reward term:
+  - `repeat_swap_penalty_coeff * (same_edge_streak - 1)`
+- This penalizes consecutive reuse of the same undirected physical edge,
+  progressively, while still allowing backtracking when globally useful.
+- Existing `reverse_swap_penalty` is kept.
+
+### C) Topology rebalancing toward harder generalization targets
+- Added weighted topology sampling at reset.
+- Default training weights now emphasize harder topologies:
+  - `linear_topology_weight=0.5`
+  - `grid_topology_weight=1.5`
+  - `heavy_hex_topology_weight=1.5`
+  - `other_topology_weight=1.0`
+- Weights are normalized per phase and printed in logs.
+
+### D) Trace alerts as primary collapse signal
+- Traces remain integrated during training.
+- Added configurable alert logic based on:
+  - `trace_action_dom_ratio >= 0.60`
+  - `trace_backtrack_rate >= 0.50`
+  - for `trace_alert_patience=2` consecutive trace checkpoints.
+- Alert state is now logged in `metrics.csv`:
+  - `trace_alert_flag`, `trace_alert_streak`.
+
+### E) Run6 notebook launch settings
+- Added explicit flags:
+  - `--repeat-swap-penalty-coeff -0.15`
+  - `--linear-topology-weight 0.5`
+  - `--grid-topology-weight 1.5`
+  - `--heavy-hex-topology-weight 1.5`
+  - `--trace-alert-dom-threshold 0.6`
+  - `--trace-alert-backtrack-threshold 0.5`
+  - `--trace-alert-patience 2`
+- `RUN_NAME` switched to `ppo_run6_<timestamp>`.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -29,6 +30,31 @@ except ImportError:
 
 def parse_topologies(topologies_csv: str):
     return [t.strip() for t in topologies_csv.split(",") if t.strip()]
+
+
+def build_topology_sampling_weights(topologies: list[str], args) -> list[float]:
+    """Build normalized per-topology sampling weights for env.reset()."""
+    raw_weights: list[float] = []
+    for topo in topologies:
+        topo_l = topo.lower()
+        if "linear" in topo_l:
+            w = args.linear_topology_weight
+        elif "grid" in topo_l:
+            w = args.grid_topology_weight
+        elif "heavy_hex" in topo_l or "heavy-hex" in topo_l:
+            w = args.heavy_hex_topology_weight
+        else:
+            w = args.other_topology_weight
+        raw_weights.append(max(0.0, float(w)))
+
+    total = float(sum(raw_weights))
+    if total <= 0:
+        raise ValueError(
+            "Topology sampling weights sum to zero. Increase at least one of "
+            "--linear-topology-weight / --grid-topology-weight / "
+            "--heavy-hex-topology-weight / --other-topology-weight."
+        )
+    return [w / total for w in raw_weights]
 
 
 def setup_project_paths(in_colab: bool, project_root_arg: str):
@@ -103,6 +129,19 @@ def parse_args():
     parser.add_argument("--gate-reward-coeff", type=float, default=1.0)
     parser.add_argument("--step-penalty", type=float, default=-0.05)
     parser.add_argument("--reverse-swap-penalty", type=float, default=-0.2)
+    parser.add_argument(
+        "--repeat-swap-penalty-coeff",
+        type=float,
+        default=-0.15,
+        help=(
+            "Progressive penalty coefficient for consecutive reuse of the same "
+            "physical SWAP edge."
+        ),
+    )
+    parser.add_argument("--linear-topology-weight", type=float, default=0.5)
+    parser.add_argument("--grid-topology-weight", type=float, default=1.5)
+    parser.add_argument("--heavy-hex-topology-weight", type=float, default=1.5)
+    parser.add_argument("--other-topology-weight", type=float, default=1.0)
     parser.add_argument("--min-two-qubit-gates", type=int, default=6)
     parser.add_argument("--circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--seed", type=int, default=42)
@@ -141,6 +180,9 @@ def parse_args():
         default=500,
         help="Per-trace episode cap for periodic diagnostic traces.",
     )
+    parser.add_argument("--trace-alert-dom-threshold", type=float, default=0.60)
+    parser.add_argument("--trace-alert-backtrack-threshold", type=float, default=0.50)
+    parser.add_argument("--trace-alert-patience", type=int, default=2)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -162,8 +204,10 @@ def train_phase(
     min_two_qubit_gates: int,
     eval_min_two_qubit_gates: int,
 ):
+    topology_sampling_weights = build_topology_sampling_weights(topologies, args)
     env = QubitRoutingEnv(
         topologies=topologies,
+        topology_sampling_weights=topology_sampling_weights,
         matrix_size=args.matrix_size,
         circuit_depth=circuit_depth,
         max_steps=args.max_steps,
@@ -175,6 +219,7 @@ def train_phase(
         gate_reward_coeff=args.gate_reward_coeff,
         step_penalty=args.step_penalty,
         reverse_swap_penalty=args.reverse_swap_penalty,
+        repeat_swap_penalty_coeff=args.repeat_swap_penalty_coeff,
         min_two_qubit_gates=min_two_qubit_gates,
         circuit_generation_attempts=args.circuit_generation_attempts,
         initial_mapping_strategy="mixed",
@@ -206,6 +251,9 @@ def train_phase(
         trace_interval_updates=args.trace_interval_updates,
         trace_cases_per_topology=args.trace_cases_per_topology,
         trace_max_steps=args.trace_max_steps,
+        trace_alert_dom_threshold=args.trace_alert_dom_threshold,
+        trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
+        trace_alert_patience=args.trace_alert_patience,
         distance_reward_coeff_start=args.distance_reward_coeff_start,
         distance_reward_coeff_end=args.distance_reward_coeff_end,
         run_dir=str(phase_run_dir),
@@ -219,8 +267,14 @@ def train_phase(
     print(f"  min_two_qubit_gates={min_two_qubit_gates}")
     print(f"  eval_circuit_depth={eval_circuit_depth}")
     print(f"  eval_min_two_qubit_gates={eval_min_two_qubit_gates}")
+    topo_weight_view = {
+        topo: round(float(w), 3)
+        for topo, w in zip(topologies, topology_sampling_weights)
+    }
+    print(f"  topology_sampling_weights={topo_weight_view}")
     print(f"  trace_interval_updates={args.trace_interval_updates}")
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
+    print(f"  trace_alert_thresholds=(dom>={args.trace_alert_dom_threshold}, backtrack>={args.trace_alert_backtrack_threshold}, patience={args.trace_alert_patience})")
     print(f"  total_timesteps={total_timesteps}")
     print(f"  run_dir={phase_run_dir}")
 
@@ -255,12 +309,28 @@ def main():
         raise ValueError("--circuit-generation-attempts must be >= 1.")
     if args.eval_circuit_generation_attempts < 1:
         raise ValueError("--eval-circuit-generation-attempts must be >= 1.")
+    if args.repeat_swap_penalty_coeff > 0:
+        raise ValueError("--repeat-swap-penalty-coeff must be <= 0 (penalty).")
+    if args.linear_topology_weight < 0:
+        raise ValueError("--linear-topology-weight must be >= 0.")
+    if args.grid_topology_weight < 0:
+        raise ValueError("--grid-topology-weight must be >= 0.")
+    if args.heavy_hex_topology_weight < 0:
+        raise ValueError("--heavy-hex-topology-weight must be >= 0.")
+    if args.other_topology_weight < 0:
+        raise ValueError("--other-topology-weight must be >= 0.")
     if args.trace_interval_updates < 0:
         raise ValueError("--trace-interval-updates must be >= 0.")
     if args.trace_cases_per_topology < 0:
         raise ValueError("--trace-cases-per-topology must be >= 0.")
     if args.trace_max_steps < 1:
         raise ValueError("--trace-max-steps must be >= 1.")
+    if not (0.0 <= args.trace_alert_dom_threshold <= 1.0):
+        raise ValueError("--trace-alert-dom-threshold must be in [0, 1].")
+    if not (0.0 <= args.trace_alert_backtrack_threshold <= 1.0):
+        raise ValueError("--trace-alert-backtrack-threshold must be in [0, 1].")
+    if args.trace_alert_patience < 1:
+        raise ValueError("--trace-alert-patience must be >= 1.")
 
     resolved_eval_min_twoq = (
         args.min_two_qubit_gates
@@ -297,6 +367,14 @@ def main():
     print(f"  gate_reward_coeff={args.gate_reward_coeff}")
     print(f"  step_penalty={args.step_penalty}")
     print(f"  reverse_swap_penalty={args.reverse_swap_penalty}")
+    print(f"  repeat_swap_penalty_coeff={args.repeat_swap_penalty_coeff}")
+    print(
+        "  topology_weights="
+        f"(linear={args.linear_topology_weight}, "
+        f"grid={args.grid_topology_weight}, "
+        f"heavy_hex={args.heavy_hex_topology_weight}, "
+        f"other={args.other_topology_weight})"
+    )
     print(f"  distance_reward_coeff schedule={args.distance_reward_coeff_start} -> {args.distance_reward_coeff_end}")
     print(f"  min_two_qubit_gates(train)={args.min_two_qubit_gates}")
     print(f"  min_two_qubit_gates(eval)={resolved_eval_min_twoq}")
@@ -307,6 +385,12 @@ def main():
     print(f"  trace_interval_updates={args.trace_interval_updates}")
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  trace_max_steps={args.trace_max_steps}")
+    print(
+        "  trace_alert_thresholds="
+        f"(dom>={args.trace_alert_dom_threshold}, "
+        f"backtrack>={args.trace_alert_backtrack_threshold}, "
+        f"patience={args.trace_alert_patience})"
+    )
     print(f"  torch_version={torch.__version__}")
     print(f"  cuda_available={torch.cuda.is_available()}")
     print(
@@ -315,6 +399,7 @@ def main():
     )
 
     final_state = None
+    last_phase_run_dir: Path | None = None
     if args.curriculum:
         stage1_topos = parse_topologies(args.stage1_topologies)
         stage2_topos = parse_topologies(args.stage2_topologies)
@@ -334,6 +419,7 @@ def main():
                 continue
             phase_run_dir = run_dir / phase_name
             phase_run_dir.mkdir(parents=True, exist_ok=True)
+            last_phase_run_dir = phase_run_dir
             phase_eval_depth = max(1, min(args.eval_circuit_depth, phase_depth))
             phase_train_min_twoq = max(0, min(args.min_two_qubit_gates, phase_depth))
             phase_eval_min_twoq = max(0, min(resolved_eval_min_twoq, phase_eval_depth))
@@ -356,6 +442,7 @@ def main():
     else:
         phase_run_dir = run_dir / "single_stage"
         phase_run_dir.mkdir(parents=True, exist_ok=True)
+        last_phase_run_dir = phase_run_dir
         phase_eval_depth = max(1, args.eval_circuit_depth)
         phase_train_min_twoq = max(0, min(args.min_two_qubit_gates, args.circuit_depth))
         phase_eval_min_twoq = max(0, min(resolved_eval_min_twoq, phase_eval_depth))
@@ -373,6 +460,18 @@ def main():
             min_two_qubit_gates=phase_train_min_twoq,
             eval_min_two_qubit_gates=phase_eval_min_twoq,
         )
+
+    if last_phase_run_dir is not None:
+        best_eval_model = last_phase_run_dir / "best_model.pt"
+        if best_eval_model.exists():
+            shutil.copy2(best_eval_model, run_dir / "best_model.pt")
+            print(f"Copied best eval model to: {run_dir / 'best_model.pt'}")
+        best_eval_meta = last_phase_run_dir / "best_eval_metrics.json"
+        if best_eval_meta.exists():
+            shutil.copy2(best_eval_meta, run_dir / "best_eval_metrics.json")
+        best_train_model = last_phase_run_dir / "best_train_model.pt"
+        if best_train_model.exists():
+            shutil.copy2(best_train_model, run_dir / "best_train_model.pt")
 
     final_model_path = run_dir / "final_model.pt"
     if final_state is not None:

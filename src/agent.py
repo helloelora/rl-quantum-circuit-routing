@@ -69,6 +69,9 @@ class PPOConfig:
     trace_cases_per_topology: int = 1
     trace_max_steps: int = 500
     trace_dir_name: str = "traces"
+    trace_alert_dom_threshold: float = 0.60
+    trace_alert_backtrack_threshold: float = 0.50
+    trace_alert_patience: int = 2
     # Reward shaping annealing across training.
     distance_reward_coeff_start: float = 0.03
     distance_reward_coeff_end: float = 0.015
@@ -174,7 +177,9 @@ class PPOAgent:
 
         self.run_dir = Path(config.run_dir) if config.run_dir else None
         self.metrics_path = None
-        self.best_mean_episode_return = -np.inf
+        self.best_train_mean_episode_return = -np.inf
+        self.best_eval_key = (-np.inf, -np.inf, -np.inf)
+        self.trace_alert_streak = 0
         self._running_ep_return = 0.0
         self._running_ep_len = 0
         self.eval_cases: List[Dict] = []
@@ -249,6 +254,8 @@ class PPOAgent:
                     "trace_mean_ppo_swaps",
                     "trace_mean_sabre_swaps",
                     "trace_improvement_pct",
+                    "trace_alert_flag",
+                    "trace_alert_streak",
                 ]
             )
 
@@ -443,6 +450,8 @@ class PPOAgent:
         metrics: Dict[str, float],
         eval_metrics: Dict[str, float] | None,
         trace_metrics: Dict[str, float] | None,
+        trace_alert_flag: bool,
+        trace_alert_streak: int,
         distance_reward_coeff: float,
     ) -> None:
         if self.metrics_path is None:
@@ -483,6 +492,8 @@ class PPOAgent:
             trace_mean_ppo_swaps = trace_metrics["trace_mean_ppo_swaps"]
             trace_mean_sabre_swaps = trace_metrics["trace_mean_sabre_swaps"]
             trace_improvement_pct = trace_metrics["trace_improvement_pct"]
+        trace_alert_flag_i = int(bool(trace_alert_flag))
+        trace_alert_streak_i = int(trace_alert_streak)
 
         with self.metrics_path.open("a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -517,6 +528,8 @@ class PPOAgent:
                     trace_mean_ppo_swaps,
                     trace_mean_sabre_swaps,
                     trace_improvement_pct,
+                    trace_alert_flag_i,
+                    trace_alert_streak_i,
                 ]
             )
 
@@ -807,6 +820,51 @@ class PPOAgent:
             "eval_mean_two_qubit_gates": float(np.mean(np.asarray(twoq_counts, dtype=np.float32))),
         }
 
+    @staticmethod
+    def _eval_selection_key(eval_metrics: Dict[str, float]) -> Tuple[float, float, float]:
+        """
+        Lexicographic key for best-model selection aligned with project goal.
+        Priority:
+        1) higher improvement vs SABRE
+        2) higher win rate vs SABRE
+        3) lower timeout rate
+        """
+        return (
+            float(eval_metrics["eval_improvement_pct"]),
+            float(eval_metrics["eval_win_rate"]),
+            -float(eval_metrics["eval_timeout_rate"]),
+        )
+
+    def _maybe_save_best_eval_model(
+        self,
+        eval_metrics: Dict[str, float],
+        update_idx: int,
+        global_step: int,
+    ) -> bool:
+        key = self._eval_selection_key(eval_metrics)
+        if key <= self.best_eval_key:
+            return False
+
+        self.best_eval_key = key
+        self._save_checkpoint("best_model.pt")
+        if self.run_dir is not None:
+            payload = {
+                "update": int(update_idx),
+                "global_step": int(global_step),
+                "selection_key": [float(v) for v in key],
+                "metrics": {
+                    "eval_improvement_pct": float(eval_metrics["eval_improvement_pct"]),
+                    "eval_win_rate": float(eval_metrics["eval_win_rate"]),
+                    "eval_timeout_rate": float(eval_metrics["eval_timeout_rate"]),
+                    "eval_mean_ppo_swaps": float(eval_metrics["eval_mean_ppo_swaps"]),
+                    "eval_mean_sabre_swaps": float(eval_metrics["eval_mean_sabre_swaps"]),
+                    "eval_cases": float(eval_metrics["eval_cases"]),
+                },
+            }
+            with (self.run_dir / "best_eval_metrics.json").open("w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2)
+        return True
+
     def train(self) -> None:
         obs, _ = self.env.reset(seed=self.cfg.seed)
         global_step = 0
@@ -850,13 +908,34 @@ class PPOAgent:
                 mean_episode_return = float("nan")
 
             eval_metrics = None
+            best_eval_updated = False
             if (
                 self.cfg.eval_interval_updates > 0
                 and self.eval_cases
                 and update_idx % self.cfg.eval_interval_updates == 0
             ):
                 eval_metrics = self._evaluate_against_sabre()
+                if eval_metrics is not None:
+                    best_eval_updated = self._maybe_save_best_eval_model(
+                        eval_metrics=eval_metrics,
+                        update_idx=update_idx,
+                        global_step=global_step,
+                    )
             trace_metrics = self._run_periodic_traces(update_idx)
+            trace_alert_flag = False
+            if trace_metrics is not None:
+                dom = float(trace_metrics["trace_action_dom_ratio"])
+                backtrack = float(trace_metrics["trace_backtrack_rate"])
+                if (
+                    dom >= self.cfg.trace_alert_dom_threshold
+                    and backtrack >= self.cfg.trace_alert_backtrack_threshold
+                ):
+                    self.trace_alert_streak += 1
+                else:
+                    self.trace_alert_streak = 0
+                trace_alert_flag = self.trace_alert_streak >= self.cfg.trace_alert_patience
+            else:
+                self.trace_alert_streak = 0
 
             self._append_metrics_row(
                 update_idx=update_idx,
@@ -868,12 +947,17 @@ class PPOAgent:
                 metrics=metrics,
                 eval_metrics=eval_metrics,
                 trace_metrics=trace_metrics,
+                trace_alert_flag=trace_alert_flag,
+                trace_alert_streak=self.trace_alert_streak,
                 distance_reward_coeff=current_dist_coeff,
             )
 
-            if ep_returns and mean_episode_return > self.best_mean_episode_return:
-                self.best_mean_episode_return = mean_episode_return
-                self._save_checkpoint("best_model.pt")
+            if ep_returns and mean_episode_return > self.best_train_mean_episode_return:
+                self.best_train_mean_episode_return = mean_episode_return
+                self._save_checkpoint("best_train_model.pt")
+                if not self.eval_cases:
+                    # Fallback for setups with no periodic eval configured.
+                    self._save_checkpoint("best_model.pt")
 
             if (
                 self.cfg.checkpoint_interval_updates > 0
@@ -893,6 +977,8 @@ class PPOAgent:
                         f" eval_timeout={eval_metrics['eval_timeout_rate']:.2f}"
                         f" eval_2q={eval_metrics['eval_mean_two_qubit_gates']:.1f}"
                     )
+                    if best_eval_updated:
+                        eval_msg += " best_eval=1"
                 trace_msg = ""
                 if trace_metrics is not None:
                     trace_msg = (
@@ -901,6 +987,8 @@ class PPOAgent:
                         f" trace_dom={trace_metrics['trace_action_dom_ratio']:.2f}"
                         f" trace_improve={trace_metrics['trace_improvement_pct']:+.2f}%"
                     )
+                    if trace_alert_flag:
+                        trace_msg += f" trace_alert=1(streak={self.trace_alert_streak})"
                 print(
                     f"[Update {update_idx:04d}] "
                     f"steps={global_step:>7d} "
@@ -917,5 +1005,12 @@ class PPOAgent:
                     f"{eval_msg}"
                     f"{trace_msg}"
                 )
+                if trace_alert_flag:
+                    print(
+                        "[Alert] Loop-pattern risk detected from traces: "
+                        f"dom={trace_metrics['trace_action_dom_ratio']:.3f}, "
+                        f"backtrack={trace_metrics['trace_backtrack_rate']:.3f}, "
+                        f"streak={self.trace_alert_streak}."
+                    )
 
         self._save_checkpoint("last_model.pt")
