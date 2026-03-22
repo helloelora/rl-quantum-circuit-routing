@@ -133,6 +133,14 @@ def parse_args():
     )
     parser.add_argument("--eval-circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--eval-seed-base", type=int, default=3000000000)
+    parser.add_argument("--trace-interval-updates", type=int, default=20)
+    parser.add_argument("--trace-cases-per-topology", type=int, default=1)
+    parser.add_argument(
+        "--trace-max-steps",
+        type=int,
+        default=500,
+        help="Per-trace episode cap for periodic diagnostic traces.",
+    )
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -195,6 +203,9 @@ def train_phase(
         eval_min_two_qubit_gates=eval_min_two_qubit_gates,
         eval_circuit_generation_attempts=args.eval_circuit_generation_attempts,
         eval_seed_base=args.eval_seed_base + eval_seed_offset,
+        trace_interval_updates=args.trace_interval_updates,
+        trace_cases_per_topology=args.trace_cases_per_topology,
+        trace_max_steps=args.trace_max_steps,
         distance_reward_coeff_start=args.distance_reward_coeff_start,
         distance_reward_coeff_end=args.distance_reward_coeff_end,
         run_dir=str(phase_run_dir),
@@ -208,6 +219,8 @@ def train_phase(
     print(f"  min_two_qubit_gates={min_two_qubit_gates}")
     print(f"  eval_circuit_depth={eval_circuit_depth}")
     print(f"  eval_min_two_qubit_gates={eval_min_two_qubit_gates}")
+    print(f"  trace_interval_updates={args.trace_interval_updates}")
+    print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  total_timesteps={total_timesteps}")
     print(f"  run_dir={phase_run_dir}")
 
@@ -242,6 +255,12 @@ def main():
         raise ValueError("--circuit-generation-attempts must be >= 1.")
     if args.eval_circuit_generation_attempts < 1:
         raise ValueError("--eval-circuit-generation-attempts must be >= 1.")
+    if args.trace_interval_updates < 0:
+        raise ValueError("--trace-interval-updates must be >= 0.")
+    if args.trace_cases_per_topology < 0:
+        raise ValueError("--trace-cases-per-topology must be >= 0.")
+    if args.trace_max_steps < 1:
+        raise ValueError("--trace-max-steps must be >= 1.")
 
     resolved_eval_min_twoq = (
         args.min_two_qubit_gates
@@ -285,6 +304,9 @@ def main():
     print(f"  device={device}")
     print(f"  eval_interval_updates={args.eval_interval_updates}")
     print(f"  eval_circuits_per_topology={args.eval_circuits_per_topology}")
+    print(f"  trace_interval_updates={args.trace_interval_updates}")
+    print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
+    print(f"  trace_max_steps={args.trace_max_steps}")
     print(f"  torch_version={torch.__version__}")
     print(f"  cuda_available={torch.cuda.is_available()}")
     print(

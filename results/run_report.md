@@ -252,3 +252,78 @@ Interpretation: validation episodes are almost certainly hitting the episode cap
 - Run4 is a clear step in the right direction (timeouts reduced, first wins vs SABRE).
 - Main blocker remains: success rate is still too low, and swap counts remain far
   above SABRE on holdout circuits.
+
+## 13) Policy Trace Diagnostic (Run4, heavy_hex_19)
+### Files
+- `results/Run4/trace_hh19.csv`
+- `results/Run4/trace_hh19_summary.json`
+
+### What happened in this traced episode
+- Episode reached max horizon:
+  - `steps=500`, `truncated=true`, `done=false`
+- Final comparison:
+  - `ppo_swaps=500`, `sabre_swaps=184`, `improvement=-171.74%`
+- Routing progress stalled:
+  - `remaining_gates: 124 -> 124` (no reduction during steps)
+  - `total_gates_executed_end=7` (all from initial auto-exec only)
+  - `steps_with_gate_execution=0`
+- Behavioral collapse:
+  - one action dominates almost entirely: `action_index=3` used `494/500` steps
+  - `backtrack_rate=0.984` (`492/500` immediate repeats)
+
+### Interpretation
+- Even without explicit backtracking masking, the greedy policy collapses to a
+  near-deterministic oscillation around one SWAP edge and no longer progresses
+  on front-layer executability.
+
+## 14) Run5 Setup (Integrated In-Training Traces)
+### What changed in code for Run5
+- Periodic policy traces are now integrated directly in PPO training.
+- New CLI args:
+  - `--trace-interval-updates`
+  - `--trace-cases-per-topology`
+  - `--trace-max-steps`
+- Trace outputs are saved during training under:
+  - `runs/<run_name>/<stage_name>/traces/update_XXXXX/`
+  - Per case: `*_trace.csv` and `*_summary.json`.
+- `metrics.csv` now also logs aggregated trace indicators:
+  - `trace_timeout_rate`
+  - `trace_backtrack_rate`
+  - `trace_action_dom_ratio`
+  - `trace_improvement_pct`
+  - plus trace swap and completion stats.
+
+### Run5 baseline launch parameters (kept comparable to Run4)
+- Curriculum: `150k / 250k / 600k` steps (`1.0M` total)
+- Depths: `10 / 14 / 20`
+- Topologies:
+  - stage1: `linear_5,grid_3x3`
+  - stage2: `linear_5,grid_3x3,heavy_hex_19`
+  - stage3: `heavy_hex_19,grid_3x3,linear_5`
+- PPO:
+  - `rollout_steps=4096`
+  - `lr=3e-4`
+  - `gamma=0.995`
+  - `gae_lambda=0.97`
+  - `clip_range=0.15`
+  - `update_epochs=8`
+  - `entropy 0.003 -> 0.0001`
+- Reward/data:
+  - `completion_bonus=15`
+  - `timeout_penalty=-8`
+  - `gate_reward_coeff=1.0`
+  - `step_penalty=-0.05`
+  - `reverse_swap_penalty=-0.2`
+  - `distance_reward_coeff 0.03 -> 0.015`
+  - `min_two_qubit_gates(train/eval)=8`
+- Eval/trace:
+  - `eval_interval_updates=20`
+  - `eval_circuits_per_topology=12`
+  - `trace_interval_updates=20`
+  - `trace_cases_per_topology=1`
+  - `trace_max_steps=500`
+
+### Run5 monitoring rules (during training)
+- If `trace_action_dom_ratio > 0.60` and `trace_backtrack_rate > 0.50` for several trace checkpoints, policy is collapsing to repetitive behavior.
+- If `trace_timeout_rate` stays close to `1.0`, routing is still mostly not solved in held-out traces.
+- If `trace_improvement_pct` remains very negative with flat `eval_win_rate`, prioritize reward/architecture changes before spending more compute.
