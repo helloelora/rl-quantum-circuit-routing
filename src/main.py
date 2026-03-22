@@ -80,10 +80,14 @@ def parse_args():
         help="Comma-separated topology names for multi-topology training",
     )
     parser.add_argument("--curriculum", action="store_true")
-    parser.add_argument("--stage1-topologies", type=str, default="linear_5")
-    parser.add_argument("--stage2-topologies", type=str, default="linear_5,grid_3x3")
-    parser.add_argument("--stage1-steps", type=int, default=200000)
-    parser.add_argument("--stage2-steps", type=int, default=200000)
+    parser.add_argument("--stage1-topologies", type=str, default="linear_5,grid_3x3")
+    parser.add_argument(
+        "--stage2-topologies",
+        type=str,
+        default="linear_5,grid_3x3,heavy_hex_19",
+    )
+    parser.add_argument("--stage1-steps", type=int, default=150000)
+    parser.add_argument("--stage2-steps", type=int, default=250000)
     parser.add_argument("--stage3-steps", type=int, default=600000)
     parser.add_argument("--stage1-depth", type=int, default=10)
     parser.add_argument("--stage2-depth", type=int, default=14)
@@ -94,28 +98,31 @@ def parse_args():
     parser.add_argument("--distance-reward-coeff", type=float, default=0.01)
     parser.add_argument("--distance-reward-coeff-start", type=float, default=0.03)
     parser.add_argument("--distance-reward-coeff-end", type=float, default=0.015)
-    parser.add_argument("--completion-bonus", type=float, default=8.0)
-    parser.add_argument("--timeout-penalty", type=float, default=-25.0)
+    parser.add_argument("--completion-bonus", type=float, default=15.0)
+    parser.add_argument("--timeout-penalty", type=float, default=-8.0)
+    parser.add_argument("--gate-reward-coeff", type=float, default=1.0)
+    parser.add_argument("--step-penalty", type=float, default=-0.05)
+    parser.add_argument("--reverse-swap-penalty", type=float, default=-0.2)
     parser.add_argument("--min-two-qubit-gates", type=int, default=6)
     parser.add_argument("--circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--seed", type=int, default=42)
 
     parser.add_argument("--total-timesteps", type=int, default=200000)
-    parser.add_argument("--rollout-steps", type=int, default=2048)
-    parser.add_argument("--learning-rate", type=float, default=2.5e-4)
-    parser.add_argument("--gamma", type=float, default=0.99)
-    parser.add_argument("--gae-lambda", type=float, default=0.95)
-    parser.add_argument("--clip-range", type=float, default=0.2)
-    parser.add_argument("--update-epochs", type=int, default=4)
+    parser.add_argument("--rollout-steps", type=int, default=4096)
+    parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--gamma", type=float, default=0.995)
+    parser.add_argument("--gae-lambda", type=float, default=0.97)
+    parser.add_argument("--clip-range", type=float, default=0.15)
+    parser.add_argument("--update-epochs", type=int, default=8)
     parser.add_argument("--minibatch-size", type=int, default=256)
-    parser.add_argument("--entropy-coef-start", type=float, default=0.01)
-    parser.add_argument("--entropy-coef-end", type=float, default=0.001)
+    parser.add_argument("--entropy-coef-start", type=float, default=0.003)
+    parser.add_argument("--entropy-coef-end", type=float, default=0.0001)
     parser.add_argument("--value-coef", type=float, default=0.5)
     parser.add_argument("--max-grad-norm", type=float, default=0.5)
     parser.add_argument("--target-kl", type=float, default=0.015)
     parser.add_argument("--log-interval-updates", type=int, default=5)
     parser.add_argument("--checkpoint-interval-updates", type=int, default=25)
-    parser.add_argument("--eval-interval-updates", type=int, default=10)
+    parser.add_argument("--eval-interval-updates", type=int, default=20)
     parser.add_argument("--eval-circuits-per-topology", type=int, default=12)
     parser.add_argument("--eval-circuit-depth", type=int, default=20)
     parser.add_argument(
@@ -157,6 +164,9 @@ def train_phase(
         distance_reward_coeff=args.distance_reward_coeff_start,
         completion_bonus=args.completion_bonus,
         timeout_penalty=args.timeout_penalty,
+        gate_reward_coeff=args.gate_reward_coeff,
+        step_penalty=args.step_penalty,
+        reverse_swap_penalty=args.reverse_swap_penalty,
         min_two_qubit_gates=min_two_qubit_gates,
         circuit_generation_attempts=args.circuit_generation_attempts,
         initial_mapping_strategy="mixed",
@@ -265,6 +275,9 @@ def main():
     print("  gamma_decay=0.5")
     print(f"  completion_bonus={args.completion_bonus}")
     print(f"  timeout_penalty={args.timeout_penalty}")
+    print(f"  gate_reward_coeff={args.gate_reward_coeff}")
+    print(f"  step_penalty={args.step_penalty}")
+    print(f"  reverse_swap_penalty={args.reverse_swap_penalty}")
     print(f"  distance_reward_coeff schedule={args.distance_reward_coeff_start} -> {args.distance_reward_coeff_end}")
     print(f"  min_two_qubit_gates(train)={args.min_two_qubit_gates}")
     print(f"  min_two_qubit_gates(eval)={resolved_eval_min_twoq}")

@@ -115,3 +115,97 @@ Interpretation: validation episodes are almost certainly hitting the episode cap
 - Training logs now show:
   - elapsed time, ETA, and eval mean 2-qubit gate count (`eval_2q`) to verify
     holdout difficulty quality.
+
+## 9) Long Run Analysis (results/Long run)
+### Files mapped to stages
+- `metrics (2).csv` -> stage1 (150k, 74 updates)
+- `metrics (1).csv` -> stage2 (250k, 123 updates)
+- `metrics.csv` -> stage3 (600k, 293 updates)
+
+### Key observations
+- Training progresses in stage1:
+  - done_rate improves (~0.0147 -> ~0.0167)
+  - mean episode return improves (~-39 -> ~-31)
+- Stage2 and stage3 do not show stable success growth:
+  - stage2 done_rate stays ~0.004
+  - stage3 done_rate stays ~0.004
+  - stage3 returns remain very negative (~-252 first10, ~-239 last10)
+
+### Validation vs SABRE (critical)
+- For all three stages, all eval checkpoints are flat and failing:
+  - `eval_mean_ppo_swaps = 500.0`
+  - `eval_timeout_rate = 1.0`
+  - `eval_win_rate = 0.0`
+- This means the policy still times out on every holdout circuit, despite the
+  longer training budget and improved circuit quality constraint.
+
+### Interpretation
+- The pipeline runs correctly (metrics update, stage progression, eval quality tracked).
+- The current PPO policy does not yet learn a strong deterministic routing
+  behavior under holdout evaluation (greedy policy remains too weak/random).
+
+## 10) Parameter Log: Last Long Run vs Planned Run4
+### Last Long Run (completed)
+- Curriculum schedule:
+  - stage1 topologies: `linear_5,grid_3x3`
+  - stage2 topologies: `linear_5,grid_3x3,heavy_hex_19`
+  - stage3 topologies: `heavy_hex_19,grid_3x3,linear_5`
+  - stage steps: `150k / 250k / 600k` (total `1.0M`)
+  - stage depths: `10 / 14 / 20`
+- PPO:
+  - `rollout_steps=2048`
+  - `learning_rate=2.5e-4`
+  - `gamma=0.99`
+  - `gae_lambda=0.95`
+  - `clip_range=0.2`
+  - `update_epochs=4`
+  - `entropy_coef: 0.01 -> 0.001`
+- Reward/env:
+  - reward form: `(gates_executed - 1) + distance_reward_coeff * delta_dist`
+  - `distance_reward_coeff: 0.03 -> 0.015`
+  - `completion_bonus=8`
+  - `timeout_penalty=-25`
+  - no anti-backtracking mask
+- Eval:
+  - `eval_interval_updates=20`
+  - `eval_circuits_per_topology=12`
+  - `min_two_qubit_gates(train/eval)=6`
+
+### Run4 (planned now)
+- Curriculum schedule kept:
+  - stage1 topologies: `linear_5,grid_3x3`
+  - stage2 topologies: `linear_5,grid_3x3,heavy_hex_19`
+  - stage3 topologies: `heavy_hex_19,grid_3x3,linear_5`
+  - stage steps: `150k / 250k / 600k` (total `1.0M`)
+  - stage depths: `10 / 14 / 20`
+- PPO changes:
+  - `rollout_steps=4096`
+  - `learning_rate=3e-4`
+  - `gamma=0.995`
+  - `gae_lambda=0.97`
+  - `clip_range=0.15`
+  - `update_epochs=8`
+  - `entropy_coef: 0.003 -> 0.0001`
+- Reward/env changes:
+  - reward form changed to:
+    - `gate_reward_coeff * gates_executed + distance_reward_coeff * delta_dist + step_penalty`
+    - plus `reverse_swap_penalty` for immediate edge backtracking
+    - plus `completion_bonus` on done
+    - plus `timeout_penalty` on truncation
+  - `gate_reward_coeff=1.0`
+  - `step_penalty=-0.05`
+  - `reverse_swap_penalty=-0.2`
+  - `completion_bonus=15`
+  - `timeout_penalty=-8`
+  - no anti-backtracking mask (topology-validity mask only)
+  - `distance_reward_coeff: 0.03 -> 0.015`
+- Eval/data quality:
+  - `eval_interval_updates=20`
+  - `eval_circuits_per_topology=12`
+  - `min_two_qubit_gates(train/eval)=8`
+
+## 11) Update (Masking Decision Confirmed)
+- Decision validated: remove light anti-backtracking action masking.
+- Keep only a small `reverse_swap_penalty` for immediate backtracking.
+- Rationale: allows useful return moves when globally beneficial, while still
+  discouraging trivial oscillation loops.

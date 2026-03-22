@@ -63,7 +63,10 @@ class QubitRoutingEnv(gym.Env):
              Actions beyond the current topology's edge count are invalid.
 
     Reward per step:
-        r_t = (gates_auto_executed) - 1 + distance_reward_coeff * delta_distance
+        r_t = gate_reward_coeff * gates_auto_executed
+              + distance_reward_coeff * delta_distance
+              + step_penalty
+              + reverse_swap_penalty (if immediate backtracking)
               [+ completion_bonus if done]
     """
 
@@ -82,6 +85,9 @@ class QubitRoutingEnv(gym.Env):
         distance_reward_coeff=0.01,
         completion_bonus=8.0,
         timeout_penalty=-25.0,
+        gate_reward_coeff=1.0,
+        step_penalty=-0.05,
+        reverse_swap_penalty=-0.2,
         min_two_qubit_gates=0,
         circuit_generation_attempts=16,
         matrix_size=27,
@@ -107,6 +113,10 @@ class QubitRoutingEnv(gym.Env):
             distance_reward_coeff: Coefficient for distance reduction shaping.
             completion_bonus: Reward bonus when all gates are routed.
             timeout_penalty: Penalty when max_steps is reached.
+            gate_reward_coeff: Multiplier for executed front-layer gates.
+            step_penalty: Constant per-step penalty to discourage long routes.
+            reverse_swap_penalty: Extra penalty if the same SWAP edge is
+                         selected in consecutive steps.
             min_two_qubit_gates: Minimum number of 2-qubit gates required
                          for randomly generated circuits.
             circuit_generation_attempts: Number of random samples to try to
@@ -176,6 +186,9 @@ class QubitRoutingEnv(gym.Env):
         self.distance_reward_coeff = distance_reward_coeff
         self.completion_bonus = completion_bonus
         self.timeout_penalty = timeout_penalty
+        self.gate_reward_coeff = gate_reward_coeff
+        self.step_penalty = step_penalty
+        self.reverse_swap_penalty = reverse_swap_penalty
         self.min_two_qubit_gates = max(0, int(min_two_qubit_gates))
         self.circuit_generation_attempts = max(1, int(circuit_generation_attempts))
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
@@ -195,6 +208,7 @@ class QubitRoutingEnv(gym.Env):
         self.total_swaps = 0
         self.total_gates_executed = 0
         self.n_gates = 0
+        self._last_action = None
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -282,6 +296,7 @@ class QubitRoutingEnv(gym.Env):
             self.step_count = 0
             self.total_swaps = 0
             self.total_gates_executed = 0
+            self._last_action = None
             obs = self._compute_state()
             return obs, self._get_info(done=True)
 
@@ -318,6 +333,7 @@ class QubitRoutingEnv(gym.Env):
         self.step_count = 0
         self.total_swaps = 0
         self.total_gates_executed = 0
+        self._last_action = None
         self._auto_execute_gates()
 
         obs = self._compute_state()
@@ -342,6 +358,9 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Compute distance sum BEFORE the SWAP (for shaping reward) ---
         dist_before = self._compute_front_layer_distance()
+        was_immediate_backtrack = (
+            self._last_action is not None and int(action) == int(self._last_action)
+        )
 
         # --- Perform the SWAP ---
         p1, p2 = topo["edges"][action]
@@ -355,6 +374,7 @@ class QubitRoutingEnv(gym.Env):
 
         self.step_count += 1
         self.total_swaps += 1
+        self._last_action = int(action)
 
         # --- Auto-execute routable gates ---
         gates_executed = self._auto_execute_gates()
@@ -365,7 +385,13 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Reward ---
         done = self._is_done()
-        reward = (gates_executed - 1) + self.distance_reward_coeff * delta_dist
+        reward = (
+            self.gate_reward_coeff * gates_executed
+            + self.distance_reward_coeff * delta_dist
+            + self.step_penalty
+        )
+        if was_immediate_backtrack:
+            reward += self.reverse_swap_penalty
         if done:
             reward += self.completion_bonus
 
@@ -494,13 +520,12 @@ class QubitRoutingEnv(gym.Env):
         Actions beyond the current topology's edge count are False
         (these correspond to edges that only exist in larger topologies).
 
-        Agents can further restrict this mask with Level 1/2/3 masking.
-
         Returns:
             np.ndarray of shape (max_edges,), dtype bool
         """
         mask = np.zeros(self.max_edges, dtype=bool)
-        mask[:self._current_topo["num_edges"]] = True
+        num_edges = self._current_topo["num_edges"]
+        mask[:num_edges] = True
         return mask
 
     def render(self):
