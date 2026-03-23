@@ -922,7 +922,9 @@ class PPOAgent:
                         global_step=global_step,
                     )
             trace_metrics = self._run_periodic_traces(update_idx)
-            trace_alert_flag = False
+            trace_alert_flag = (
+                self.trace_alert_streak >= self.cfg.trace_alert_patience
+            )
             if trace_metrics is not None:
                 dom = float(trace_metrics["trace_action_dom_ratio"])
                 backtrack = float(trace_metrics["trace_backtrack_rate"])
@@ -934,8 +936,6 @@ class PPOAgent:
                 else:
                     self.trace_alert_streak = 0
                 trace_alert_flag = self.trace_alert_streak >= self.cfg.trace_alert_patience
-            else:
-                self.trace_alert_streak = 0
 
             self._append_metrics_row(
                 update_idx=update_idx,

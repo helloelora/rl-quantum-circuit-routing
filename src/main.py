@@ -106,11 +106,11 @@ def parse_args():
         help="Comma-separated topology names for multi-topology training",
     )
     parser.add_argument("--curriculum", action="store_true")
-    parser.add_argument("--stage1-topologies", type=str, default="linear_5,grid_3x3")
+    parser.add_argument("--stage1-topologies", type=str, default="linear_5")
     parser.add_argument(
         "--stage2-topologies",
         type=str,
-        default="linear_5,grid_3x3,heavy_hex_19",
+        default="linear_5,grid_3x3",
     )
     parser.add_argument("--stage1-steps", type=int, default=150000)
     parser.add_argument("--stage2-steps", type=int, default=250000)
@@ -137,6 +137,21 @@ def parse_args():
             "Progressive penalty coefficient for consecutive reuse of the same "
             "physical SWAP edge."
         ),
+    )
+    parser.add_argument(
+        "--no-progress-penalty-coeff",
+        type=float,
+        default=-0.03,
+        help=(
+            "Progressive penalty coefficient when no new gate is executed "
+            "at a step."
+        ),
+    )
+    parser.add_argument(
+        "--no-progress-penalty-cap",
+        type=float,
+        default=-1.5,
+        help="Lower bound (negative cap) for no-progress penalty.",
     )
     parser.add_argument("--linear-topology-weight", type=float, default=0.5)
     parser.add_argument("--grid-topology-weight", type=float, default=1.5)
@@ -220,6 +235,8 @@ def train_phase(
         step_penalty=args.step_penalty,
         reverse_swap_penalty=args.reverse_swap_penalty,
         repeat_swap_penalty_coeff=args.repeat_swap_penalty_coeff,
+        no_progress_penalty_coeff=args.no_progress_penalty_coeff,
+        no_progress_penalty_cap=args.no_progress_penalty_cap,
         min_two_qubit_gates=min_two_qubit_gates,
         circuit_generation_attempts=args.circuit_generation_attempts,
         initial_mapping_strategy="mixed",
@@ -311,6 +328,10 @@ def main():
         raise ValueError("--eval-circuit-generation-attempts must be >= 1.")
     if args.repeat_swap_penalty_coeff > 0:
         raise ValueError("--repeat-swap-penalty-coeff must be <= 0 (penalty).")
+    if args.no_progress_penalty_coeff > 0:
+        raise ValueError("--no-progress-penalty-coeff must be <= 0 (penalty).")
+    if args.no_progress_penalty_cap > 0:
+        raise ValueError("--no-progress-penalty-cap must be <= 0.")
     if args.linear_topology_weight < 0:
         raise ValueError("--linear-topology-weight must be >= 0.")
     if args.grid_topology_weight < 0:
@@ -368,6 +389,8 @@ def main():
     print(f"  step_penalty={args.step_penalty}")
     print(f"  reverse_swap_penalty={args.reverse_swap_penalty}")
     print(f"  repeat_swap_penalty_coeff={args.repeat_swap_penalty_coeff}")
+    print(f"  no_progress_penalty_coeff={args.no_progress_penalty_coeff}")
+    print(f"  no_progress_penalty_cap={args.no_progress_penalty_cap}")
     print(
         "  topology_weights="
         f"(linear={args.linear_topology_weight}, "

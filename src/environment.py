@@ -68,6 +68,7 @@ class QubitRoutingEnv(gym.Env):
               + step_penalty
               + reverse_swap_penalty (if immediate backtracking)
               + repeat_swap_penalty_coeff * (same_edge_streak - 1)
+              + capped(no_progress_penalty_coeff * no_progress_streak)
               [+ completion_bonus if done]
     """
 
@@ -91,6 +92,8 @@ class QubitRoutingEnv(gym.Env):
         step_penalty=-0.05,
         reverse_swap_penalty=-0.2,
         repeat_swap_penalty_coeff=-0.1,
+        no_progress_penalty_coeff=-0.03,
+        no_progress_penalty_cap=-1.5,
         min_two_qubit_gates=0,
         circuit_generation_attempts=16,
         matrix_size=27,
@@ -127,6 +130,10 @@ class QubitRoutingEnv(gym.Env):
             repeat_swap_penalty_coeff: Progressive penalty coefficient for
                          consecutive reuse of the same physical SWAP edge.
                          Applied as coeff * (same_edge_streak - 1).
+            no_progress_penalty_coeff: Progressive penalty coefficient applied
+                         when no new gate is executed at a step.
+            no_progress_penalty_cap: Lower bound (negative cap) for the
+                         progressive no-progress penalty.
             min_two_qubit_gates: Minimum number of 2-qubit gates required
                          for randomly generated circuits.
             circuit_generation_attempts: Number of random samples to try to
@@ -203,6 +210,8 @@ class QubitRoutingEnv(gym.Env):
         self.step_penalty = step_penalty
         self.reverse_swap_penalty = reverse_swap_penalty
         self.repeat_swap_penalty_coeff = repeat_swap_penalty_coeff
+        self.no_progress_penalty_coeff = no_progress_penalty_coeff
+        self.no_progress_penalty_cap = no_progress_penalty_cap
         self.min_two_qubit_gates = max(0, int(min_two_qubit_gates))
         self.circuit_generation_attempts = max(1, int(circuit_generation_attempts))
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
@@ -225,6 +234,7 @@ class QubitRoutingEnv(gym.Env):
         self._last_action = None
         self._last_edge = None
         self._same_edge_streak = 0
+        self._no_progress_streak = 0
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -347,6 +357,7 @@ class QubitRoutingEnv(gym.Env):
             self._last_action = None
             self._last_edge = None
             self._same_edge_streak = 0
+            self._no_progress_streak = 0
             obs = self._compute_state()
             return obs, self._get_info(done=True)
 
@@ -386,6 +397,7 @@ class QubitRoutingEnv(gym.Env):
         self._last_action = None
         self._last_edge = None
         self._same_edge_streak = 0
+        self._no_progress_streak = 0
         self._auto_execute_gates()
 
         obs = self._compute_state()
@@ -444,6 +456,11 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Reward ---
         done = self._is_done()
+        if gates_executed > 0 or done:
+            self._no_progress_streak = 0
+        else:
+            self._no_progress_streak += 1
+
         reward = (
             self.gate_reward_coeff * gates_executed
             + self.distance_reward_coeff * delta_dist
@@ -453,6 +470,11 @@ class QubitRoutingEnv(gym.Env):
             reward += self.reverse_swap_penalty
         if self._same_edge_streak > 1:
             reward += self.repeat_swap_penalty_coeff * (self._same_edge_streak - 1)
+        if self._no_progress_streak > 0:
+            no_progress_penalty = (
+                self.no_progress_penalty_coeff * self._no_progress_streak
+            )
+            reward += max(self.no_progress_penalty_cap, no_progress_penalty)
         if done:
             reward += self.completion_bonus
 
@@ -572,6 +594,7 @@ class QubitRoutingEnv(gym.Env):
             "n_physical": self._current_topo["n_physical"],
             "num_edges": self._current_topo["num_edges"],
             "same_edge_streak": self._same_edge_streak,
+            "no_progress_streak": self._no_progress_streak,
         }
 
     def get_action_mask(self):

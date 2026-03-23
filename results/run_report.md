@@ -441,3 +441,104 @@ Interpretation: validation episodes are almost certainly hitting the episode cap
   - `--trace-alert-backtrack-threshold 0.5`
   - `--trace-alert-patience 2`
 - `RUN_NAME` switched to `ppo_run6_<timestamp>`.
+
+## 17) Run6 Deep Analysis (results/Run6/ppo_run6_20260322_232212_analysis_only)
+### Data reviewed
+- `stage1_easy/metrics.csv`
+- `stage2_mid/metrics.csv`
+- `stage3_full/metrics.csv`
+- all trace summaries under `stage*/traces/update_*/ *_summary.json`
+- run config (`config.json`)
+
+### Stage-level training behavior
+- Stage1 (`37` updates, `151,552` steps):
+  - `mean_step_reward`: `0.4377 -> 0.5039`
+  - `done_rate`: `0.0137 -> 0.0156`
+  - `mean_ep_return`: `31.80 -> 32.39`
+- Stage2 (`62` updates, `253,952` steps):
+  - `mean_step_reward`: `0.0486 -> 0.0621`
+  - `done_rate`: `0.0036 -> 0.0039`
+  - `mean_ep_return`: `10.87 -> 13.20`
+- Stage3 (`147` updates, `602,112` steps):
+  - `mean_step_reward`: `0.0684 -> 0.0924`
+  - `done_rate`: `0.0034 -> 0.0038`
+  - `mean_ep_return`: `17.32 -> 24.22`
+
+Interpretation: train rewards and returns improve, but completion rate remains very low.
+
+### Eval vs SABRE (critical)
+- Stage1 (update 20):
+  - `eval_improve=-4775.46%`, `win=0.125`, `timeout=0.875`, `ppo=438.33`, `sabre=9.54`
+- Stage2 (updates 20/40/60):
+  - best at update 60: `eval_improve=-2276.97%`, `win=0.00`, `timeout=0.944`, `ppo=473.06`
+- Stage3 (updates 20..140):
+  - best improvement at update 120: `-1263.98%`, `win=0.028`, `timeout=0.889`
+  - best win appears at updates 100 and 140: `win=0.083`
+  - final checkpoint (140):
+    - `eval_improve=-1372.80%`, `win=0.083`, `timeout=0.917`, `ppo=459.53`, `sabre=76.89`
+
+### Trace diagnostics (Run6)
+- Stage1 traces:
+  - all 4 trace cases timeout; very high loop pattern (`dom=0.993`, `backtrack=0.992`)
+- Stage2 traces:
+  - all trace cases timeout; strong collapse remains (`dom~0.995`, `backtrack~0.992`)
+- Stage3 traces:
+  - averages across 42 summaries:
+    - `trace_dom=0.890`, `trace_backtrack=0.852`, `trace_timeout=0.833`
+    - `trace_improve=-1180.22%` (still far from SABRE)
+  - topology breakdown:
+    - `grid_3x3`: timeout `14/14`, mean improve `-2036.36%`
+    - `heavy_hex_19`: timeout `14/14`, mean improve `-170.40%`
+    - `linear_5`: done `7/14`, timeout `7/14`, one case solved repeatedly and one case repeatedly collapsed
+
+### Comparison with Run5 and Run4
+- Versus Run5 (stage3 final):
+  - improvement: `-1537.63% -> -1372.80%` (better)
+  - timeout: `0.972 -> 0.917` (better)
+  - win rate: `0.028 -> 0.083` (better)
+  - ppo swaps: `486.39 -> 459.53` (better)
+- Versus Run4 (stage3 final):
+  - Run4 still better: `-1256.88%`, `timeout=0.861`, `ppo=433.14` (vs Run6 `-1372.80%`, `0.917`, `459.53`)
+
+### Important instrumentation note
+- `trace_alert_flag` stayed `0` at all checkpoints.
+- Root cause: current streak logic resets on non-trace updates, so it never exceeds `1` with `trace_interval_updates > 1`.
+- Consequence: alert signal is currently under-reporting collapse risk.
+
+### Conclusion
+- Run6 is a meaningful improvement over Run5, especially on stage3 final metrics.
+- However, the core objective (beating SABRE robustly and generalizing on hard topologies) is still not reached.
+- Main blocker remains persistent loop behavior on `grid_3x3` and `heavy_hex_19`.
+
+## 18) Run7 Planned Changes (Implemented)
+### A) Trace alert bug fix
+- Fixed alert streak behavior:
+  - streak is no longer reset on non-trace updates,
+  - alerts can now trigger correctly with `trace_interval_updates > 1`.
+- This restores the intended monitoring signal for loop-collapse detection.
+
+### B) Stronger anti-stagnation reward (still no hard masking)
+- Added progressive no-progress penalty:
+  - `no_progress_penalty_coeff * no_progress_streak`
+  - capped by `no_progress_penalty_cap` (negative floor)
+- Motivation:
+  - penalize long sequences with zero executed gates,
+  - reduce attractors where policy keeps swapping without routing progress.
+
+### C) Harder curriculum setup in launch notebook
+- Stage setup shifted to reduce early overfitting to easy topology:
+  - stage1 topologies: `linear_5`
+  - stage2 topologies: `linear_5,grid_3x3`
+  - stage3 topologies unchanged (`heavy_hex_19,grid_3x3,linear_5`)
+- Topology weights strengthened toward difficult targets:
+  - `linear=0.25`, `grid=1.5`, `heavy_hex=2.0`
+
+### D) Run7 notebook launch flags
+- `--repeat-swap-penalty-coeff -0.2`
+- `--no-progress-penalty-coeff -0.03`
+- `--no-progress-penalty-cap -1.5`
+- `--linear-topology-weight 0.25`
+- `--grid-topology-weight 1.5`
+- `--heavy-hex-topology-weight 2.0`
+- Trace alert thresholds unchanged:
+  - `dom>=0.6`, `backtrack>=0.5`, `patience=2`
