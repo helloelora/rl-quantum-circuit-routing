@@ -542,3 +542,75 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 - `--heavy-hex-topology-weight 2.0`
 - Trace alert thresholds unchanged:
   - `dom>=0.6`, `backtrack>=0.5`, `patience=2`
+
+## 19) Run7 Analysis (results/Run7)
+### Files reviewed
+- `results/Run7/metrics.csv` (stage1)
+- `results/Run7/metrics (1).csv` (stage2)
+- `results/Run7/metrics (2).csv` (stage3, interrupted by compute budget)
+- `results/Run7/best_eval_metrics*.json`
+- all trace summaries under:
+  - `results/Run7/update_00020-20260323T101416Z-1-001/...`
+  - `results/Run7/traces-20260323T101450Z-1-001/...`
+  - `results/Run7/traces-20260323T101511Z-1-001/...`
+
+### Stage1 (linear_5): learns
+- Train improved (`mean_step_reward 0.45 -> 2.30`, `done_rate 0.026 -> 0.084`).
+- Eval at update 20 still far from SABRE:
+  - `eval_improve=-4071.38%`, `win=0.25`, `timeout=0.75`, `ppo=376.25`, `sabre=8.67`.
+- Trace at update 20:
+  - `done=0.50`, `timeout=0.50`, `backtrack=0.498`, `dom=0.666`.
+
+### Stage2 (linear_5 + grid_3x3): mixed
+- Eval improved from update 20 to 60:
+  - `-1500.97% -> -955.85%`
+  - `win=0.25 -> 0.292`
+  - `timeout=0.50 -> 0.333`.
+- Best Run7 checkpoint is stage2 update 60 (`best_eval_metrics (1).json`).
+- Traces show non-monotonic behavior:
+  - update 40 trace looked healthy (`done=1.00`, `timeout=0.00`, `dom=0.277`, `backtrack=0.101`),
+  - but update 60 degraded again (`done=0.75`, `timeout=0.25`).
+
+### Stage3 (linear_5 + grid_3x3 + heavy_hex_19): collapse
+- Final logged point before interruption:
+  - `mean_step_reward=-47.50`, `mean_ep_return=-23070.8`,
+  - `value_loss=1,293,161`, `entropy=0.045`, `done_rate=0.002`.
+- Eval stayed poor and worsened:
+  - update 20: `eval_improve=-1440.71%`, `win=0.028`, `timeout=0.944`
+  - update 60: `eval_improve=-1544.35%`, `win=0.028`, `timeout=0.972`
+- Trace collapse signal is explicit:
+  - update 20: `dom=0.922`, `backtrack=0.895`
+  - update 40: `dom=0.926`, `backtrack=0.852`, `alert_streak=2`
+  - update 60: `dom=0.949`, `backtrack=0.899`, `alert_streak=3`
+- Case-level traces (stage3):
+  - `grid_3x3`: `done=0/6`, timeout `6/6`, mean `ppo=500` vs `sabre=24`
+  - `heavy_hex_19`: `done=0/6`, timeout `6/6`, mean `ppo=500` vs `sabre=190`
+  - `linear_5`: `done=3/6`, timeout `3/6`, mean `ppo=253.5` vs `sabre=14`
+
+### Diagnosis
+- Stage3 policy collapses into repeated same-edge swapping (very high `dom` and `backtrack`).
+- Progressive repeated-edge penalty is currently unbounded, which can explode negative returns and destabilize value learning on collapse trajectories.
+
+## 20) Next Run Stabilization Changes (Implemented in code)
+### A) Cap repeated-edge penalty
+- Added `repeat_swap_penalty_cap` in environment reward:
+  - repeated-edge term is now:
+    - `max(repeat_swap_penalty_cap, repeat_swap_penalty_coeff * (same_edge_streak - 1))`
+- New CLI flag:
+  - `--repeat-swap-penalty-cap` (must be `<= 0`), default `-2.0`.
+
+### B) Dynamic per-episode max steps (optional)
+- Added dynamic episode cap based on circuit size:
+  - `episode_max_steps = ceil(num_2q_gates * max_steps_per_two_qubit_gate)`
+  - clamped by `max_steps_min`/`max_steps_max` (if set).
+- New CLI flags:
+  - `--max-steps-per-two-qubit-gate` (default `0.0`, disabled)
+  - `--max-steps-min` (default `0`)
+  - `--max-steps-max` (default `0`)
+- `info` now logs `episode_max_steps`.
+
+### C) Rationale for Run8
+- Keep no hard masking.
+- Preserve trace diagnostics.
+- Reduce collapse severity and wasted 500-step failures on hard topologies.
+- Make training signal denser and more stable when policy starts looping.

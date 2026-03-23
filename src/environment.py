@@ -67,7 +67,7 @@ class QubitRoutingEnv(gym.Env):
               + distance_reward_coeff * delta_distance
               + step_penalty
               + reverse_swap_penalty (if immediate backtracking)
-              + repeat_swap_penalty_coeff * (same_edge_streak - 1)
+              + capped(repeat_swap_penalty_coeff * (same_edge_streak - 1))
               + capped(no_progress_penalty_coeff * no_progress_streak)
               [+ completion_bonus if done]
     """
@@ -92,8 +92,12 @@ class QubitRoutingEnv(gym.Env):
         step_penalty=-0.05,
         reverse_swap_penalty=-0.2,
         repeat_swap_penalty_coeff=-0.1,
+        repeat_swap_penalty_cap=-2.0,
         no_progress_penalty_coeff=-0.03,
         no_progress_penalty_cap=-1.5,
+        max_steps_per_two_qubit_gate=0.0,
+        max_steps_min=0,
+        max_steps_max=0,
         min_two_qubit_gates=0,
         circuit_generation_attempts=16,
         matrix_size=27,
@@ -130,10 +134,18 @@ class QubitRoutingEnv(gym.Env):
             repeat_swap_penalty_coeff: Progressive penalty coefficient for
                          consecutive reuse of the same physical SWAP edge.
                          Applied as coeff * (same_edge_streak - 1).
+            repeat_swap_penalty_cap: Lower bound (negative cap) for the
+                         progressive repeated-edge penalty.
             no_progress_penalty_coeff: Progressive penalty coefficient applied
                          when no new gate is executed at a step.
             no_progress_penalty_cap: Lower bound (negative cap) for the
                          progressive no-progress penalty.
+            max_steps_per_two_qubit_gate: Optional dynamic episode cap.
+                         If > 0, per-episode max steps are computed as:
+                         ceil(num_2q_gates * this_factor), then clamped with
+                         max_steps_min / max_steps_max (when > 0).
+            max_steps_min: Optional lower clamp for dynamic max steps.
+            max_steps_max: Optional upper clamp for dynamic max steps.
             min_two_qubit_gates: Minimum number of 2-qubit gates required
                          for randomly generated circuits.
             circuit_generation_attempts: Number of random samples to try to
@@ -210,8 +222,12 @@ class QubitRoutingEnv(gym.Env):
         self.step_penalty = step_penalty
         self.reverse_swap_penalty = reverse_swap_penalty
         self.repeat_swap_penalty_coeff = repeat_swap_penalty_coeff
+        self.repeat_swap_penalty_cap = repeat_swap_penalty_cap
         self.no_progress_penalty_coeff = no_progress_penalty_coeff
         self.no_progress_penalty_cap = no_progress_penalty_cap
+        self.max_steps_per_two_qubit_gate = max_steps_per_two_qubit_gate
+        self.max_steps_min = max_steps_min
+        self.max_steps_max = max_steps_max
         self.min_two_qubit_gates = max(0, int(min_two_qubit_gates))
         self.circuit_generation_attempts = max(1, int(circuit_generation_attempts))
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
@@ -235,6 +251,7 @@ class QubitRoutingEnv(gym.Env):
         self._last_edge = None
         self._same_edge_streak = 0
         self._no_progress_streak = 0
+        self._episode_max_steps = int(max_steps)
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -280,6 +297,18 @@ class QubitRoutingEnv(gym.Env):
         if total <= 0:
             raise ValueError("topology_sampling_weights must sum to a positive value.")
         return weights / total
+
+    def _resolve_episode_max_steps(self):
+        """Compute per-episode max steps from fixed/dynamic settings."""
+        if self.max_steps_per_two_qubit_gate <= 0:
+            return int(self.max_steps)
+
+        computed = int(np.ceil(self.n_gates * self.max_steps_per_two_qubit_gate))
+        lower = int(self.max_steps_min) if self.max_steps_min > 0 else 1
+        upper = int(self.max_steps_max) if self.max_steps_max > 0 else int(self.max_steps)
+        if upper < lower:
+            upper = lower
+        return int(min(max(computed, lower), upper))
 
     def reset(self, seed=None, options=None):
         """
@@ -358,6 +387,7 @@ class QubitRoutingEnv(gym.Env):
             self._last_edge = None
             self._same_edge_streak = 0
             self._no_progress_streak = 0
+            self._episode_max_steps = 0
             obs = self._compute_state()
             return obs, self._get_info(done=True)
 
@@ -398,6 +428,7 @@ class QubitRoutingEnv(gym.Env):
         self._last_edge = None
         self._same_edge_streak = 0
         self._no_progress_streak = 0
+        self._episode_max_steps = self._resolve_episode_max_steps()
         self._auto_execute_gates()
 
         obs = self._compute_state()
@@ -469,7 +500,10 @@ class QubitRoutingEnv(gym.Env):
         if was_immediate_backtrack:
             reward += self.reverse_swap_penalty
         if self._same_edge_streak > 1:
-            reward += self.repeat_swap_penalty_coeff * (self._same_edge_streak - 1)
+            repeat_penalty = (
+                self.repeat_swap_penalty_coeff * (self._same_edge_streak - 1)
+            )
+            reward += max(self.repeat_swap_penalty_cap, repeat_penalty)
         if self._no_progress_streak > 0:
             no_progress_penalty = (
                 self.no_progress_penalty_coeff * self._no_progress_streak
@@ -480,7 +514,7 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Truncation check ---
         truncated = False
-        if not done and self.step_count >= self.max_steps:
+        if not done and self.step_count >= self._episode_max_steps:
             truncated = True
             reward += self.timeout_penalty
 
@@ -593,6 +627,7 @@ class QubitRoutingEnv(gym.Env):
             "topology": self._current_topo["name"],
             "n_physical": self._current_topo["n_physical"],
             "num_edges": self._current_topo["num_edges"],
+            "episode_max_steps": self._episode_max_steps,
             "same_edge_streak": self._same_edge_streak,
             "no_progress_streak": self._no_progress_streak,
         }

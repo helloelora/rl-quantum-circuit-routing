@@ -139,6 +139,12 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--repeat-swap-penalty-cap",
+        type=float,
+        default=-2.0,
+        help="Lower bound (negative cap) for repeated-edge penalty.",
+    )
+    parser.add_argument(
         "--no-progress-penalty-coeff",
         type=float,
         default=-0.03,
@@ -152,6 +158,27 @@ def parse_args():
         type=float,
         default=-1.5,
         help="Lower bound (negative cap) for no-progress penalty.",
+    )
+    parser.add_argument(
+        "--max-steps-per-two-qubit-gate",
+        type=float,
+        default=0.0,
+        help=(
+            "If > 0, uses dynamic per-episode max steps: "
+            "ceil(num_2q_gates * factor)."
+        ),
+    )
+    parser.add_argument(
+        "--max-steps-min",
+        type=int,
+        default=0,
+        help="Optional lower bound for dynamic max steps (0 disables).",
+    )
+    parser.add_argument(
+        "--max-steps-max",
+        type=int,
+        default=0,
+        help="Optional upper bound for dynamic max steps (0 uses --max-steps).",
     )
     parser.add_argument("--linear-topology-weight", type=float, default=0.5)
     parser.add_argument("--grid-topology-weight", type=float, default=1.5)
@@ -235,8 +262,12 @@ def train_phase(
         step_penalty=args.step_penalty,
         reverse_swap_penalty=args.reverse_swap_penalty,
         repeat_swap_penalty_coeff=args.repeat_swap_penalty_coeff,
+        repeat_swap_penalty_cap=args.repeat_swap_penalty_cap,
         no_progress_penalty_coeff=args.no_progress_penalty_coeff,
         no_progress_penalty_cap=args.no_progress_penalty_cap,
+        max_steps_per_two_qubit_gate=args.max_steps_per_two_qubit_gate,
+        max_steps_min=args.max_steps_min,
+        max_steps_max=args.max_steps_max,
         min_two_qubit_gates=min_two_qubit_gates,
         circuit_generation_attempts=args.circuit_generation_attempts,
         initial_mapping_strategy="mixed",
@@ -328,10 +359,20 @@ def main():
         raise ValueError("--eval-circuit-generation-attempts must be >= 1.")
     if args.repeat_swap_penalty_coeff > 0:
         raise ValueError("--repeat-swap-penalty-coeff must be <= 0 (penalty).")
+    if args.repeat_swap_penalty_cap > 0:
+        raise ValueError("--repeat-swap-penalty-cap must be <= 0.")
     if args.no_progress_penalty_coeff > 0:
         raise ValueError("--no-progress-penalty-coeff must be <= 0 (penalty).")
     if args.no_progress_penalty_cap > 0:
         raise ValueError("--no-progress-penalty-cap must be <= 0.")
+    if args.max_steps_per_two_qubit_gate < 0:
+        raise ValueError("--max-steps-per-two-qubit-gate must be >= 0.")
+    if args.max_steps_min < 0:
+        raise ValueError("--max-steps-min must be >= 0.")
+    if args.max_steps_max < 0:
+        raise ValueError("--max-steps-max must be >= 0.")
+    if args.max_steps_min > 0 and args.max_steps_max > 0 and args.max_steps_max < args.max_steps_min:
+        raise ValueError("--max-steps-max must be >= --max-steps-min.")
     if args.linear_topology_weight < 0:
         raise ValueError("--linear-topology-weight must be >= 0.")
     if args.grid_topology_weight < 0:
@@ -389,6 +430,7 @@ def main():
     print(f"  step_penalty={args.step_penalty}")
     print(f"  reverse_swap_penalty={args.reverse_swap_penalty}")
     print(f"  repeat_swap_penalty_coeff={args.repeat_swap_penalty_coeff}")
+    print(f"  repeat_swap_penalty_cap={args.repeat_swap_penalty_cap}")
     print(f"  no_progress_penalty_coeff={args.no_progress_penalty_coeff}")
     print(f"  no_progress_penalty_cap={args.no_progress_penalty_cap}")
     print(
@@ -401,6 +443,15 @@ def main():
     print(f"  distance_reward_coeff schedule={args.distance_reward_coeff_start} -> {args.distance_reward_coeff_end}")
     print(f"  min_two_qubit_gates(train)={args.min_two_qubit_gates}")
     print(f"  min_two_qubit_gates(eval)={resolved_eval_min_twoq}")
+    if args.max_steps_per_two_qubit_gate > 0:
+        dynamic_max_cfg = (
+            f"{args.max_steps_per_two_qubit_gate}x2q "
+            f"(min={args.max_steps_min if args.max_steps_min > 0 else 1}, "
+            f"max={args.max_steps_max if args.max_steps_max > 0 else args.max_steps})"
+        )
+    else:
+        dynamic_max_cfg = "off"
+    print(f"  dynamic_max_steps={dynamic_max_cfg}")
     print(f"  entropy_coef schedule={args.entropy_coef_start} -> {args.entropy_coef_end}")
     print(f"  device={device}")
     print(f"  eval_interval_updates={args.eval_interval_updates}")
