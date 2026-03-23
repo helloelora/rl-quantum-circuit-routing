@@ -13,6 +13,7 @@ import torch
 
 try:
     from .agent import SymmetricCNNActorCritic
+    from .dqn_agent import SymmetricCNNQNetwork
     from .circuit_utils import (
         get_coupling_map,
         get_sabre_initial_mapping,
@@ -22,6 +23,7 @@ try:
     from .environment import QubitRoutingEnv
 except ImportError:
     from agent import SymmetricCNNActorCritic
+    from dqn_agent import SymmetricCNNQNetwork
     from circuit_utils import (
         get_coupling_map,
         get_sabre_initial_mapping,
@@ -32,7 +34,14 @@ except ImportError:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Evaluate PPO model against SABRE.")
+    parser = argparse.ArgumentParser(description="Evaluate PPO or DQN model against SABRE.")
+    parser.add_argument(
+        "--algo",
+        type=str,
+        default="ppo",
+        choices=["ppo", "dqn"],
+        help="Model family used by --model-path.",
+    )
     parser.add_argument("--model-path", type=str, required=True)
     parser.add_argument("--qasmbench-root", type=str, required=True)
     parser.add_argument("--topologies", type=str, default="heavy_hex_19")
@@ -58,17 +67,21 @@ def build_edge_index_and_mask(env, max_actions: int):
     return edge_index, action_mask
 
 
-def greedy_action(model, obs, edge_index, action_mask, device):
+def greedy_action(model, obs, edge_index, action_mask, device, algo: str):
     obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
     edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=device).unsqueeze(0)
     mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=device).unsqueeze(0)
     with torch.no_grad():
-        dist, _ = model.get_action_distribution(obs_t, edge_t, mask_t)
-        action = int(torch.argmax(dist.logits, dim=-1).item())
+        if algo == "ppo":
+            dist, _ = model.get_action_distribution(obs_t, edge_t, mask_t)
+            action = int(torch.argmax(dist.logits, dim=-1).item())
+        else:
+            q_values = model.get_q_values(obs_t, edge_t, mask_t)
+            action = int(torch.argmax(q_values, dim=-1).item())
     return action
 
 
-def evaluate_one_circuit(model, env, topo_idx: int, circuit, device) -> int:
+def evaluate_one_circuit(model, env, topo_idx: int, circuit, device, algo: str) -> int:
     topo = env._topologies[topo_idx]
     sabre_init = get_sabre_initial_mapping(circuit, topo["coupling_map"])
     obs, _ = env.reset(
@@ -85,7 +98,7 @@ def evaluate_one_circuit(model, env, topo_idx: int, circuit, device) -> int:
     max_actions = int(env.action_space.n)
     while not done and not truncated:
         edge_index, action_mask = build_edge_index_and_mask(env, max_actions)
-        action = greedy_action(model, obs, edge_index, action_mask, device)
+        action = greedy_action(model, obs, edge_index, action_mask, device, algo)
         obs, _, done, truncated, info = env.step(action)
 
     return int(info.get("total_swaps", 0))
@@ -112,7 +125,10 @@ def main():
         seed=42,
     )
 
-    model = SymmetricCNNActorCritic(matrix_size=env.N).to(device)
+    if args.algo == "ppo":
+        model = SymmetricCNNActorCritic(matrix_size=env.N).to(device)
+    else:
+        model = SymmetricCNNQNetwork(matrix_size=env.N).to(device)
     state_dict = torch.load(args.model_path, map_location=device)
     model.load_state_dict(state_dict)
     model.eval()
@@ -130,7 +146,7 @@ def main():
             if circuit.num_qubits > n_physical:
                 continue
 
-            ppo_swaps = evaluate_one_circuit(model, env, topo_idx, circuit, device)
+            ppo_swaps = evaluate_one_circuit(model, env, topo_idx, circuit, device, args.algo)
             sabre_swaps = int(get_sabre_swap_count(circuit, cmap))
             improvement_pct = (
                 100.0 * (sabre_swaps - ppo_swaps) / max(1, sabre_swaps)
@@ -192,4 +208,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

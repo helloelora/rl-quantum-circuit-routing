@@ -501,7 +501,7 @@ Interpretation: train rewards and returns improve, but completion rate remains v
   - Run4 still better: `-1256.88%`, `timeout=0.861`, `ppo=433.14` (vs Run6 `-1372.80%`, `0.917`, `459.53`)
 
 ### Important instrumentation note
-- `trace_alert_flag` stayed `0` at all checkpoints.
+<!-- - `trace_alert_flag` stayed `0` at all checkpoints. -->
 - Root cause: current streak logic resets on non-trace updates, so it never exceeds `1` with `trace_interval_updates > 1`.
 - Consequence: alert signal is currently under-reporting collapse risk.
 
@@ -614,3 +614,197 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 - Preserve trace diagnostics.
 - Reduce collapse severity and wasted 500-step failures on hard topologies.
 - Make training signal denser and more stable when policy starts looping.
+
+## 21) Run8 Interim Analysis (results/Run8)
+### Overall status
+- Run8 is a clear stability improvement over Run7:
+  - no reward/value explosion in stage3 train logs,
+  - much better best eval on stage3 (`-431.38%` vs Run7 stage3 best `-1440.71%`).
+- However, stage3 still degrades after its best checkpoint:
+  - stage3 eval update 40: `improve=-431.38%`, `win=0.083`, `timeout=0.694`
+  - stage3 eval update 60: `improve=-629.77%`, `win=0.000`, `timeout=0.917`
+
+### Stage-level snapshot
+- Stage1 (`metrics.csv`):
+  - best eval (u20): `-88.54%`, `win=0.583`, `timeout=0.083`
+  - traces healthy (`done=1.0`, `dom=0.438`, `backtrack=0.063`)
+- Stage2 (`metrics (1).csv`):
+  - best eval (u40): `-640.47%`, `win=0.208`, `timeout=0.458`
+  - traces mixed but not collapsed (`dom~0.50-0.71`, `backtrack~0.32-0.55`)
+- Stage3 (`metrics (2).csv`):
+  - best eval (u40): `-431.38%`, `win=0.083`, `timeout=0.694`
+  - later degradation at u60 with loop alerts (`trace_alert_streak=3`)
+  - traces show hard-topology collapse:
+    - `grid_3x3`: `done=0/6`, timeout `6/6`, `dom=0.975`, `backtrack=0.974`
+    - `heavy_hex_19`: `done=0/6`, timeout `6/6`, `dom=0.990`, `backtrack=0.986`
+
+### Continue or stop decision rule
+- Continue only until the next eval checkpoint(s) to confirm recovery.
+- If at the next eval checkpoint:
+  - `eval_win_rate <= 0.10` and
+  - `eval_timeout_rate >= 0.75` and
+  - trace alert remains active (`trace_alert_streak >= 2`),
+  then stop the run and keep the best checkpoint from stage3 update 40.
+
+## 22) Run8 Final Verdict (after update 100)
+### New evidence
+- Stage3 eval checkpoints now include:
+  - update 80: `eval_improve=-586.22%`, `win=0.028`, `timeout=0.861`
+  - update 100: `eval_improve=-633.44%`, `win=0.028`, `timeout=0.917`
+- Trace collapse persisted and worsened:
+  - update 80: `dom=0.932`, `backtrack=0.887`, `alert_streak=4`
+  - update 100: `dom=0.936`, `backtrack=0.889`, `alert_streak=5`
+- Update 100 case-level traces:
+  - `grid_3x3`: `done=0/2`, timeout `2/2`, `ppo=300` vs `sabre=20-25`
+  - `heavy_hex_19`: `done=0/2`, timeout `2/2`, `ppo=300` vs `sabre=184-200`
+  - `linear_5`: mixed (`1/2` solved, one timeout with strong loop signature)
+
+### Decision
+- Stop Run8 and keep the best stage3 checkpoint at update 40:
+  - `eval_improve=-431.38%`, `win=0.083`, `timeout=0.694`.
+
+## 23) Run9 Plan (target: prevent stage3 relapse)
+### Goal
+- Preserve Run8 stability gains while reducing late-stage loop relapse on
+  `grid_3x3` and `heavy_hex_19`.
+
+### Proposed Run9 hyperparameters
+- Keep:
+  - `--repeat-swap-penalty-cap -1.0`
+  - `--max-steps-per-two-qubit-gate 6`
+  - `--max-steps-min 40`
+  - `--max-steps-max 300`
+  - `--eval-circuits-per-topology 12`
+  - `--trace-cases-per-topology 2`
+- Adjust:
+  - `--learning-rate 2e-4` (from `3e-4`)
+  - `--target-kl 0.012` (from `0.015`)
+  - `--entropy-coef-end 0.0003` (from `0.0001`)
+  - `--stage3-depth 16` (from `20`) for this run only
+  - `--stage3-steps 400000` (from `600000`) to reduce destructive overtraining
+  - `--repeat-swap-penalty-coeff -0.03` (from `-0.05`)
+  - `--no-progress-penalty-coeff -0.008` (from `-0.01`)
+  - `--no-progress-penalty-cap -0.4` (from `-0.5`)
+  - topology weights: `linear=0.15`, `grid=2.0`, `heavy_hex=1.75`
+
+### Run9 stop/continue rule
+- At each stage3 eval checkpoint:
+  - if `eval_win_rate <= 0.05` and `eval_timeout_rate >= 0.85`
+    and `trace_alert_streak >= 2` for 2 consecutive eval checkpoints,
+    stop run early.
+
+## 24) Run9 Notebook Launch Updated
+`notebooks/train_ppo_colab.ipynb` launch cell has been updated to Run9:
+
+- `RUN_NAME=ppo_run9_<timestamp>`
+- `--stage3-steps 400000`
+- `--stage3-depth 16`
+- `--learning-rate 2e-4`
+- `--target-kl 0.012`
+- `--entropy-coef-end 0.0003`
+- `--repeat-swap-penalty-coeff -0.03`
+- `--repeat-swap-penalty-cap -1.0`
+- `--no-progress-penalty-coeff -0.008`
+- `--no-progress-penalty-cap -0.4`
+- `--max-steps-per-two-qubit-gate 6`
+- `--max-steps-min 40`
+- `--max-steps-max 300`
+- topology weights:
+  - `--linear-topology-weight 0.15`
+  - `--grid-topology-weight 2.0`
+  - `--heavy-hex-topology-weight 1.75`
+
+Also updated the analysis-export cell output folder to:
+- `results/Run9/<run_name>_analysis_only`
+
+## 25) Run9 Analysis (results/Run9)
+### Verdict
+- Run9 is a regression versus Run8 across all stages.
+- Best PPO checkpoint remains Run8 stage3 update 40.
+
+### Stage1 (metrics.csv)
+- Best eval (u20): `eval_improve=-454.28%`, `win=0.333`, `timeout=0.500`
+- Run8 Stage1 reference: `-88.54%`, `win=0.583`, `timeout=0.083`
+- Interpretation: the softer penalties / lower aggressiveness hurt early learning quality.
+
+### Stage2 (metrics (1).csv)
+- Best eval (u20): `-807.43%`, `win=0.167`, `timeout=0.583`
+- Later evals stayed poor (`u40=-885.17%`, `u60=-830.98%`)
+- Run8 Stage2 best was better (`-640.47%`, `win=0.208`, `timeout=0.458`).
+
+### Stage3 (metrics (2).csv)
+- Eval checkpoints: `u20=-537.06%`, `u40=-636.81%`, `u60=-746.32%`, `u80=-712.01%`
+- Best stage3 eval was at u20 (not later), then degradation.
+- Traces confirm loop collapse:
+  - `trace_dom` ~ `0.885-0.900`
+  - `trace_backtrack` ~ `0.835-0.852`
+  - `trace_alert_streak` reached `4`
+- Topology traces:
+  - `grid_3x3`: `done=0`, timeout `1.0`, very high loop signature
+  - `heavy_hex_19`: `done=0`, timeout `1.0`, `dom~0.992`, `backtrack~0.987`
+
+### Comparison vs Run8
+- Run8 stage3 best: `-431.38%`, `win=0.083`, `timeout=0.694`
+- Run9 stage3 best: `-537.06%`, `win=0.083`, `timeout=0.722`
+- Run9 did not improve robustness and reduced stage1/stage2 quality.
+
+### Recommendation after Run9
+- Keep Run8 best model/checkpoint as PPO reference.
+- Do not continue this Run9 direction.
+- If one last PPO attempt is needed, start from Run8 settings and add only:
+  - automatic stage3 early-stop on eval degradation + persistent trace alert.
+- Prioritize DQN branch next for a genuine algorithmic shift.
+
+## 26) DQN Branch Setup (elora-DQN)
+### Scope implemented
+- Created dedicated branch: `elora-DQN`.
+- Added a full DQN training pipeline while reusing:
+  - `src/environment.py` (same env/state/reward/topology logic),
+  - evaluation protocol vs SABRE,
+  - periodic traces and trace alerts,
+  - curriculum flow in `src/main.py`.
+
+### New files
+- `src/dqn_agent.py`
+  - `DQNConfig`
+  - `SymmetricCNNQNetwork` (symmetry-aware edge Q-values)
+  - memory-efficient `ReplayBuffer` (float16 states)
+  - `DQNAgent` with:
+    - epsilon-greedy exploration,
+    - optional Double-DQN target selection,
+    - target network syncing,
+    - periodic eval vs SABRE,
+    - periodic traces and alert streaks,
+    - `best_model.pt` selection based on eval metric.
+
+### Updated files
+- `src/main.py`
+  - new `--algo {ppo,dqn}` switch.
+  - DQN CLI args added:
+    - replay, batch, epsilon schedule, target update, double-dqn toggle, huber delta.
+  - `train_phase` now dispatches to PPO or DQN.
+  - run naming now defaults to `<algo>_<timestamp>`.
+- `src/evaluate.py`
+  - new `--algo {ppo,dqn}` to load matching network for benchmark/evaluation.
+- `benchmark.py`
+  - docstring updated to PPO/DQN wording.
+- `notebooks/train_ppo_colab.ipynb`
+  - launch cell replaced with a DQN proof-of-life run (`dqn_run1_*`, linear_5).
+  - analysis export folder switched to `results/RunDQN1`.
+
+### DQN pilot config (notebook)
+- Single-topology proof-of-life:
+  - `--algo dqn`
+  - `--topologies linear_5`
+  - `--circuit-depth 8`
+  - `--total-timesteps 300000`
+- DQN core:
+  - `--learning-rate 1e-4`
+  - `--gamma 0.99`
+  - `--dqn-replay-size 100000`
+  - `--dqn-min-replay-size 5000`
+  - `--dqn-batch-size 128`
+  - `--dqn-target-update-interval-steps 2000`
+  - `--dqn-epsilon-start 1.0`
+  - `--dqn-epsilon-end 0.05`
+  - `--dqn-epsilon-decay-steps 100000`

@@ -1,4 +1,4 @@
-"""Convenience wrapper for final PPO vs SABRE evaluation."""
+"""Convenience wrapper for final PPO/DQN vs SABRE evaluation."""
 
 from src.evaluate import main
 

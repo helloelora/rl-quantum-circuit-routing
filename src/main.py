@@ -1,4 +1,4 @@
-"""Training entrypoint for PPO-based quantum circuit routing."""
+"""Training entrypoint for RL-based quantum circuit routing (PPO or DQN)."""
 
 from __future__ import annotations
 
@@ -22,9 +22,11 @@ except Exception as exc:  # pragma: no cover - optional dependency
 
 try:
     from .agent import PPOAgent, PPOConfig
+    from .dqn_agent import DQNAgent, DQNConfig
     from .environment import QubitRoutingEnv
 except ImportError:
     from agent import PPOAgent, PPOConfig
+    from dqn_agent import DQNAgent, DQNConfig
     from environment import QubitRoutingEnv
 
 
@@ -83,7 +85,7 @@ def setup_project_paths(in_colab: bool, project_root_arg: str):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train PPO for qubit routing")
+    parser = argparse.ArgumentParser(description="Train PPO or DQN for qubit routing")
 
     parser.add_argument("--in-colab", action="store_true")
     parser.add_argument(
@@ -97,6 +99,13 @@ def parse_args():
         type=str,
         default="",
         help="Run folder name under runs/. If empty, timestamp is used.",
+    )
+    parser.add_argument(
+        "--algo",
+        type=str,
+        default="ppo",
+        choices=["ppo", "dqn"],
+        help="RL algorithm to train.",
     )
 
     parser.add_argument(
@@ -201,6 +210,22 @@ def parse_args():
     parser.add_argument("--value-coef", type=float, default=0.5)
     parser.add_argument("--max-grad-norm", type=float, default=0.5)
     parser.add_argument("--target-kl", type=float, default=0.015)
+    # DQN-specific settings
+    parser.add_argument("--dqn-replay-size", type=int, default=100000)
+    parser.add_argument("--dqn-min-replay-size", type=int, default=5000)
+    parser.add_argument("--dqn-batch-size", type=int, default=128)
+    parser.add_argument("--dqn-train-frequency-steps", type=int, default=1)
+    parser.add_argument("--dqn-gradient-steps", type=int, default=1)
+    parser.add_argument("--dqn-target-update-interval-steps", type=int, default=2000)
+    parser.add_argument("--dqn-epsilon-start", type=float, default=1.0)
+    parser.add_argument("--dqn-epsilon-end", type=float, default=0.05)
+    parser.add_argument("--dqn-epsilon-decay-steps", type=int, default=200000)
+    parser.add_argument(
+        "--dqn-disable-double",
+        action="store_true",
+        help="Disable Double-DQN target action selection.",
+    )
+    parser.add_argument("--dqn-huber-delta", type=float, default=1.0)
     parser.add_argument("--log-interval-updates", type=int, default=5)
     parser.add_argument("--checkpoint-interval-updates", type=int, default=25)
     parser.add_argument("--eval-interval-updates", type=int, default=20)
@@ -274,40 +299,79 @@ def train_phase(
         seed=args.seed,
     )
 
-    cfg = PPOConfig(
-        total_timesteps=total_timesteps,
-        rollout_steps=args.rollout_steps,
-        learning_rate=args.learning_rate,
-        gamma=args.gamma,
-        gae_lambda=args.gae_lambda,
-        clip_range=args.clip_range,
-        update_epochs=args.update_epochs,
-        minibatch_size=args.minibatch_size,
-        entropy_coef_start=args.entropy_coef_start,
-        entropy_coef_end=args.entropy_coef_end,
-        value_coef=args.value_coef,
-        max_grad_norm=args.max_grad_norm,
-        target_kl=args.target_kl,
-        log_interval_updates=args.log_interval_updates,
-        checkpoint_interval_updates=args.checkpoint_interval_updates,
-        eval_interval_updates=args.eval_interval_updates,
-        eval_circuits_per_topology=args.eval_circuits_per_topology,
-        eval_circuit_depth=eval_circuit_depth,
-        eval_min_two_qubit_gates=eval_min_two_qubit_gates,
-        eval_circuit_generation_attempts=args.eval_circuit_generation_attempts,
-        eval_seed_base=args.eval_seed_base + eval_seed_offset,
-        trace_interval_updates=args.trace_interval_updates,
-        trace_cases_per_topology=args.trace_cases_per_topology,
-        trace_max_steps=args.trace_max_steps,
-        trace_alert_dom_threshold=args.trace_alert_dom_threshold,
-        trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
-        trace_alert_patience=args.trace_alert_patience,
-        distance_reward_coeff_start=args.distance_reward_coeff_start,
-        distance_reward_coeff_end=args.distance_reward_coeff_end,
-        run_dir=str(phase_run_dir),
-        seed=args.seed,
-        device=device,
-    )
+    if args.algo == "ppo":
+        cfg = PPOConfig(
+            total_timesteps=total_timesteps,
+            rollout_steps=args.rollout_steps,
+            learning_rate=args.learning_rate,
+            gamma=args.gamma,
+            gae_lambda=args.gae_lambda,
+            clip_range=args.clip_range,
+            update_epochs=args.update_epochs,
+            minibatch_size=args.minibatch_size,
+            entropy_coef_start=args.entropy_coef_start,
+            entropy_coef_end=args.entropy_coef_end,
+            value_coef=args.value_coef,
+            max_grad_norm=args.max_grad_norm,
+            target_kl=args.target_kl,
+            log_interval_updates=args.log_interval_updates,
+            checkpoint_interval_updates=args.checkpoint_interval_updates,
+            eval_interval_updates=args.eval_interval_updates,
+            eval_circuits_per_topology=args.eval_circuits_per_topology,
+            eval_circuit_depth=eval_circuit_depth,
+            eval_min_two_qubit_gates=eval_min_two_qubit_gates,
+            eval_circuit_generation_attempts=args.eval_circuit_generation_attempts,
+            eval_seed_base=args.eval_seed_base + eval_seed_offset,
+            trace_interval_updates=args.trace_interval_updates,
+            trace_cases_per_topology=args.trace_cases_per_topology,
+            trace_max_steps=args.trace_max_steps,
+            trace_alert_dom_threshold=args.trace_alert_dom_threshold,
+            trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
+            trace_alert_patience=args.trace_alert_patience,
+            distance_reward_coeff_start=args.distance_reward_coeff_start,
+            distance_reward_coeff_end=args.distance_reward_coeff_end,
+            run_dir=str(phase_run_dir),
+            seed=args.seed,
+            device=device,
+        )
+    else:
+        cfg = DQNConfig(
+            total_timesteps=total_timesteps,
+            update_steps=args.rollout_steps,
+            learning_rate=args.learning_rate,
+            gamma=args.gamma,
+            replay_capacity=args.dqn_replay_size,
+            min_replay_size=args.dqn_min_replay_size,
+            batch_size=args.dqn_batch_size,
+            train_frequency_steps=args.dqn_train_frequency_steps,
+            gradient_steps=args.dqn_gradient_steps,
+            target_update_interval_steps=args.dqn_target_update_interval_steps,
+            epsilon_start=args.dqn_epsilon_start,
+            epsilon_end=args.dqn_epsilon_end,
+            epsilon_decay_steps=args.dqn_epsilon_decay_steps,
+            use_double_dqn=not args.dqn_disable_double,
+            huber_delta=args.dqn_huber_delta,
+            max_grad_norm=args.max_grad_norm,
+            log_interval_updates=args.log_interval_updates,
+            checkpoint_interval_updates=args.checkpoint_interval_updates,
+            eval_interval_updates=args.eval_interval_updates,
+            eval_circuits_per_topology=args.eval_circuits_per_topology,
+            eval_circuit_depth=eval_circuit_depth,
+            eval_min_two_qubit_gates=eval_min_two_qubit_gates,
+            eval_circuit_generation_attempts=args.eval_circuit_generation_attempts,
+            eval_seed_base=args.eval_seed_base + eval_seed_offset,
+            trace_interval_updates=args.trace_interval_updates,
+            trace_cases_per_topology=args.trace_cases_per_topology,
+            trace_max_steps=args.trace_max_steps,
+            trace_alert_dom_threshold=args.trace_alert_dom_threshold,
+            trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
+            trace_alert_patience=args.trace_alert_patience,
+            distance_reward_coeff_start=args.distance_reward_coeff_start,
+            distance_reward_coeff_end=args.distance_reward_coeff_end,
+            run_dir=str(phase_run_dir),
+            seed=args.seed,
+            device=device,
+        )
 
     print(f"\n=== {phase_name} ===")
     print(f"  topologies={topologies}")
@@ -325,10 +389,26 @@ def train_phase(
     print(f"  trace_alert_thresholds=(dom>={args.trace_alert_dom_threshold}, backtrack>={args.trace_alert_backtrack_threshold}, patience={args.trace_alert_patience})")
     print(f"  total_timesteps={total_timesteps}")
     print(f"  run_dir={phase_run_dir}")
+    if args.algo == "ppo":
+        agent = PPOAgent(env, cfg, model_state_dict=model_state_dict)
+        agent.train()
+        return {k: v.detach().cpu() for k, v in agent.model.state_dict().items()}
 
-    agent = PPOAgent(env, cfg, model_state_dict=model_state_dict)
+    print(
+        "  dqn="
+        f"(replay={args.dqn_replay_size}, "
+        f"min_replay={args.dqn_min_replay_size}, "
+        f"batch={args.dqn_batch_size}, "
+        f"train_freq={args.dqn_train_frequency_steps}, "
+        f"grad_steps={args.dqn_gradient_steps}, "
+        f"target_update={args.dqn_target_update_interval_steps}, "
+        f"eps={args.dqn_epsilon_start}->{args.dqn_epsilon_end}, "
+        f"eps_decay_steps={args.dqn_epsilon_decay_steps}, "
+        f"double={not args.dqn_disable_double})"
+    )
+    agent = DQNAgent(env, cfg, model_state_dict=model_state_dict)
     agent.train()
-    return {k: v.detach().cpu() for k, v in agent.model.state_dict().items()}
+    return {k: v.detach().cpu() for k, v in agent.q_net.state_dict().items()}
 
 
 def main():
@@ -341,7 +421,7 @@ def main():
     run_name = (
         args.run_name
         if args.run_name
-        else datetime.now().strftime("ppo_%Y%m%d_%H%M%S")
+        else datetime.now().strftime(f"{args.algo}_%Y%m%d_%H%M%S")
     )
     run_dir = run_root / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -373,6 +453,30 @@ def main():
         raise ValueError("--max-steps-max must be >= 0.")
     if args.max_steps_min > 0 and args.max_steps_max > 0 and args.max_steps_max < args.max_steps_min:
         raise ValueError("--max-steps-max must be >= --max-steps-min.")
+    if args.dqn_replay_size < 1:
+        raise ValueError("--dqn-replay-size must be >= 1.")
+    if args.dqn_min_replay_size < 1:
+        raise ValueError("--dqn-min-replay-size must be >= 1.")
+    if args.dqn_min_replay_size > args.dqn_replay_size:
+        raise ValueError("--dqn-min-replay-size must be <= --dqn-replay-size.")
+    if args.dqn_batch_size < 1:
+        raise ValueError("--dqn-batch-size must be >= 1.")
+    if args.dqn_train_frequency_steps < 1:
+        raise ValueError("--dqn-train-frequency-steps must be >= 1.")
+    if args.dqn_gradient_steps < 1:
+        raise ValueError("--dqn-gradient-steps must be >= 1.")
+    if args.dqn_target_update_interval_steps < 1:
+        raise ValueError("--dqn-target-update-interval-steps must be >= 1.")
+    if args.dqn_epsilon_decay_steps < 1:
+        raise ValueError("--dqn-epsilon-decay-steps must be >= 1.")
+    if not (0.0 <= args.dqn_epsilon_end <= 1.0):
+        raise ValueError("--dqn-epsilon-end must be in [0, 1].")
+    if not (0.0 <= args.dqn_epsilon_start <= 1.0):
+        raise ValueError("--dqn-epsilon-start must be in [0, 1].")
+    if args.dqn_epsilon_start < args.dqn_epsilon_end:
+        raise ValueError("--dqn-epsilon-start must be >= --dqn-epsilon-end.")
+    if args.dqn_huber_delta <= 0:
+        raise ValueError("--dqn-huber-delta must be > 0.")
     if args.linear_topology_weight < 0:
         raise ValueError("--linear-topology-weight must be >= 0.")
     if args.grid_topology_weight < 0:
@@ -415,7 +519,7 @@ def main():
     with (run_dir / "config.json").open("w", encoding="utf-8") as f:
         json.dump(config_dump, f, indent=2)
 
-    print("Starting PPO training with settings:")
+    print(f"Starting {args.algo.upper()} training with settings:")
     print(f"  PROJECT_ROOT={project_root}")
     print(f"  DATA_ROOT={data_root}")
     print(f"  RUN_ROOT={run_root}")
@@ -452,7 +556,21 @@ def main():
     else:
         dynamic_max_cfg = "off"
     print(f"  dynamic_max_steps={dynamic_max_cfg}")
-    print(f"  entropy_coef schedule={args.entropy_coef_start} -> {args.entropy_coef_end}")
+    if args.algo == "ppo":
+        print(f"  entropy_coef schedule={args.entropy_coef_start} -> {args.entropy_coef_end}")
+    else:
+        print(
+            "  dqn="
+            f"(replay={args.dqn_replay_size}, "
+            f"min_replay={args.dqn_min_replay_size}, "
+            f"batch={args.dqn_batch_size}, "
+            f"train_freq={args.dqn_train_frequency_steps}, "
+            f"grad_steps={args.dqn_gradient_steps}, "
+            f"target_update={args.dqn_target_update_interval_steps}, "
+            f"eps={args.dqn_epsilon_start}->{args.dqn_epsilon_end}, "
+            f"eps_decay_steps={args.dqn_epsilon_decay_steps}, "
+            f"double={not args.dqn_disable_double})"
+        )
     print(f"  device={device}")
     print(f"  eval_interval_updates={args.eval_interval_updates}")
     print(f"  eval_circuits_per_topology={args.eval_circuits_per_topology}")
