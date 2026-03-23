@@ -1006,11 +1006,17 @@ class PPOAgent:
                     f"{trace_msg}"
                 )
                 if trace_alert_flag:
-                    print(
-                        "[Alert] Loop-pattern risk detected from traces: "
-                        f"dom={trace_metrics['trace_action_dom_ratio']:.3f}, "
-                        f"backtrack={trace_metrics['trace_backtrack_rate']:.3f}, "
-                        f"streak={self.trace_alert_streak}."
-                    )
+                    if trace_metrics is not None:
+                        print(
+                            "[Alert] Loop-pattern risk detected from traces: "
+                            f"dom={trace_metrics['trace_action_dom_ratio']:.3f}, "
+                            f"backtrack={trace_metrics['trace_backtrack_rate']:.3f}, "
+                            f"streak={self.trace_alert_streak}."
+                        )
+                    else:
+                        print(
+                            "[Alert] Loop-pattern risk detected from traces: "
+                            f"streak={self.trace_alert_streak}."
+                        )
 
         self._save_checkpoint("last_model.pt")
