@@ -808,3 +808,105 @@ Also updated the analysis-export cell output folder to:
   - `--dqn-epsilon-start 1.0`
   - `--dqn-epsilon-end 0.05`
   - `--dqn-epsilon-decay-steps 100000`
+
+## 27) Supervised Sanity Check (2026-03-23)
+### Goal
+- Validate whether the `27x27x3` state representation and symmetry-aware CNN
+  can predict strong routing actions in supervised mode before RL.
+
+### V1 (proxy teacher, state-level split)
+- Files: `results/v1/summary.json`, `results/v1/history.csv`
+- Setup:
+  - topology: `linear_5`
+  - samples: `10,000` (`8,000` train / `2,000` val)
+  - epochs: `20`
+- Result:
+  - `val_top1 = 0.9045`
+  - `val_top3 = 0.9995`
+  - masked-random baseline top1: `0.25`
+- Interpretation:
+  - Very strong signal, but this setup is less rigorous (risk of optimistic estimate).
+
+### V2 (rigorous: SABRE step-by-step + circuit-level split)
+- Files: `results/v2/summary.json`, `results/v2/history.csv`, `results/v2/circuits_meta.csv`
+- Setup:
+  - teacher labels from SABRE SWAP sequence
+  - train/val split by circuits (not shuffled states)
+  - topology: `linear_5`
+- Result (single run):
+  - `val_top1 = 0.6418`
+  - `val_top3 = 0.9433`
+  - majority baseline top1: `0.3457`
+  - masked-random baseline top1: `0.25`
+- Interpretation:
+  - Lower than V1 (expected), but still clearly above baselines.
+  - Confirms that representation has useful predictive signal.
+
+### V2 More (3 seeds, rigorous)
+- Files in local archive: `results/v2 more/.../summary.json`
+- Seed results on `linear_5`:
+  - seed 42: `top1=0.6453`, `top3=0.9371`
+  - seed 123: `top1=0.6464`, `top3=0.9423`
+  - seed 999: `top1=0.6702`, `top3=0.9365`
+- Aggregate:
+  - `val_top1 mean/std = 0.6540 / 0.0115`
+  - `val_top3 mean/std = 0.9386 / 0.0026`
+  - baselines: majority ~`0.335-0.339`, random `0.25`
+
+### Conclusion from sanity checks
+- The input representation and CNN architecture are not the main bottleneck.
+- RL failures versus SABRE are more likely due to optimization/exploration/
+  long-horizon credit assignment (not inability to decode state information).
+
+### Next comparison plan
+1. Run the same V2 protocol on `grid_3x3` and `heavy_hex_19` (3 seeds each).
+2. Compare `val_top1/top3` mean/std by topology.
+3. If V2 remains good on harder topologies, prioritize RL-side changes
+   (pretraining + DQN fine-tuning, reward/exploration stability).
+
+## 28) Supervised Rollout vs SABRE (Holdout, 3 seeds per topology)
+### Protocol
+- Loaded each V2 supervised checkpoint (`best_model.pt`) and executed full
+  routing rollouts (greedy policy) on holdout random circuits.
+- SABRE and model were evaluated on the same holdout cases.
+- Metrics:
+  - `mean_improvement_pct` vs SABRE
+  - `win_rate_vs_sabre`
+  - `timeout_rate`
+
+### Aggregated results
+- `linear_5`
+  - improvement mean/std: `-3.452% / 7.061`
+  - win-rate mean/std: `0.835 / 0.018`
+  - timeout mean/std: `0.005 / 0.004`
+- `grid_3x3`
+  - improvement mean/std: `-388.48% / 41.123`
+  - win-rate mean/std: `0.243 / 0.008`
+  - timeout mean/std: `0.357 / 0.033`
+- `heavy_hex_19`
+  - improvement mean/std: `-58.628% / 0.268`
+  - win-rate mean/std: `0.000 / 0.000`
+  - timeout mean/std: `1.000 / 0.000`
+
+### Per-run highlights
+- `linear_5`: one seed reached positive mean improvement (`+5.16%`), two were
+  slightly negative (`-12.13%`, `-3.39%`), with high win-rate and near-zero
+  timeout.
+- `grid_3x3`: all seeds remained far behind SABRE with moderate timeout.
+- `heavy_hex_19`: all seeds timed out at cap (`model_swaps=160`), indicating
+  unresolved long-horizon control despite non-random imitation scores.
+
+### Interpretation
+- Representation is validated on easy topology (linear_5).
+- For harder topologies, imitation quality does not yet translate into robust
+  sequential routing performance.
+- Main bottleneck appears to be rollout robustness / long-horizon error
+  compounding, not raw state encoding quality.
+
+### Next run direction
+1. Warm-start DQN from supervised checkpoints (`--init-model-path`) to reduce
+   early exploration collapse.
+2. Train single-topology first (`grid_3x3`, then `heavy_hex_19`) before
+   multi-topology mixing.
+3. Keep periodic eval/traces and compare against the same SABRE holdout
+   protocol.

@@ -251,9 +251,75 @@ def parse_args():
     parser.add_argument("--trace-alert-backtrack-threshold", type=float, default=0.50)
     parser.add_argument("--trace-alert-patience", type=int, default=2)
     parser.add_argument("--device", type=str, default="auto")
+    parser.add_argument(
+        "--init-model-path",
+        type=str,
+        default="",
+        help=(
+            "Optional path to initial model weights for warm-start. "
+            "Useful for supervised-pretrained checkpoints."
+        ),
+    )
     parser.add_argument("--save-path", type=str, default="")
 
     return parser.parse_args()
+
+
+def _extract_state_dict(raw_obj):
+    """Best-effort extraction of a plain state_dict from common checkpoint wrappers."""
+    if not isinstance(raw_obj, dict):
+        return None
+    if raw_obj and all(torch.is_tensor(v) for v in raw_obj.values()):
+        return raw_obj
+    for key in (
+        "state_dict",
+        "model_state_dict",
+        "q_net_state_dict",
+        "model",
+        "net",
+    ):
+        candidate = raw_obj.get(key)
+        if isinstance(candidate, dict) and candidate and all(
+            torch.is_tensor(v) for v in candidate.values()
+        ):
+            return candidate
+    return None
+
+
+def _strip_prefix_if_uniform(state_dict, prefix: str):
+    if not state_dict:
+        return state_dict
+    keys = list(state_dict.keys())
+    if all(k.startswith(prefix) for k in keys):
+        plen = len(prefix)
+        return {k[plen:]: v for k, v in state_dict.items()}
+    return state_dict
+
+
+def _load_init_model_state(init_model_path: str, algo: str, device: str):
+    """
+    Load warm-start state_dict and normalize key prefixes when possible.
+
+    For DQN warm-start, supervised checkpoints may store keys under "net.".
+    """
+    ckpt_path = Path(init_model_path)
+    raw = torch.load(ckpt_path, map_location=device)
+    state_dict = _extract_state_dict(raw)
+    if state_dict is None:
+        raise ValueError(
+            f"Could not extract state_dict from --init-model-path: {ckpt_path}"
+        )
+
+    # Common wrapper prefixes from different training scripts.
+    state_dict = _strip_prefix_if_uniform(state_dict, "module.")
+    if algo == "dqn":
+        state_dict = _strip_prefix_if_uniform(state_dict, "net.")
+        state_dict = _strip_prefix_if_uniform(state_dict, "q_net.")
+        state_dict = _strip_prefix_if_uniform(state_dict, "model.")
+    else:
+        state_dict = _strip_prefix_if_uniform(state_dict, "model.")
+
+    return state_dict
 
 
 def train_phase(
@@ -497,6 +563,10 @@ def main():
         raise ValueError("--trace-alert-backtrack-threshold must be in [0, 1].")
     if args.trace_alert_patience < 1:
         raise ValueError("--trace-alert-patience must be >= 1.")
+    if args.init_model_path and not Path(args.init_model_path).exists():
+        raise FileNotFoundError(
+            f"--init-model-path does not exist: {args.init_model_path}"
+        )
 
     resolved_eval_min_twoq = (
         args.min_two_qubit_gates
@@ -572,6 +642,8 @@ def main():
             f"double={not args.dqn_disable_double})"
         )
     print(f"  device={device}")
+    if args.init_model_path:
+        print(f"  init_model_path={args.init_model_path}")
     print(f"  eval_interval_updates={args.eval_interval_updates}")
     print(f"  eval_circuits_per_topology={args.eval_circuits_per_topology}")
     print(f"  trace_interval_updates={args.trace_interval_updates}")
@@ -590,6 +662,14 @@ def main():
         + ("OK" if TORCHMETRICS_OK else f"MISSING ({TORCHMETRICS_ERR})")
     )
 
+    init_model_state = None
+    if args.init_model_path:
+        init_model_state = _load_init_model_state(
+            init_model_path=args.init_model_path,
+            algo=args.algo,
+            device=device,
+        )
+
     final_state = None
     last_phase_run_dir: Path | None = None
     if args.curriculum:
@@ -604,7 +684,7 @@ def main():
             ("stage3_full", topologies, args.stage3_depth, args.stage3_steps),
         ]
 
-        model_state = None
+        model_state = copy.deepcopy(init_model_state)
         eval_seed_offset = 0
         for phase_name, phase_topos, phase_depth, phase_steps in phases:
             if phase_steps <= 0:
@@ -646,7 +726,7 @@ def main():
             total_timesteps=args.total_timesteps,
             args=args,
             device=device,
-            model_state_dict=None,
+            model_state_dict=init_model_state,
             eval_seed_offset=0,
             eval_circuit_depth=phase_eval_depth,
             min_two_qubit_gates=phase_train_min_twoq,
