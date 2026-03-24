@@ -2,6 +2,7 @@
 
 import json
 import signal
+import sys
 import time
 import numpy as np
 import torch
@@ -10,6 +11,11 @@ from pathlib import Path
 from environment import QubitRoutingEnv
 from dqn_agent import D3QNAgent
 from config import setup_run_dir
+
+
+def _print(msg):
+    """Print with immediate flush (needed for Colab/notebook output)."""
+    print(msg, flush=True)
 
 
 class TrainingLogger:
@@ -66,7 +72,7 @@ def train(config, resume_from=None):
             config = setup_run_dir(config)
     else:
         config = setup_run_dir(config)
-    print(f"Run directory: {config.run_dir}")
+    _print(f"Run directory: {config.run_dir}")
 
     # Seed
     np.random.seed(config.seed)
@@ -75,6 +81,7 @@ def train(config, resume_from=None):
         torch.cuda.manual_seed(config.seed)
 
     # Create environment
+    _print("Creating environment...")
     env = QubitRoutingEnv(
         topologies=config.topologies,
         circuit_depth=config.circuit_depth,
@@ -88,19 +95,21 @@ def train(config, resume_from=None):
         seed=config.seed,
     )
     num_actions = env.max_edges
+    _print("Environment OK.")
 
     # Create agent
+    _print("Creating agent...")
     agent = D3QNAgent(config, num_actions)
     param_count = sum(p.numel() for p in agent.online_net.parameters())
-    print(f"Device: {agent.device}")
-    print(f"Parameters: {param_count:,}")
-    print(f"Actions: {num_actions} | Topologies: {config.topologies}")
+    _print(f"Device: {agent.device}")
+    _print(f"Parameters: {param_count:,}")
+    _print(f"Actions: {num_actions} | Topologies: {config.topologies}")
 
     # Resume
     start_episode = 0
     if resume_from:
         start_episode = agent.load_checkpoint(resume_from)
-        print(f"Resumed from episode {start_episode}")
+        _print(f"Resumed from episode {start_episode}")
 
     # Logger
     logger = TrainingLogger(config.log_dir)
@@ -113,7 +122,7 @@ def train(config, resume_from=None):
         if interrupted[0]:
             raise SystemExit(1)
         interrupted[0] = True
-        print("\nInterrupted — saving emergency checkpoint...")
+        _print("\nInterrupted — saving emergency checkpoint...")
 
     old_handler = signal.signal(signal.SIGINT, signal_handler)
 
@@ -124,13 +133,37 @@ def train(config, resume_from=None):
 
     global_step = agent._train_steps
     t_start = time.time()
+    total_eps = config.total_episodes - start_episode
+
+    # Try to use tqdm for progress bar
+    try:
+        from tqdm.auto import tqdm
+        has_tqdm = True
+    except ImportError:
+        has_tqdm = False
+
+    _print(f"\nStarting training: episodes {start_episode} → {config.total_episodes}")
+    _print(f"{'='*60}")
+
+    if has_tqdm:
+        pbar = tqdm(
+            range(start_episode, config.total_episodes),
+            desc="Training",
+            unit="ep",
+            initial=0,
+            total=total_eps,
+            dynamic_ncols=True,
+        )
+    else:
+        pbar = range(start_episode, config.total_episodes)
 
     try:
-        for episode in range(start_episode, config.total_episodes):
+        for episode in pbar:
             if interrupted[0]:
                 break
 
             current_episode[0] = episode
+            ep_t0 = time.time()
             obs, info = env.reset()
 
             # Skip episodes with no two-qubit gates
@@ -145,6 +178,7 @@ def train(config, resume_from=None):
 
             action_mask = env.get_action_mask()
             episode_reward = 0.0
+            ep_steps = 0
 
             while True:
                 action = agent.select_action(obs, action_mask)
@@ -158,6 +192,7 @@ def train(config, resume_from=None):
                 )
 
                 global_step += 1
+                ep_steps += 1
 
                 # Train step
                 if global_step % config.train_freq == 0:
@@ -192,24 +227,46 @@ def train(config, resume_from=None):
             recent_swaps.append(info["total_swaps"])
             recent_completions.append(int(info["done"]))
 
-            # Console output
+            ep_time = time.time() - ep_t0
+
+            # Update tqdm progress bar
+            if has_tqdm:
+                n = min(len(recent_rewards), config.log_every)
+                pbar.set_postfix({
+                    "R": f"{np.mean(recent_rewards[-n:]):.1f}",
+                    "SWAPs": f"{np.mean(recent_swaps[-n:]):.1f}",
+                    "Done": f"{np.mean(recent_completions[-n:]):.0%}",
+                    "\u03b5": f"{agent.epsilon:.3f}",
+                    "Buf": len(agent.buffer),
+                }, refresh=True)
+
+            # Detailed console output every log_every episodes
             if (episode + 1) % config.log_every == 0:
                 n = min(len(recent_rewards), config.log_every)
                 elapsed = time.time() - t_start
-                print(
+                msg = (
                     f"Ep {episode+1}/{config.total_episodes} "
                     f"({elapsed:.0f}s) | "
                     f"R: {np.mean(recent_rewards[-n:]):.1f} | "
                     f"SWAPs: {np.mean(recent_swaps[-n:]):.1f} | "
                     f"Done: {np.mean(recent_completions[-n:]):.0%} | "
                     f"\u03b5: {agent.epsilon:.3f} | "
-                    f"Buf: {len(agent.buffer)}"
+                    f"Buf: {len(agent.buffer)} | "
+                    f"ep_time: {ep_time:.1f}s"
                 )
+                if has_tqdm:
+                    tqdm.write(msg)
+                else:
+                    _print(msg)
 
             # Periodic evaluation + figures + save eval results
             if (episode + 1) % config.eval_every == 0:
+                if has_tqdm:
+                    tqdm.write(f"\n--- Evaluation at episode {episode+1} ---")
+                else:
+                    _print(f"\n--- Evaluation at episode {episode+1} ---")
                 _run_periodic_eval(
-                    agent, env, config, episode, logger
+                    agent, env, config, episode, logger, has_tqdm
                 )
 
             # Checkpoint
@@ -219,39 +276,46 @@ def train(config, resume_from=None):
                     / f"checkpoint_ep{episode+1}.pt"
                 )
                 agent.save_checkpoint(str(ckpt_path), episode + 1)
-                print(f"  Saved: {ckpt_path}")
+                msg = f"  Saved checkpoint: {ckpt_path}"
+                if has_tqdm:
+                    tqdm.write(msg)
+                else:
+                    _print(msg)
 
     finally:
+        if has_tqdm and hasattr(pbar, 'close'):
+            pbar.close()
+
         ep = current_episode[0]
         if interrupted[0]:
             ckpt_path = (
                 Path(config.checkpoint_dir) / "checkpoint_emergency.pt"
             )
             agent.save_checkpoint(str(ckpt_path), ep)
-            print(f"Emergency checkpoint: {ckpt_path}")
+            _print(f"Emergency checkpoint: {ckpt_path}")
         else:
             ckpt_path = (
                 Path(config.checkpoint_dir) / "checkpoint_final.pt"
             )
             agent.save_checkpoint(str(ckpt_path), config.total_episodes)
-            print(f"Final checkpoint: {ckpt_path}")
+            _print(f"Final checkpoint: {ckpt_path}")
 
         # Generate final figures
         try:
             from visualize import plot_training_curves
             plot_training_curves(config.log_dir, config.figures_dir)
         except Exception as e:
-            print(f"Warning: could not generate final figures: {e}")
+            _print(f"Warning: could not generate final figures: {e}")
 
         logger.close()
         signal.signal(signal.SIGINT, old_handler)
 
     elapsed = time.time() - t_start
-    print(f"Training complete. {elapsed:.0f}s total.")
-    print(f"All outputs in: {config.run_dir}")
+    _print(f"Training complete. {elapsed:.0f}s total.")
+    _print(f"All outputs in: {config.run_dir}")
 
 
-def _run_periodic_eval(agent, env, config, episode, logger):
+def _run_periodic_eval(agent, env, config, episode, logger, has_tqdm=False):
     """Run eval, log summary, save results + update figures."""
     from evaluate import run_evaluation, save_eval_results
     from visualize import plot_training_curves, plot_eval_comparison
@@ -263,12 +327,17 @@ def _run_periodic_eval(agent, env, config, episode, logger):
     summary = eval_results["summary"]
     logger.log_evaluation(episode, summary)
 
-    print(
+    msg = (
         f"  EVAL | Agent: {summary['mean_agent_swaps']:.1f} "
         f"SABRE: {summary['mean_sabre_swaps']:.1f} | "
         f"Ratio: {summary['mean_swap_ratio']:.2f} | "
         f"Done: {summary['completion_rate']:.0%}"
     )
+    if has_tqdm:
+        from tqdm.auto import tqdm
+        tqdm.write(msg)
+    else:
+        _print(msg)
 
     # Save eval results with episode number
     eval_path = Path(config.eval_dir) / f"eval_ep{episode+1}.json"
