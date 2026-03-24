@@ -225,6 +225,41 @@ def parse_args():
     parser.add_argument("--trace-alert-dom-threshold", type=float, default=0.60)
     parser.add_argument("--trace-alert-backtrack-threshold", type=float, default=0.50)
     parser.add_argument("--trace-alert-patience", type=int, default=2)
+    parser.add_argument("--best-model-max-eval-timeout-rate", type=float, default=0.95)
+    parser.add_argument("--best-model-max-trace-timeout-rate", type=float, default=0.95)
+    parser.add_argument("--best-model-max-trace-dom-ratio", type=float, default=0.90)
+    parser.add_argument("--best-model-max-trace-backtrack-rate", type=float, default=0.80)
+    parser.add_argument(
+        "--best-model-require-trace",
+        action="store_true",
+        help="Require trace metrics to consider checkpoint exploitable for best-model selection.",
+    )
+    parser.add_argument(
+        "--best-model-reject-trace-alert",
+        dest="best_model_reject_trace_alert",
+        action="store_true",
+        help="Reject checkpoints flagged by trace loop-risk alert in best-model selection.",
+    )
+    parser.add_argument(
+        "--no-best-model-reject-trace-alert",
+        dest="best_model_reject_trace_alert",
+        action="store_false",
+    )
+    parser.add_argument(
+        "--best-model-use-latest-trace",
+        dest="best_model_use_latest_trace",
+        action="store_true",
+        help="Use last available trace metrics when eval and trace intervals are not aligned.",
+    )
+    parser.add_argument(
+        "--no-best-model-use-latest-trace",
+        dest="best_model_use_latest_trace",
+        action="store_false",
+    )
+    parser.set_defaults(
+        best_model_reject_trace_alert=True,
+        best_model_use_latest_trace=True,
+    )
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -302,6 +337,13 @@ def train_phase(
         trace_alert_dom_threshold=args.trace_alert_dom_threshold,
         trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
         trace_alert_patience=args.trace_alert_patience,
+        best_model_max_eval_timeout_rate=args.best_model_max_eval_timeout_rate,
+        best_model_max_trace_timeout_rate=args.best_model_max_trace_timeout_rate,
+        best_model_max_trace_dom_ratio=args.best_model_max_trace_dom_ratio,
+        best_model_max_trace_backtrack_rate=args.best_model_max_trace_backtrack_rate,
+        best_model_reject_trace_alert=args.best_model_reject_trace_alert,
+        best_model_require_trace=args.best_model_require_trace,
+        best_model_use_latest_trace=args.best_model_use_latest_trace,
         distance_reward_coeff_start=args.distance_reward_coeff_start,
         distance_reward_coeff_end=args.distance_reward_coeff_end,
         run_dir=str(phase_run_dir),
@@ -323,6 +365,16 @@ def train_phase(
     print(f"  trace_interval_updates={args.trace_interval_updates}")
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  trace_alert_thresholds=(dom>={args.trace_alert_dom_threshold}, backtrack>={args.trace_alert_backtrack_threshold}, patience={args.trace_alert_patience})")
+    print(
+        "  best_model_exploitability="
+        f"(eval_timeout<={args.best_model_max_eval_timeout_rate}, "
+        f"trace_timeout<={args.best_model_max_trace_timeout_rate}, "
+        f"trace_dom<={args.best_model_max_trace_dom_ratio}, "
+        f"trace_backtrack<={args.best_model_max_trace_backtrack_rate}, "
+        f"require_trace={args.best_model_require_trace}, "
+        f"reject_trace_alert={args.best_model_reject_trace_alert}, "
+        f"use_latest_trace={args.best_model_use_latest_trace})"
+    )
     print(f"  total_timesteps={total_timesteps}")
     print(f"  run_dir={phase_run_dir}")
 
@@ -393,6 +445,14 @@ def main():
         raise ValueError("--trace-alert-backtrack-threshold must be in [0, 1].")
     if args.trace_alert_patience < 1:
         raise ValueError("--trace-alert-patience must be >= 1.")
+    if not (0.0 <= args.best_model_max_eval_timeout_rate <= 1.0):
+        raise ValueError("--best-model-max-eval-timeout-rate must be in [0, 1].")
+    if not (0.0 <= args.best_model_max_trace_timeout_rate <= 1.0):
+        raise ValueError("--best-model-max-trace-timeout-rate must be in [0, 1].")
+    if not (0.0 <= args.best_model_max_trace_dom_ratio <= 1.0):
+        raise ValueError("--best-model-max-trace-dom-ratio must be in [0, 1].")
+    if not (0.0 <= args.best_model_max_trace_backtrack_rate <= 1.0):
+        raise ValueError("--best-model-max-trace-backtrack-rate must be in [0, 1].")
 
     resolved_eval_min_twoq = (
         args.min_two_qubit_gates
@@ -464,6 +524,16 @@ def main():
         f"(dom>={args.trace_alert_dom_threshold}, "
         f"backtrack>={args.trace_alert_backtrack_threshold}, "
         f"patience={args.trace_alert_patience})"
+    )
+    print(
+        "  best_model_exploitability="
+        f"(eval_timeout<={args.best_model_max_eval_timeout_rate}, "
+        f"trace_timeout<={args.best_model_max_trace_timeout_rate}, "
+        f"trace_dom<={args.best_model_max_trace_dom_ratio}, "
+        f"trace_backtrack<={args.best_model_max_trace_backtrack_rate}, "
+        f"require_trace={args.best_model_require_trace}, "
+        f"reject_trace_alert={args.best_model_reject_trace_alert}, "
+        f"use_latest_trace={args.best_model_use_latest_trace})"
     )
     print(f"  torch_version={torch.__version__}")
     print(f"  cuda_available={torch.cuda.is_available()}")

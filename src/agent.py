@@ -72,6 +72,15 @@ class PPOConfig:
     trace_alert_dom_threshold: float = 0.60
     trace_alert_backtrack_threshold: float = 0.50
     trace_alert_patience: int = 2
+    # Best-model selection should prefer checkpoints that remain exploitable
+    # (not only those with lucky/noisy eval spikes).
+    best_model_max_eval_timeout_rate: float = 0.95
+    best_model_max_trace_timeout_rate: float = 0.95
+    best_model_max_trace_dom_ratio: float = 0.90
+    best_model_max_trace_backtrack_rate: float = 0.80
+    best_model_reject_trace_alert: bool = True
+    best_model_require_trace: bool = False
+    best_model_use_latest_trace: bool = True
     # Reward shaping annealing across training.
     distance_reward_coeff_start: float = 0.03
     distance_reward_coeff_end: float = 0.015
@@ -178,8 +187,9 @@ class PPOAgent:
         self.run_dir = Path(config.run_dir) if config.run_dir else None
         self.metrics_path = None
         self.best_train_mean_episode_return = -np.inf
-        self.best_eval_key = (-np.inf, -np.inf, -np.inf)
+        self.best_eval_key = tuple([-np.inf] * 7)
         self.trace_alert_streak = 0
+        self.last_trace_metrics: Dict[str, float] | None = None
         self._running_ep_return = 0.0
         self._running_ep_len = 0
         self.eval_cases: List[Dict] = []
@@ -821,29 +831,124 @@ class PPOAgent:
         }
 
     @staticmethod
-    def _eval_selection_key(eval_metrics: Dict[str, float]) -> Tuple[float, float, float]:
-        """
-        Lexicographic key for best-model selection aligned with project goal.
-        Priority:
-        1) higher improvement vs SABRE
-        2) higher win rate vs SABRE
-        3) lower timeout rate
-        """
-        return (
-            float(eval_metrics["eval_improvement_pct"]),
-            float(eval_metrics["eval_win_rate"]),
-            -float(eval_metrics["eval_timeout_rate"]),
+    def _metric_or_default(
+        metrics: Dict[str, float] | None,
+        key: str,
+        default: float,
+    ) -> float:
+        if metrics is None:
+            return default
+        value = metrics.get(key, default)
+        try:
+            value_f = float(value)
+        except (TypeError, ValueError):
+            return default
+        if not np.isfinite(value_f):
+            return default
+        return value_f
+
+    def _is_exploitable_candidate(
+        self,
+        eval_metrics: Dict[str, float],
+        trace_metrics: Dict[str, float] | None,
+        trace_alert_flag: bool,
+    ) -> Tuple[bool, Dict[str, float]]:
+        eval_timeout = self._metric_or_default(eval_metrics, "eval_timeout_rate", 1.0)
+        trace_timeout = self._metric_or_default(trace_metrics, "trace_timeout_rate", 1.0)
+        trace_dom = self._metric_or_default(trace_metrics, "trace_action_dom_ratio", 1.0)
+        trace_backtrack = self._metric_or_default(trace_metrics, "trace_backtrack_rate", 1.0)
+        trace_available = float(trace_metrics is not None)
+
+        eval_timeout_ok = eval_timeout <= self.cfg.best_model_max_eval_timeout_rate
+        trace_alert_ok = (not self.cfg.best_model_reject_trace_alert) or (not trace_alert_flag)
+        trace_available_ok = (not self.cfg.best_model_require_trace) or (trace_metrics is not None)
+        trace_timeout_ok = trace_timeout <= self.cfg.best_model_max_trace_timeout_rate
+        trace_dom_ok = trace_dom <= self.cfg.best_model_max_trace_dom_ratio
+        trace_backtrack_ok = trace_backtrack <= self.cfg.best_model_max_trace_backtrack_rate
+        if trace_metrics is None:
+            trace_quality_ok = not self.cfg.best_model_require_trace
+        else:
+            trace_quality_ok = trace_timeout_ok and trace_dom_ok and trace_backtrack_ok
+
+        is_exploitable = bool(
+            eval_timeout_ok
+            and trace_alert_ok
+            and trace_available_ok
+            and trace_quality_ok
         )
+        diagnostics = {
+            "is_exploitable": float(is_exploitable),
+            "eval_timeout_rate": float(eval_timeout),
+            "trace_timeout_rate": float(trace_timeout),
+            "trace_action_dom_ratio": float(trace_dom),
+            "trace_backtrack_rate": float(trace_backtrack),
+            "trace_metrics_available": float(trace_available),
+            "trace_alert_flag": float(bool(trace_alert_flag)),
+            "eval_timeout_ok": float(eval_timeout_ok),
+            "trace_alert_ok": float(trace_alert_ok),
+            "trace_available_ok": float(trace_available_ok),
+            "trace_timeout_ok": float(trace_timeout_ok),
+            "trace_dom_ok": float(trace_dom_ok),
+            "trace_backtrack_ok": float(trace_backtrack_ok),
+            "trace_quality_ok": float(trace_quality_ok),
+        }
+        return is_exploitable, diagnostics
+
+    def _eval_selection_key(
+        self,
+        eval_metrics: Dict[str, float],
+        trace_metrics: Dict[str, float] | None,
+        trace_alert_flag: bool,
+    ) -> Tuple[Tuple[float, float, float, float, float, float, float], Dict[str, float]]:
+        """
+        Lexicographic key for best-model selection aligned with deployment goals.
+        Priority:
+        1) exploitable checkpoint flag (1 if passes timeout/trace safeguards, else 0)
+        2) higher eval win rate vs SABRE
+        3) higher eval improvement vs SABRE
+        4) lower eval timeout rate
+        5) lower trace timeout rate
+        6) lower trace dominance ratio (loop risk)
+        7) lower trace backtrack rate (loop risk)
+        """
+        is_exploitable, diagnostics = self._is_exploitable_candidate(
+            eval_metrics=eval_metrics,
+            trace_metrics=trace_metrics,
+            trace_alert_flag=trace_alert_flag,
+        )
+        eval_win = self._metric_or_default(eval_metrics, "eval_win_rate", 0.0)
+        eval_improve = self._metric_or_default(eval_metrics, "eval_improvement_pct", -1e9)
+        eval_timeout = self._metric_or_default(eval_metrics, "eval_timeout_rate", 1.0)
+        trace_timeout = self._metric_or_default(trace_metrics, "trace_timeout_rate", 1.0)
+        trace_dom = self._metric_or_default(trace_metrics, "trace_action_dom_ratio", 1.0)
+        trace_backtrack = self._metric_or_default(trace_metrics, "trace_backtrack_rate", 1.0)
+        key = (
+            float(1.0 if is_exploitable else 0.0),
+            float(eval_win),
+            float(eval_improve),
+            float(-eval_timeout),
+            float(-trace_timeout),
+            float(-trace_dom),
+            float(-trace_backtrack),
+        )
+        return key, diagnostics
 
     def _maybe_save_best_eval_model(
         self,
         eval_metrics: Dict[str, float],
         update_idx: int,
         global_step: int,
-    ) -> bool:
-        key = self._eval_selection_key(eval_metrics)
+        trace_metrics_for_selection: Dict[str, float] | None,
+        trace_alert_flag: bool,
+    ) -> Tuple[bool, bool]:
+        key, diagnostics = self._eval_selection_key(
+            eval_metrics=eval_metrics,
+            trace_metrics=trace_metrics_for_selection,
+            trace_alert_flag=trace_alert_flag,
+        )
+        is_exploitable = bool(diagnostics["is_exploitable"] > 0.5)
         if key <= self.best_eval_key:
-            return False
+            return False, is_exploitable
 
         self.best_eval_key = key
         self._save_checkpoint("best_model.pt")
@@ -852,6 +957,18 @@ class PPOAgent:
                 "update": int(update_idx),
                 "global_step": int(global_step),
                 "selection_key": [float(v) for v in key],
+                "selection_key_labels": [
+                    "is_exploitable",
+                    "eval_win_rate",
+                    "eval_improvement_pct",
+                    "-eval_timeout_rate",
+                    "-trace_timeout_rate",
+                    "-trace_action_dom_ratio",
+                    "-trace_backtrack_rate",
+                ],
+                "selection_diagnostics": {
+                    k: float(v) for k, v in diagnostics.items()
+                },
                 "metrics": {
                     "eval_improvement_pct": float(eval_metrics["eval_improvement_pct"]),
                     "eval_win_rate": float(eval_metrics["eval_win_rate"]),
@@ -861,9 +978,24 @@ class PPOAgent:
                     "eval_cases": float(eval_metrics["eval_cases"]),
                 },
             }
+            if trace_metrics_for_selection is not None:
+                payload["trace_metrics_for_selection"] = {
+                    "trace_timeout_rate": float(
+                        trace_metrics_for_selection["trace_timeout_rate"]
+                    ),
+                    "trace_action_dom_ratio": float(
+                        trace_metrics_for_selection["trace_action_dom_ratio"]
+                    ),
+                    "trace_backtrack_rate": float(
+                        trace_metrics_for_selection["trace_backtrack_rate"]
+                    ),
+                    "trace_improvement_pct": float(
+                        trace_metrics_for_selection["trace_improvement_pct"]
+                    ),
+                }
             with (self.run_dir / "best_eval_metrics.json").open("w", encoding="utf-8") as f:
                 json.dump(payload, f, indent=2)
-        return True
+        return True, is_exploitable
 
     def train(self) -> None:
         obs, _ = self.env.reset(seed=self.cfg.seed)
@@ -909,19 +1041,16 @@ class PPOAgent:
 
             eval_metrics = None
             best_eval_updated = False
+            best_eval_is_exploitable = False
             if (
                 self.cfg.eval_interval_updates > 0
                 and self.eval_cases
                 and update_idx % self.cfg.eval_interval_updates == 0
             ):
                 eval_metrics = self._evaluate_against_sabre()
-                if eval_metrics is not None:
-                    best_eval_updated = self._maybe_save_best_eval_model(
-                        eval_metrics=eval_metrics,
-                        update_idx=update_idx,
-                        global_step=global_step,
-                    )
             trace_metrics = self._run_periodic_traces(update_idx)
+            if trace_metrics is not None:
+                self.last_trace_metrics = trace_metrics
             trace_alert_flag = (
                 self.trace_alert_streak >= self.cfg.trace_alert_patience
             )
@@ -936,6 +1065,20 @@ class PPOAgent:
                 else:
                     self.trace_alert_streak = 0
                 trace_alert_flag = self.trace_alert_streak >= self.cfg.trace_alert_patience
+            trace_metrics_for_selection = trace_metrics
+            if (
+                trace_metrics_for_selection is None
+                and self.cfg.best_model_use_latest_trace
+            ):
+                trace_metrics_for_selection = self.last_trace_metrics
+            if eval_metrics is not None:
+                best_eval_updated, best_eval_is_exploitable = self._maybe_save_best_eval_model(
+                    eval_metrics=eval_metrics,
+                    update_idx=update_idx,
+                    global_step=global_step,
+                    trace_metrics_for_selection=trace_metrics_for_selection,
+                    trace_alert_flag=trace_alert_flag,
+                )
 
             self._append_metrics_row(
                 update_idx=update_idx,
@@ -978,7 +1121,9 @@ class PPOAgent:
                         f" eval_2q={eval_metrics['eval_mean_two_qubit_gates']:.1f}"
                     )
                     if best_eval_updated:
-                        eval_msg += " best_eval=1"
+                        eval_msg += (
+                            f" best_eval=1(exploitable={int(best_eval_is_exploitable)})"
+                        )
                 trace_msg = ""
                 if trace_metrics is not None:
                     trace_msg = (
