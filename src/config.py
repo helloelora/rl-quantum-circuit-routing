@@ -162,14 +162,16 @@ def heavy_hex_config() -> TrainConfig:
     """Primary training on heavy_hex_19."""
     return TrainConfig(
         topologies=["heavy_hex_19"],
-        circuit_depth=20,
+        circuit_depth=30,
         max_steps=500,
         total_episodes=20000,
         buffer_capacity=100000,
         epsilon_decay_steps=50000,
         per_beta_anneal_steps=100000,
         train_start=1000,
+        log_every=25,
         eval_every=500,
+        eval_episodes=50,
         checkpoint_every=1000,
     )
 
@@ -178,13 +180,15 @@ def multi_topology_config() -> TrainConfig:
     """Multi-topology training (novel contribution)."""
     return TrainConfig(
         topologies=["linear_5", "grid_3x3", "heavy_hex_19"],
-        circuit_depth=20,
+        circuit_depth=30,
         max_steps=500,
         total_episodes=30000,
         buffer_capacity=150000,
         epsilon_decay_steps=80000,
         per_beta_anneal_steps=150000,
         train_start=2000,
+        log_every=25,
         eval_every=1000,
+        eval_episodes=50,
         checkpoint_every=2000,
     )
