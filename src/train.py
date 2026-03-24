@@ -46,8 +46,26 @@ class TrainingLogger:
 def train(config, resume_from=None):
     """Main training loop."""
 
-    # Set up unified run directory: outputs/run_NNN/
-    config = setup_run_dir(config)
+    # If resuming, reuse the existing run directory; otherwise create new
+    if resume_from:
+        ckpt_path = Path(resume_from)
+        # checkpoints/file.pt -> run_NNN/
+        run_dir = ckpt_path.parent.parent
+        config_path = run_dir / "config.json"
+        if config_path.exists() and run_dir.name.startswith("run_"):
+            # Reuse existing run dir and its subdirectories
+            config.run_dir = str(run_dir)
+            config.log_dir = str(run_dir / "logs")
+            config.checkpoint_dir = str(run_dir / "checkpoints")
+            config.figures_dir = str(run_dir / "figures")
+            config.eval_dir = str(run_dir / "eval")
+            for d in [config.log_dir, config.checkpoint_dir,
+                      config.figures_dir, config.eval_dir]:
+                Path(d).mkdir(parents=True, exist_ok=True)
+        else:
+            config = setup_run_dir(config)
+    else:
+        config = setup_run_dir(config)
     print(f"Run directory: {config.run_dir}")
 
     # Seed
