@@ -131,18 +131,17 @@ def compute_dag_depths(gates, executed, predecessors, successors):
         for gate_idx in current_level:
             depths[gate_idx] = d
 
-        next_level = []
+        next_level_set = set()
         for gate_idx in current_level:
             for succ in successors[gate_idx]:
-                if succ in executed or succ in depths:
+                if succ in executed or succ in depths or succ in next_level_set:
                     continue
                 # Check if all remaining predecessors of succ have depths assigned
                 remaining_preds = predecessors[succ] - executed
                 if all(p in depths for p in remaining_preds):
-                    if succ not in depths:
-                        next_level.append(succ)
+                    next_level_set.add(succ)
 
-        current_level = next_level
+        current_level = list(next_level_set)
         d += 1
 
     return depths
