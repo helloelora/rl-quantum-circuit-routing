@@ -130,6 +130,9 @@ def train(config, resume_from=None):
     recent_rewards = []
     recent_swaps = []
     recent_completions = []
+    recent_gates_pct = []  # % of gates routed per episode
+    recent_loss = []
+    recent_q = []
 
     global_step = agent._train_steps
     t_start = time.time()
@@ -198,6 +201,8 @@ def train(config, resume_from=None):
                 if global_step % config.train_freq == 0:
                     metrics = agent.train_step()
                     if metrics:
+                        recent_loss.append(metrics["loss"])
+                        recent_q.append(metrics["mean_q"])
                         if agent._train_steps % 100 == 0:
                             logger.log_train_step(agent._train_steps, metrics)
                         if agent._train_steps % config.target_update_freq == 0:
@@ -212,11 +217,15 @@ def train(config, resume_from=None):
                     break
 
             # Log episode
+            gates_pct = (info["total_gates_executed"] / info["n_gates"]
+                         if info["n_gates"] > 0 else 1.0)
             ep_data = {
                 "reward": round(episode_reward, 3),
                 "steps": info["step_count"],
                 "swaps": info["total_swaps"],
                 "gates": info["n_gates"],
+                "gates_routed": info["total_gates_executed"],
+                "gates_pct": round(gates_pct, 3),
                 "completed": info["done"],
                 "topology": info["topology"],
                 "epsilon": round(agent.epsilon, 4),
@@ -226,32 +235,46 @@ def train(config, resume_from=None):
             recent_rewards.append(episode_reward)
             recent_swaps.append(info["total_swaps"])
             recent_completions.append(int(info["done"]))
+            if info["n_gates"] > 0:
+                recent_gates_pct.append(
+                    info["total_gates_executed"] / info["n_gates"]
+                )
+            else:
+                recent_gates_pct.append(1.0)
 
             ep_time = time.time() - ep_t0
 
             # Update tqdm progress bar
             if has_tqdm:
                 n = min(len(recent_rewards), config.log_every)
-                pbar.set_postfix({
+                postfix = {
                     "R": f"{np.mean(recent_rewards[-n:]):.1f}",
-                    "SWAPs": f"{np.mean(recent_swaps[-n:]):.1f}",
+                    "SWAPs": f"{np.mean(recent_swaps[-n:]):.0f}",
+                    "Gates": f"{np.mean(recent_gates_pct[-n:]):.0%}",
                     "Done": f"{np.mean(recent_completions[-n:]):.0%}",
                     "\u03b5": f"{agent.epsilon:.3f}",
-                    "Buf": len(agent.buffer),
-                }, refresh=True)
+                }
+                if recent_loss:
+                    postfix["Loss"] = f"{np.mean(recent_loss[-n:]):.3f}"
+                    postfix["Q"] = f"{np.mean(recent_q[-n:]):.1f}"
+                pbar.set_postfix(postfix, refresh=True)
 
             # Detailed console output every log_every episodes
             if (episode + 1) % config.log_every == 0:
                 n = min(len(recent_rewards), config.log_every)
                 elapsed = time.time() - t_start
+                loss_str = f"{np.mean(recent_loss[-n:]):.3f}" if recent_loss else "n/a"
+                q_str = f"{np.mean(recent_q[-n:]):.1f}" if recent_q else "n/a"
                 msg = (
                     f"Ep {episode+1}/{config.total_episodes} "
                     f"({elapsed:.0f}s) | "
                     f"R: {np.mean(recent_rewards[-n:]):.1f} | "
-                    f"SWAPs: {np.mean(recent_swaps[-n:]):.1f} | "
+                    f"SWAPs: {np.mean(recent_swaps[-n:]):.0f} | "
+                    f"Gates: {np.mean(recent_gates_pct[-n:]):.0%} | "
                     f"Done: {np.mean(recent_completions[-n:]):.0%} | "
+                    f"Loss: {loss_str} | Q: {q_str} | "
                     f"\u03b5: {agent.epsilon:.3f} | "
-                    f"Buf: {len(agent.buffer)} | "
+                    f"Steps: {global_step} | "
                     f"ep_time: {ep_time:.1f}s"
                 )
                 if has_tqdm:
