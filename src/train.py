@@ -107,9 +107,16 @@ def train(config, resume_from=None):
 
     # Resume
     start_episode = 0
+    resume_global_step = 0
+    resume_elapsed = 0.0
     if resume_from:
         start_episode = agent.load_checkpoint(resume_from)
-        _print(f"Resumed from episode {start_episode}")
+        # Load extra training state if saved
+        ckpt = torch.load(str(resume_from), map_location="cpu", weights_only=False)
+        resume_global_step = ckpt.get("global_step", 0)
+        resume_elapsed = ckpt.get("elapsed_time", 0.0)
+        _print(f"Resumed from episode {start_episode} "
+               f"(env steps: {resume_global_step}, elapsed: {resume_elapsed:.0f}s)")
 
     # Logger
     logger = TrainingLogger(config.log_dir)
@@ -134,8 +141,8 @@ def train(config, resume_from=None):
     recent_loss = []
     recent_q = []
 
-    global_step = agent._train_steps
-    t_start = time.time()
+    global_step = resume_global_step if resume_global_step else 0
+    t_start = time.time() - resume_elapsed
     total_eps = config.total_episodes - start_episode
 
     # Try to use tqdm for progress bar
@@ -298,7 +305,10 @@ def train(config, resume_from=None):
                     Path(config.checkpoint_dir)
                     / f"checkpoint_ep{episode+1}.pt"
                 )
-                agent.save_checkpoint(str(ckpt_path), episode + 1)
+                agent.save_checkpoint(str(ckpt_path), episode + 1, extra={
+                    "global_step": global_step,
+                    "elapsed_time": time.time() - t_start,
+                })
                 msg = f"  Saved checkpoint: {ckpt_path}"
                 if has_tqdm:
                     tqdm.write(msg)
@@ -310,17 +320,21 @@ def train(config, resume_from=None):
             pbar.close()
 
         ep = current_episode[0]
+        extra = {
+            "global_step": global_step,
+            "elapsed_time": time.time() - t_start,
+        }
         if interrupted[0]:
             ckpt_path = (
                 Path(config.checkpoint_dir) / "checkpoint_emergency.pt"
             )
-            agent.save_checkpoint(str(ckpt_path), ep)
+            agent.save_checkpoint(str(ckpt_path), ep, extra=extra)
             _print(f"Emergency checkpoint: {ckpt_path}")
         else:
             ckpt_path = (
                 Path(config.checkpoint_dir) / "checkpoint_final.pt"
             )
-            agent.save_checkpoint(str(ckpt_path), config.total_episodes)
+            agent.save_checkpoint(str(ckpt_path), config.total_episodes, extra=extra)
             _print(f"Final checkpoint: {ckpt_path}")
 
         # Generate final figures
