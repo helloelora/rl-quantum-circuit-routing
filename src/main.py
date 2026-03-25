@@ -113,10 +113,10 @@ def parse_args():
         default="linear_5,grid_3x3",
     )
     parser.add_argument("--stage1-steps", type=int, default=150000)
-    parser.add_argument("--stage2-steps", type=int, default=250000)
+    parser.add_argument("--stage2-steps", type=int, default=200000)
     parser.add_argument("--stage3-steps", type=int, default=600000)
     parser.add_argument("--stage1-depth", type=int, default=10)
-    parser.add_argument("--stage2-depth", type=int, default=14)
+    parser.add_argument("--stage2-depth", type=int, default=12)
     parser.add_argument("--stage3-depth", type=int, default=20)
     parser.add_argument("--matrix-size", type=int, default=27)
     parser.add_argument("--circuit-depth", type=int, default=20)
@@ -132,7 +132,7 @@ def parse_args():
     parser.add_argument(
         "--repeat-swap-penalty-coeff",
         type=float,
-        default=-0.15,
+        default=-0.3,
         help=(
             "Progressive penalty coefficient for consecutive reuse of the same "
             "physical SWAP edge."
@@ -147,7 +147,7 @@ def parse_args():
     parser.add_argument(
         "--no-progress-penalty-coeff",
         type=float,
-        default=-0.03,
+        default=-0.05,
         help=(
             "Progressive penalty coefficient when no new gate is executed "
             "at a step."
@@ -156,13 +156,13 @@ def parse_args():
     parser.add_argument(
         "--no-progress-penalty-cap",
         type=float,
-        default=-1.5,
+        default=-2.0,
         help="Lower bound (negative cap) for no-progress penalty.",
     )
     parser.add_argument(
         "--max-steps-per-two-qubit-gate",
         type=float,
-        default=0.0,
+        default=7.0,
         help=(
             "If > 0, uses dynamic per-episode max steps: "
             "ceil(num_2q_gates * factor)."
@@ -171,13 +171,13 @@ def parse_args():
     parser.add_argument(
         "--max-steps-min",
         type=int,
-        default=0,
+        default=40,
         help="Optional lower bound for dynamic max steps (0 disables).",
     )
     parser.add_argument(
         "--max-steps-max",
         type=int,
-        default=0,
+        default=320,
         help="Optional upper bound for dynamic max steps (0 uses --max-steps).",
     )
     parser.add_argument("--linear-topology-weight", type=float, default=0.5)
@@ -203,7 +203,7 @@ def parse_args():
     parser.add_argument("--target-kl", type=float, default=0.015)
     parser.add_argument("--log-interval-updates", type=int, default=5)
     parser.add_argument("--checkpoint-interval-updates", type=int, default=25)
-    parser.add_argument("--eval-interval-updates", type=int, default=20)
+    parser.add_argument("--eval-interval-updates", type=int, default=10)
     parser.add_argument("--eval-circuits-per-topology", type=int, default=12)
     parser.add_argument("--eval-circuit-depth", type=int, default=20)
     parser.add_argument(

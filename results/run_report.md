@@ -757,3 +757,27 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 
 ### Why this matters
 - Avoids hidden averaging effects where one topology (often `grid_3x3`) silently dominates and masks progress on another (`linear_5`).
+
+## 26) Next 2-Stage PPO Config (Applied in Code + Notebook)
+### Goal
+- Keep strong stage1 behavior while reducing stage2 collapse risk.
+
+### Applied settings
+- Stage1 unchanged.
+- Stage2 softened:
+  - `stage2_depth=12`
+  - `stage2_steps=200000`
+- Anti-loop strengthened:
+  - `repeat_swap_penalty_coeff=-0.3`
+  - `no_progress_penalty_coeff=-0.05`
+  - `no_progress_penalty_cap=-2.0`
+- Dynamic episode cap enabled:
+  - `max_steps_per_two_qubit_gate=7`
+  - `max_steps_min=40`
+  - `max_steps_max=320`
+- More frequent eval:
+  - `eval_interval_updates=10`
+
+### Where updated
+- `src/main.py` (defaults)
+- `notebooks/train_ppo_colab.ipynb` (2-stage run cell)
