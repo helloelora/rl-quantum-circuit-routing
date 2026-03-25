@@ -195,6 +195,7 @@ class PPOAgent:
         self.eval_cases: List[Dict] = []
         self.trace_cases: List[Dict] = []
         self.trace_dir = None
+        self.eval_dir = None
         self._init_logging()
         self.eval_cases = self._build_eval_cases()
         self.trace_cases = self._build_trace_cases()
@@ -231,6 +232,8 @@ class PPOAgent:
         self.metrics_path = self.run_dir / "metrics.csv"
         self.trace_dir = self.run_dir / self.cfg.trace_dir_name
         self.trace_dir.mkdir(parents=True, exist_ok=True)
+        self.eval_dir = self.run_dir / "eval"
+        self.eval_dir.mkdir(parents=True, exist_ok=True)
         with self.metrics_path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(
@@ -575,6 +578,7 @@ class PPOAgent:
                 cases.append(
                     {
                         "topology_index": topo_idx,
+                        "topology_name": str(topo.get("name", f"topology_{topo_idx}")),
                         "circuit": circuit,
                         "initial_mapping": [int(x) for x in sabre_init],
                         "sabre_swaps": sabre_swaps,
@@ -791,6 +795,8 @@ class PPOAgent:
         ppo_swaps: List[int] = []
         sabre_swaps: List[int] = []
         twoq_counts: List[int] = []
+        timeout_flags: List[float] = []
+        topo_names: List[str] = []
         timeout_count = 0
 
         for case in self.eval_cases:
@@ -809,16 +815,42 @@ class PPOAgent:
                 obs, _, done, truncated, info = self.env.step(action)
             if truncated:
                 timeout_count += 1
+            timeout_flags.append(1.0 if truncated else 0.0)
 
             ppo_swaps.append(int(info.get("total_swaps", 0)))
             sabre_swaps.append(int(case["sabre_swaps"]))
             twoq_counts.append(int(case["two_qubit_gates"]))
+            topo_names.append(str(case.get("topology_name", "unknown")))
 
         ppo_arr = np.asarray(ppo_swaps, dtype=np.float32)
         sabre_arr = np.asarray(sabre_swaps, dtype=np.float32)
         safe_sabre = np.where(sabre_arr <= 0, 1.0, sabre_arr)
         improvement_pct = ((sabre_arr - ppo_arr) / safe_sabre) * 100.0
         win_rate = float(np.mean(ppo_arr <= sabre_arr))
+        timeout_arr = np.asarray(timeout_flags, dtype=np.float32)
+        twoq_arr = np.asarray(twoq_counts, dtype=np.float32)
+
+        per_topology: Dict[str, Dict[str, float]] = {}
+        for topo_name in sorted(set(topo_names)):
+            idx = [i for i, tname in enumerate(topo_names) if tname == topo_name]
+            if not idx:
+                continue
+            idx_arr = np.asarray(idx, dtype=np.int64)
+            topo_ppo = ppo_arr[idx_arr]
+            topo_sabre = sabre_arr[idx_arr]
+            topo_safe_sabre = np.where(topo_sabre <= 0, 1.0, topo_sabre)
+            topo_improve = ((topo_sabre - topo_ppo) / topo_safe_sabre) * 100.0
+            topo_timeout = timeout_arr[idx_arr]
+            topo_twoq = twoq_arr[idx_arr]
+            per_topology[topo_name] = {
+                "eval_cases": float(idx_arr.size),
+                "eval_mean_ppo_swaps": float(np.mean(topo_ppo)),
+                "eval_mean_sabre_swaps": float(np.mean(topo_sabre)),
+                "eval_improvement_pct": float(np.mean(topo_improve)),
+                "eval_win_rate": float(np.mean(topo_ppo <= topo_sabre)),
+                "eval_timeout_rate": float(np.mean(topo_timeout)),
+                "eval_mean_two_qubit_gates": float(np.mean(topo_twoq)),
+            }
 
         return {
             "eval_cases": float(len(self.eval_cases)),
@@ -827,8 +859,48 @@ class PPOAgent:
             "eval_improvement_pct": float(np.mean(improvement_pct)),
             "eval_win_rate": win_rate,
             "eval_timeout_rate": float(timeout_count / len(self.eval_cases)),
-            "eval_mean_two_qubit_gates": float(np.mean(np.asarray(twoq_counts, dtype=np.float32))),
+            "eval_mean_two_qubit_gates": float(np.mean(twoq_arr)),
+            "per_topology": per_topology,
         }
+
+    def _save_eval_snapshot(
+        self,
+        update_idx: int,
+        global_step: int,
+        eval_metrics: Dict[str, float],
+    ) -> None:
+        if self.eval_dir is None:
+            return
+        payload = {
+            "update": int(update_idx),
+            "global_step": int(global_step),
+            "eval_improvement_pct": float(eval_metrics["eval_improvement_pct"]),
+            "eval_win_rate": float(eval_metrics["eval_win_rate"]),
+            "eval_timeout_rate": float(eval_metrics["eval_timeout_rate"]),
+            "eval_mean_ppo_swaps": float(eval_metrics["eval_mean_ppo_swaps"]),
+            "eval_mean_sabre_swaps": float(eval_metrics["eval_mean_sabre_swaps"]),
+            "eval_cases": float(eval_metrics["eval_cases"]),
+            "per_topology": eval_metrics.get("per_topology", {}),
+        }
+        out_path = self.eval_dir / f"update_{update_idx:05d}.json"
+        with out_path.open("w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+
+    @staticmethod
+    def _format_eval_per_topology(eval_metrics: Dict[str, float]) -> str:
+        per_topology = eval_metrics.get("per_topology")
+        if not isinstance(per_topology, dict) or not per_topology:
+            return ""
+        parts: List[str] = []
+        for topo_name in sorted(per_topology.keys()):
+            stats = per_topology[topo_name]
+            imp = float(stats.get("eval_improvement_pct", float("nan")))
+            win = float(stats.get("eval_win_rate", float("nan")))
+            tout = float(stats.get("eval_timeout_rate", float("nan")))
+            parts.append(
+                f"{topo_name}: imp={imp:+.1f}% win={win:.2f} to={tout:.2f}"
+            )
+        return " | ".join(parts)
 
     @staticmethod
     def _metric_or_default(
@@ -976,6 +1048,7 @@ class PPOAgent:
                     "eval_mean_ppo_swaps": float(eval_metrics["eval_mean_ppo_swaps"]),
                     "eval_mean_sabre_swaps": float(eval_metrics["eval_mean_sabre_swaps"]),
                     "eval_cases": float(eval_metrics["eval_cases"]),
+                    "per_topology": eval_metrics.get("per_topology", {}),
                 },
             }
             if trace_metrics_for_selection is not None:
@@ -1072,6 +1145,11 @@ class PPOAgent:
             ):
                 trace_metrics_for_selection = self.last_trace_metrics
             if eval_metrics is not None:
+                self._save_eval_snapshot(
+                    update_idx=update_idx,
+                    global_step=global_step,
+                    eval_metrics=eval_metrics,
+                )
                 best_eval_updated, best_eval_is_exploitable = self._maybe_save_best_eval_model(
                     eval_metrics=eval_metrics,
                     update_idx=update_idx,
@@ -1150,6 +1228,10 @@ class PPOAgent:
                     f"{eval_msg}"
                     f"{trace_msg}"
                 )
+                if eval_metrics is not None:
+                    eval_by_topo_msg = self._format_eval_per_topology(eval_metrics)
+                    if eval_by_topo_msg:
+                        print(f"            eval_by_topology: {eval_by_topo_msg}")
                 if trace_alert_flag:
                     if trace_metrics is not None:
                         print(

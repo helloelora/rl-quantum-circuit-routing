@@ -614,3 +614,146 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 - Preserve trace diagnostics.
 - Reduce collapse severity and wasted 500-step failures on hard topologies.
 - Make training signal denser and more stable when policy starts looping.
+
+## 21) Latest Update (2026-03-24): Shortlist PPO Attempt
+### What was tested
+- New shortlist-based PPO variant:
+  - action set reduced to frontier/shortest-path candidate swaps,
+  - same `27x27x3` CNN input and RL loop,
+  - multi-topology training (`heavy_hex_19, grid_3x3, linear_5`).
+- Run:
+  - `shortlist_ppo_20260324_120618`
+  - best eval checkpoint at update `20`, final logged update `80`.
+
+### Key metrics
+- Best eval:
+  - `eval_improvement_pct = -1101.47%`
+  - `eval_win_rate = 0.00`
+  - `eval_timeout_rate = 1.00`
+  - `eval_mean_ppo_swaps = 250.56`
+  - `eval_mean_sabre_swaps = 50.58`
+- Final trace indicators:
+  - `trace_timeout_rate = 1.00`
+  - `trace_backtrack_rate = 0.989`
+  - `trace_action_dom_ratio = 0.995`
+  - `trace_alert_streak = 4`
+
+### Verdict
+- This shortlist attempt still collapsed into repetitive swaps and full timeout.
+- No improvement over the best Run8 checkpoint.
+- Practical decision: keep Run8 as PPO reference, and improve diagnostics + run control before launching further architecture variants.
+
+## 22) Latest Update (2026-03-24): DQN Warm-Start and Stability Checks
+### A) `grid_3x3` warm-start DQN (3 seeds, 500k steps each)
+- Runs:
+  - `dqn_warm_grid_3x3_seed42`
+  - `dqn_warm_grid_3x3_seed123`
+  - `dqn_warm_grid_3x3_seed999`
+- Aggregate outcome:
+  - `best_eval_improve mean = -1689.84% (std 90.52)`
+  - `best_eval_win mean = 0.00`
+  - `best_eval_timeout mean = 0.972`
+  - latest traces: `dom mean = 0.971`, `backtrack mean = 0.960`, timeout `= 1.00`
+- Interpretation:
+  - Strong loop-collapse pattern; warm-start from supervised model did not transfer to rollout success on `grid_3x3`.
+
+### B) `heavy_hex_19` probe (seed 42, 250k steps)
+- Run:
+  - `dqn_probe_heavy_heavy_hex_19_seed42`
+- Best/last eval:
+  - `improvement = -271.62%`
+  - `win_rate = 0.00`
+  - `timeout_rate = 1.00`
+  - `model_swaps/sabre_swaps = 450.0 / 121.6`
+- Trace:
+  - `dom = 0.989`, `backtrack = 0.984`, `trace_timeout = 1.00`
+- Interpretation:
+  - Full-timeout failure mode remains on heavy-hex despite warm-start initialization.
+
+### C) Mixed stability run (`linear_5 + grid_3x3`)
+- Run:
+  - `dqn_stab_lingrid_20260324_091230`
+- Best checkpoint:
+  - `improve = -1342.98%`, `win = 0.021`, `timeout = 0.896`
+- Last checkpoint:
+  - `improve = -1502.86%`, `win = 0.00`, `timeout = 1.00`
+  - trace: `dom = 0.977`, `backtrack = 0.971`
+- Interpretation:
+  - Brief non-zero wins appeared, then regressed to looped timeout behavior.
+
+### Decision
+- Keep `Run8` PPO as the best current RL reference.
+- Add stronger visualization/diagnostic tooling to detect collapse earlier and compare runs consistently before the next training cycle.
+
+## 23) Visualization/Diagnostic Layer (Implemented on `version-27`)
+### Added tool
+- New script: `scripts/visualize_run_diagnostics.py`
+
+### What it generates for one run directory
+- Per-stage dashboard figure:
+  - reward/completion trends,
+  - episode return trend,
+  - eval vs SABRE (`improvement`, `win_rate`, `timeout`),
+  - optimization signals (`policy/value loss`, entropy, KL),
+  - collapse signals from traces (`dom`, `backtrack`, `trace_timeout`, alert streak).
+- Per-stage latest-trace topology figure:
+  - mean agent SWAPs vs SABRE SWAPs by topology,
+  - annotations for `done`, `dom`, `backtrack`.
+- Run overview figure:
+  - best vs last eval improvement per stage.
+
+### Expected usage
+- Input:
+  - `--run-dir runs/<run_name>`
+- Output (default):
+  - `runs/<run_name>/figures_diag/*.png`
+
+## 24) Best Checkpoint Selection Upgrade (Implemented on `version-27`)
+### Why
+- Previous `best_model.pt` selection used only eval SABRE metrics, so a checkpoint with loop-collapse behavior could still be selected.
+
+### What changed
+- `best_model.pt` is now selected with a lexicographic key that prioritizes:
+  1) exploitable checkpoint flag,
+  2) eval win rate,
+  3) eval improvement vs SABRE,
+  4) lower eval timeout,
+  5) lower trace timeout,
+  6) lower trace dominant-action ratio,
+  7) lower trace backtrack rate.
+- Exploitability flag uses configurable thresholds:
+  - `--best-model-max-eval-timeout-rate`
+  - `--best-model-max-trace-timeout-rate`
+  - `--best-model-max-trace-dom-ratio`
+  - `--best-model-max-trace-backtrack-rate`
+  - `--best-model-reject-trace-alert` / `--no-best-model-reject-trace-alert`
+  - `--best-model-require-trace`
+  - `--best-model-use-latest-trace` / `--no-best-model-use-latest-trace`
+- `best_eval_metrics.json` now contains:
+  - `selection_key_labels`
+  - `selection_diagnostics`
+  - optional `trace_metrics_for_selection`
+
+### Expected effect
+- Reduce accidental selection of checkpoints that look good on one noisy eval but are clearly unstable in traces.
+
+## 25) Curriculum Transition and Per-Topology Eval Logging (Implemented)
+### A) Curriculum handoff changed
+- In curriculum mode, each next phase now initializes from previous phase `best_model.pt` when available (instead of always using the last update state).
+- Goal:
+  - reduce regression when entering harder stages (`linear -> linear+grid -> full`),
+  - preserve the most stable checkpoint behavior across phase transitions.
+
+### B) Eval now tracked by topology
+- Periodic eval now computes and stores per-topology metrics:
+  - `eval_improvement_pct`,
+  - `eval_win_rate`,
+  - `eval_timeout_rate`,
+  - mean SWAP counts (agent vs SABRE),
+  - mean 2-qubit gate count.
+- Saved snapshots:
+  - `runs/<run_name>/<stage>/eval/update_XXXXX.json`
+- Console output now prints compact per-topology eval summary at eval checkpoints.
+
+### Why this matters
+- Avoids hidden averaging effects where one topology (often `grid_3x3`) silently dominates and masks progress on another (`linear_5`).

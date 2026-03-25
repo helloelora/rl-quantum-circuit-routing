@@ -581,6 +581,22 @@ def main():
                 min_two_qubit_gates=phase_train_min_twoq,
                 eval_min_two_qubit_gates=phase_eval_min_twoq,
             )
+            # Continue curriculum from the best checkpoint of the previous phase.
+            # This avoids starting the next phase from a potentially degraded
+            # last update.
+            phase_best_model = phase_run_dir / "best_model.pt"
+            if phase_best_model.exists():
+                try:
+                    model_state = torch.load(phase_best_model, map_location="cpu")
+                    print(
+                        f"Loaded next-phase initialization from best model: "
+                        f"{phase_best_model}"
+                    )
+                except Exception as exc:
+                    print(
+                        f"[Warn] Could not load best model from {phase_best_model}: {exc}. "
+                        "Falling back to final phase state."
+                    )
             eval_seed_offset += 1_000_000
         final_state = copy.deepcopy(model_state)
     else:
