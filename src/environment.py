@@ -95,6 +95,7 @@ class QubitRoutingEnv(gym.Env):
         repeat_swap_penalty_cap=-2.0,
         no_progress_penalty_coeff=-0.03,
         no_progress_penalty_cap=-1.5,
+        no_progress_terminate_streak=0,
         max_steps_per_two_qubit_gate=0.0,
         max_steps_min=0,
         max_steps_max=0,
@@ -140,6 +141,9 @@ class QubitRoutingEnv(gym.Env):
                          when no new gate is executed at a step.
             no_progress_penalty_cap: Lower bound (negative cap) for the
                          progressive no-progress penalty.
+            no_progress_terminate_streak: If > 0, truncate episode early when
+                         no gate has been executed for this many consecutive
+                         steps. Timeout penalty is applied.
             max_steps_per_two_qubit_gate: Optional dynamic episode cap.
                          If > 0, per-episode max steps are computed as:
                          ceil(num_2q_gates * this_factor), then clamped with
@@ -225,6 +229,7 @@ class QubitRoutingEnv(gym.Env):
         self.repeat_swap_penalty_cap = repeat_swap_penalty_cap
         self.no_progress_penalty_coeff = no_progress_penalty_coeff
         self.no_progress_penalty_cap = no_progress_penalty_cap
+        self.no_progress_terminate_streak = max(0, int(no_progress_terminate_streak))
         self.max_steps_per_two_qubit_gate = max_steps_per_two_qubit_gate
         self.max_steps_min = max_steps_min
         self.max_steps_max = max_steps_max
@@ -514,12 +519,24 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Truncation check ---
         truncated = False
-        if not done and self.step_count >= self._episode_max_steps:
+        truncated_reason = ""
+        if (
+            not done
+            and self.no_progress_terminate_streak > 0
+            and self._no_progress_streak >= self.no_progress_terminate_streak
+        ):
             truncated = True
+            truncated_reason = "no_progress_streak"
+            reward += self.timeout_penalty
+        if not done and (not truncated) and self.step_count >= self._episode_max_steps:
+            truncated = True
+            truncated_reason = "max_steps"
             reward += self.timeout_penalty
 
         obs = self._compute_state()
         info = self._get_info(done=done)
+        if truncated:
+            info["truncated_reason"] = truncated_reason
 
         return obs, reward, done, truncated, info
 
@@ -630,6 +647,7 @@ class QubitRoutingEnv(gym.Env):
             "episode_max_steps": self._episode_max_steps,
             "same_edge_streak": self._same_edge_streak,
             "no_progress_streak": self._no_progress_streak,
+            "no_progress_terminate_streak": self.no_progress_terminate_streak,
         }
 
     def get_action_mask(self):

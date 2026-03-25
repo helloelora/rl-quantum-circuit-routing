@@ -807,3 +807,68 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 ### Where applied
 - `src/main.py` defaults
 - `notebooks/train_ppo_colab.ipynb` run cell (stable v3, subprocess-based)
+
+## 28) New Run Results (2026-03-25)
+### A) `ppo_2stages_20260325_143359`
+- Stage1:
+  - no collapse detected,
+  - best eval around SABRE on linear:
+    - `eval_improvement_pct = -0.96%`
+    - `eval_win_rate = 0.75`
+    - `eval_timeout_rate = 0.00`
+    - `trace_backtrack = 0.083`, `trace_dom = 0.417`.
+- Stage2:
+  - no collapse detected by threshold checker.
+- Interpretation:
+  - Strong stability improvement compared to prior 2-stage attempts.
+  - This run became the stability reference for next tests.
+
+### B) `ppo_grid_focus_20260325_145801`
+- Stage1:
+  - no collapse detected,
+  - best eval:
+    - `eval_improvement_pct = -6.82%`
+    - `eval_win_rate = 0.583`
+    - `eval_timeout_rate = 0.00`.
+- Stage2:
+  - no collapse detected by threshold checker, but still poor against SABRE:
+    - best eval row:
+      - `eval_improvement_pct = -825.93%`
+      - `eval_win_rate = 0.167`
+      - `eval_timeout_rate = 0.333`
+    - last eval snapshot (update 40):
+      - global: `improve = -1095.51%`, `win = 0.125`, `timeout = 0.458`
+      - `grid_3x3`: `improve = -2031.94%`, `win = 0.00`, `timeout = 0.833`, swaps `310.75 / 14.50`
+      - `linear_5`: `improve = -159.07%`, `win = 0.25`, `timeout = 0.083`, swaps `27.00 / 10.17`.
+- Stage3 (grid-only focus phase in this run):
+  - collapse detected at update 20:
+    - `trace_dom = 0.948`, `trace_backtrack = 0.946`
+    - `eval_timeout = 0.667`
+    - trace episode summary: `zero_exec_ratio ≈ 0.967`.
+- Interpretation:
+  - Stability is improved in early phases, but policy still enters loop dynamics on harder grid behavior and does not beat SABRE there.
+
+## 29) New Anti-Collapse Controls Implemented (Code)
+### A) Policy-level soft anti-loop bias
+- Added optional previous-action logit penalty (no hard mask):
+  - `action_repeat_logit_penalty` subtracts from previous action logit before sampling/greedy selection.
+- Applied consistently in:
+  - rollout data collection,
+  - PPO update recomputation (stores `prev_actions` in rollout),
+  - greedy eval,
+  - periodic traces.
+
+### B) Early truncate on no-progress streak
+- Added optional early truncation when no gate is executed for too long:
+  - new env parameter `no_progress_terminate_streak` (default `40`),
+  - when threshold is reached, episode truncates and timeout penalty is applied,
+  - `info["truncated_reason"]` now indicates `no_progress_streak` or `max_steps`.
+
+### C) New CLI controls
+- `--action-repeat-logit-penalty`
+- `--no-progress-terminate-streak`
+
+### D) Files updated
+- `src/agent.py`
+- `src/environment.py`
+- `src/main.py`

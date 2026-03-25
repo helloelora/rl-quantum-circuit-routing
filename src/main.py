@@ -160,6 +160,15 @@ def parse_args():
         help="Lower bound (negative cap) for no-progress penalty.",
     )
     parser.add_argument(
+        "--no-progress-terminate-streak",
+        type=int,
+        default=40,
+        help=(
+            "If > 0, truncate episode early when no gate executes for this many "
+            "consecutive steps."
+        ),
+    )
+    parser.add_argument(
         "--max-steps-per-two-qubit-gate",
         type=float,
         default=10.0,
@@ -225,6 +234,12 @@ def parse_args():
     parser.add_argument("--trace-alert-dom-threshold", type=float, default=0.60)
     parser.add_argument("--trace-alert-backtrack-threshold", type=float, default=0.50)
     parser.add_argument("--trace-alert-patience", type=int, default=2)
+    parser.add_argument(
+        "--action-repeat-logit-penalty",
+        type=float,
+        default=0.15,
+        help="Soft policy penalty subtracted from previous-action logit.",
+    )
     parser.add_argument("--best-model-max-eval-timeout-rate", type=float, default=0.95)
     parser.add_argument("--best-model-max-trace-timeout-rate", type=float, default=0.95)
     parser.add_argument("--best-model-max-trace-dom-ratio", type=float, default=0.90)
@@ -300,6 +315,7 @@ def train_phase(
         repeat_swap_penalty_cap=args.repeat_swap_penalty_cap,
         no_progress_penalty_coeff=args.no_progress_penalty_coeff,
         no_progress_penalty_cap=args.no_progress_penalty_cap,
+        no_progress_terminate_streak=args.no_progress_terminate_streak,
         max_steps_per_two_qubit_gate=args.max_steps_per_two_qubit_gate,
         max_steps_min=args.max_steps_min,
         max_steps_max=args.max_steps_max,
@@ -337,6 +353,7 @@ def train_phase(
         trace_alert_dom_threshold=args.trace_alert_dom_threshold,
         trace_alert_backtrack_threshold=args.trace_alert_backtrack_threshold,
         trace_alert_patience=args.trace_alert_patience,
+        action_repeat_logit_penalty=args.action_repeat_logit_penalty,
         best_model_max_eval_timeout_rate=args.best_model_max_eval_timeout_rate,
         best_model_max_trace_timeout_rate=args.best_model_max_trace_timeout_rate,
         best_model_max_trace_dom_ratio=args.best_model_max_trace_dom_ratio,
@@ -365,6 +382,7 @@ def train_phase(
     print(f"  trace_interval_updates={args.trace_interval_updates}")
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  trace_alert_thresholds=(dom>={args.trace_alert_dom_threshold}, backtrack>={args.trace_alert_backtrack_threshold}, patience={args.trace_alert_patience})")
+    print(f"  action_repeat_logit_penalty={args.action_repeat_logit_penalty}")
     print(
         "  best_model_exploitability="
         f"(eval_timeout<={args.best_model_max_eval_timeout_rate}, "
@@ -417,6 +435,8 @@ def main():
         raise ValueError("--no-progress-penalty-coeff must be <= 0 (penalty).")
     if args.no_progress_penalty_cap > 0:
         raise ValueError("--no-progress-penalty-cap must be <= 0.")
+    if args.no_progress_terminate_streak < 0:
+        raise ValueError("--no-progress-terminate-streak must be >= 0.")
     if args.max_steps_per_two_qubit_gate < 0:
         raise ValueError("--max-steps-per-two-qubit-gate must be >= 0.")
     if args.max_steps_min < 0:
@@ -445,6 +465,8 @@ def main():
         raise ValueError("--trace-alert-backtrack-threshold must be in [0, 1].")
     if args.trace_alert_patience < 1:
         raise ValueError("--trace-alert-patience must be >= 1.")
+    if args.action_repeat_logit_penalty < 0:
+        raise ValueError("--action-repeat-logit-penalty must be >= 0.")
     if not (0.0 <= args.best_model_max_eval_timeout_rate <= 1.0):
         raise ValueError("--best-model-max-eval-timeout-rate must be in [0, 1].")
     if not (0.0 <= args.best_model_max_trace_timeout_rate <= 1.0):
@@ -493,6 +515,7 @@ def main():
     print(f"  repeat_swap_penalty_cap={args.repeat_swap_penalty_cap}")
     print(f"  no_progress_penalty_coeff={args.no_progress_penalty_coeff}")
     print(f"  no_progress_penalty_cap={args.no_progress_penalty_cap}")
+    print(f"  no_progress_terminate_streak={args.no_progress_terminate_streak}")
     print(
         "  topology_weights="
         f"(linear={args.linear_topology_weight}, "
@@ -519,6 +542,7 @@ def main():
     print(f"  trace_interval_updates={args.trace_interval_updates}")
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  trace_max_steps={args.trace_max_steps}")
+    print(f"  action_repeat_logit_penalty={args.action_repeat_logit_penalty}")
     print(
         "  trace_alert_thresholds="
         f"(dom>={args.trace_alert_dom_threshold}, "

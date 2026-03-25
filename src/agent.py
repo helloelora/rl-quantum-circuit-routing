@@ -81,6 +81,9 @@ class PPOConfig:
     best_model_reject_trace_alert: bool = True
     best_model_require_trace: bool = False
     best_model_use_latest_trace: bool = True
+    # Soft anti-loop bias in policy sampling: subtract this from the logit of
+    # the previous action (no hard masking).
+    action_repeat_logit_penalty: float = 0.15
     # Reward shaping annealing across training.
     distance_reward_coeff_start: float = 0.03
     distance_reward_coeff_end: float = 0.015
@@ -190,6 +193,7 @@ class PPOAgent:
         self.best_eval_key = tuple([-np.inf] * 7)
         self.trace_alert_streak = 0
         self.last_trace_metrics: Dict[str, float] | None = None
+        self._policy_prev_action = -1
         self._running_ep_return = 0.0
         self._running_ep_len = 0
         self.eval_cases: List[Dict] = []
@@ -290,6 +294,32 @@ class PPOAgent:
         action_mask = unwrapped.get_action_mask().astype(bool)
         return edge_index, action_mask
 
+    def _build_dist_and_value(
+        self,
+        obs_t: torch.Tensor,
+        edge_t: torch.Tensor,
+        mask_t: torch.Tensor,
+        prev_actions_t: torch.Tensor | None = None,
+    ) -> Tuple[Categorical, torch.Tensor]:
+        """
+        Build action distribution with optional soft penalty on previous action.
+        """
+        score_map_sym, values = self.model.forward(obs_t)
+        logits = self.model.gather_edge_logits(score_map_sym, edge_t)
+
+        if prev_actions_t is not None and self.cfg.action_repeat_logit_penalty > 0:
+            prev_actions = prev_actions_t.long().view(-1)
+            valid = (prev_actions >= 0) & (prev_actions < logits.shape[1])
+            if torch.any(valid):
+                row_idx = torch.arange(logits.shape[0], device=logits.device)[valid]
+                col_idx = prev_actions[valid]
+                logits = logits.clone()
+                logits[row_idx, col_idx] -= float(self.cfg.action_repeat_logit_penalty)
+
+        masked_logits = logits.masked_fill(~mask_t, -1e9)
+        dist = Categorical(logits=masked_logits)
+        return dist, values
+
     def _collect_rollout(
         self, obs: np.ndarray
     ) -> Tuple[Dict[str, np.ndarray], np.ndarray, List[float], List[int]]:
@@ -297,6 +327,7 @@ class PPOAgent:
             "obs": [],
             "edge_index": [],
             "action_mask": [],
+            "prev_actions": [],
             "actions": [],
             "logprobs": [],
             "rewards": [],
@@ -305,6 +336,7 @@ class PPOAgent:
         }
         completed_episode_returns: List[float] = []
         completed_episode_lengths: List[int] = []
+        prev_action_for_policy = int(self._policy_prev_action)
 
         for _ in range(self.cfg.rollout_steps):
             edge_index, action_mask = self._current_edges_and_mask()
@@ -312,9 +344,14 @@ class PPOAgent:
             obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
             edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
             mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+            prev_t = torch.as_tensor(
+                [prev_action_for_policy], dtype=torch.long, device=self.device
+            )
 
             with torch.no_grad():
-                dist, value = self.model.get_action_distribution(obs_t, edge_t, mask_t)
+                dist, value = self._build_dist_and_value(
+                    obs_t, edge_t, mask_t, prev_t
+                )
                 action = dist.sample()
                 logprob = dist.log_prob(action)
 
@@ -327,6 +364,7 @@ class PPOAgent:
             data["obs"].append(obs.copy())
             data["edge_index"].append(edge_index.copy())
             data["action_mask"].append(action_mask.copy())
+            data["prev_actions"].append(int(prev_action_for_policy))
             data["actions"].append(int(action.item()))
             data["logprobs"].append(float(logprob.item()))
             data["rewards"].append(float(reward))
@@ -340,7 +378,11 @@ class PPOAgent:
                 self._running_ep_return = 0.0
                 self._running_ep_len = 0
                 obs, _ = self.env.reset()
+                prev_action_for_policy = -1
+            else:
+                prev_action_for_policy = int(action.item())
 
+        self._policy_prev_action = int(prev_action_for_policy)
         rollout = {k: np.asarray(v) for k, v in data.items()}
         return rollout, obs, completed_episode_returns, completed_episode_lengths
 
@@ -373,6 +415,7 @@ class PPOAgent:
         obs = torch.as_tensor(rollout["obs"], dtype=torch.float32, device=self.device)
         edge_index = torch.as_tensor(rollout["edge_index"], dtype=torch.long, device=self.device)
         action_mask = torch.as_tensor(rollout["action_mask"], dtype=torch.bool, device=self.device)
+        prev_actions = torch.as_tensor(rollout["prev_actions"], dtype=torch.long, device=self.device)
         actions = torch.as_tensor(rollout["actions"], dtype=torch.long, device=self.device)
         old_logprobs = torch.as_tensor(rollout["logprobs"], dtype=torch.float32, device=self.device)
         old_values = torch.as_tensor(rollout["values"], dtype=torch.float32, device=self.device)
@@ -397,10 +440,11 @@ class PPOAgent:
                 mb_idx = indices[start:start + self.cfg.minibatch_size]
                 mb_idx_t = torch.as_tensor(mb_idx, dtype=torch.long, device=self.device)
 
-                dist, values = self.model.get_action_distribution(
+                dist, values = self._build_dist_and_value(
                     obs[mb_idx_t],
                     edge_index[mb_idx_t],
                     action_mask[mb_idx_t],
+                    prev_actions[mb_idx_t],
                 )
                 new_logprobs = dist.log_prob(actions[mb_idx_t])
                 entropy = dist.entropy().mean()
@@ -618,25 +662,29 @@ class PPOAgent:
                 )
         return trace_cases
 
-    def _greedy_action(self, obs: np.ndarray) -> int:
+    def _greedy_action(self, obs: np.ndarray, prev_action_idx: int = -1) -> int:
         edge_index, action_mask = self._current_edges_and_mask()
         obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
         edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
         mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+        prev_t = torch.as_tensor([int(prev_action_idx)], dtype=torch.long, device=self.device)
 
         with torch.no_grad():
-            dist, _ = self.model.get_action_distribution(obs_t, edge_t, mask_t)
+            dist, _ = self._build_dist_and_value(obs_t, edge_t, mask_t, prev_t)
             action = int(torch.argmax(dist.logits, dim=-1).item())
         return action
 
-    def _greedy_action_with_prob(self, obs: np.ndarray) -> Tuple[int, float]:
+    def _greedy_action_with_prob(
+        self, obs: np.ndarray, prev_action_idx: int = -1
+    ) -> Tuple[int, float]:
         edge_index, action_mask = self._current_edges_and_mask()
         obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
         edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
         mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+        prev_t = torch.as_tensor([int(prev_action_idx)], dtype=torch.long, device=self.device)
 
         with torch.no_grad():
-            dist, _ = self.model.get_action_distribution(obs_t, edge_t, mask_t)
+            dist, _ = self._build_dist_and_value(obs_t, edge_t, mask_t, prev_t)
             logits = dist.logits.squeeze(0)
             probs = torch.softmax(logits, dim=-1)
             action = int(torch.argmax(logits, dim=-1).item())
@@ -663,11 +711,14 @@ class PPOAgent:
         step_reward_sum = 0.0
         prev_total_exec = int(info.get("total_gates_executed", 0))
         last_action = None
+        prev_action_for_policy = -1
         action_counts: Dict[int, int] = {}
         step_count_cap = max(1, int(self.cfg.trace_max_steps))
 
         while not done and not truncated:
-            action, action_prob = self._greedy_action_with_prob(obs)
+            action, action_prob = self._greedy_action_with_prob(
+                obs, prev_action_idx=prev_action_for_policy
+            )
             current_topo = unwrapped._current_topo
             edge_i, edge_j = current_topo["edges"][action]
             front_before = float(unwrapped._compute_front_layer_distance())
@@ -689,6 +740,7 @@ class PPOAgent:
                     "trace_case_index": case_idx,
                     "step": int(info["step_count"]),
                     "action_index": int(action),
+                    "prev_action_index": int(prev_action_for_policy),
                     "edge_i": int(edge_i),
                     "edge_j": int(edge_j),
                     "action_prob": float(action_prob),
@@ -705,6 +757,10 @@ class PPOAgent:
                 }
             )
             obs = next_obs
+            if done or truncated:
+                prev_action_for_policy = -1
+            else:
+                prev_action_for_policy = int(action)
 
             if int(info.get("step_count", 0)) >= step_count_cap and not done:
                 truncated = True
@@ -810,9 +866,14 @@ class PPOAgent:
             done = False
             truncated = False
             info = {}
+            prev_action_for_policy = -1
             while not done and not truncated:
-                action = self._greedy_action(obs)
+                action = self._greedy_action(obs, prev_action_idx=prev_action_for_policy)
                 obs, _, done, truncated, info = self.env.step(action)
+                if done or truncated:
+                    prev_action_for_policy = -1
+                else:
+                    prev_action_for_policy = int(action)
             if truncated:
                 timeout_count += 1
             timeout_flags.append(1.0 if truncated else 0.0)
