@@ -781,3 +781,29 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 ### Where updated
 - `src/main.py` (defaults)
 - `notebooks/train_ppo_colab.ipynb` (2-stage run cell)
+
+## 27) Follow-up Adjustment After Early 2-Stage Collapse (Applied)
+### Observation
+- With aggressive anti-loop + tight dynamic step cap, collapse appeared early:
+  - stage1 already unstable at first eval checkpoints,
+  - stage2 timeout reached 1.0 quickly.
+
+### Updated strategy
+- Keep:
+  - `stage2_depth=12`
+  - `stage2_steps=200000`
+- Relax anti-loop penalties back to stable values:
+  - `repeat_swap_penalty_coeff=-0.2`
+  - `no_progress_penalty_coeff=-0.03`
+  - `no_progress_penalty_cap=-1.5`
+- Loosen dynamic max steps:
+  - `max_steps_per_two_qubit_gate=10`
+  - `max_steps_min=60`
+  - `max_steps_max=450`
+- Align eval and trace frequency:
+  - `eval_interval_updates=10`
+  - `trace_interval_updates=10`
+
+### Where applied
+- `src/main.py` defaults
+- `notebooks/train_ppo_colab.ipynb` run cell (stable v3, subprocess-based)

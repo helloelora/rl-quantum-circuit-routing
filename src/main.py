@@ -132,7 +132,7 @@ def parse_args():
     parser.add_argument(
         "--repeat-swap-penalty-coeff",
         type=float,
-        default=-0.3,
+        default=-0.2,
         help=(
             "Progressive penalty coefficient for consecutive reuse of the same "
             "physical SWAP edge."
@@ -147,7 +147,7 @@ def parse_args():
     parser.add_argument(
         "--no-progress-penalty-coeff",
         type=float,
-        default=-0.05,
+        default=-0.03,
         help=(
             "Progressive penalty coefficient when no new gate is executed "
             "at a step."
@@ -156,13 +156,13 @@ def parse_args():
     parser.add_argument(
         "--no-progress-penalty-cap",
         type=float,
-        default=-2.0,
+        default=-1.5,
         help="Lower bound (negative cap) for no-progress penalty.",
     )
     parser.add_argument(
         "--max-steps-per-two-qubit-gate",
         type=float,
-        default=7.0,
+        default=10.0,
         help=(
             "If > 0, uses dynamic per-episode max steps: "
             "ceil(num_2q_gates * factor)."
@@ -171,13 +171,13 @@ def parse_args():
     parser.add_argument(
         "--max-steps-min",
         type=int,
-        default=40,
+        default=60,
         help="Optional lower bound for dynamic max steps (0 disables).",
     )
     parser.add_argument(
         "--max-steps-max",
         type=int,
-        default=320,
+        default=450,
         help="Optional upper bound for dynamic max steps (0 uses --max-steps).",
     )
     parser.add_argument("--linear-topology-weight", type=float, default=0.5)
@@ -214,7 +214,7 @@ def parse_args():
     )
     parser.add_argument("--eval-circuit-generation-attempts", type=int, default=16)
     parser.add_argument("--eval-seed-base", type=int, default=3000000000)
-    parser.add_argument("--trace-interval-updates", type=int, default=20)
+    parser.add_argument("--trace-interval-updates", type=int, default=10)
     parser.add_argument("--trace-cases-per-topology", type=int, default=1)
     parser.add_argument(
         "--trace-max-steps",
