@@ -872,3 +872,185 @@ Interpretation: train rewards and returns improve, but completion rate remains v
 - `src/agent.py`
 - `src/environment.py`
 - `src/main.py`
+
+## 30) New Results After Anti-Collapse Controls (2026-03-25)
+### Run: `ppo_2stages_20260325_153604`
+### Stage1 (`linear_5`)
+- No collapse detected.
+- Best eval (update 30):
+  - `eval_improvement_pct = -11.02%`
+  - `eval_win_rate = 0.417`
+  - `eval_timeout_rate = 0.00`
+  - trace: `dom = 0.417`, `backtrack = 0.083`
+
+### Stage2 (`linear_5 + grid_3x3`)
+- No collapse detected.
+- Best eval row (update 20):
+  - `eval_improvement_pct = -88.43%`
+  - `eval_win_rate = 0.375`
+  - `eval_timeout_rate = 0.292`
+  - trace: `dom = 0.491`, `backtrack = 0.363`, `trace_timeout = 0.50`
+- Last eval snapshot (update 40):
+  - global:
+    - `improve = -107.89%`
+    - `win = 0.333`
+    - `timeout = 0.375`
+  - per topology:
+    - `grid_3x3`: `improve = -208.20%`, `win = 0.00`, `timeout = 0.75`, swaps `44.75 / 14.50`
+    - `linear_5`: `improve = -7.59%`, `win = 0.667`, `timeout = 0.00`, swaps `10.83 / 10.33`
+
+### Interpretation
+- Major progress vs previous stage2 attempts:
+  - no loop-collapse,
+  - much lower SWAP inflation on `grid_3x3` (from ~300+ toward ~45),
+  - strong retention on `linear_5`.
+- Remaining blocker:
+  - `grid_3x3` still far from SABRE and timeout is still high (`0.75`).
+
+## 31) Grid-Focused v4 Results (2026-03-25)
+### Run: `ppo_2stages_gridv4_20260325_160213`
+### Stage1 (`linear_5`)
+- Early warning fired at update 10 (`eval_timeout=0.8125`, trace dom/back high),
+  but training recovered and no persistent collapse pattern remained.
+- Best eval (update 30):
+  - `eval_improvement_pct = -6.95%`
+  - `eval_win_rate = 0.50`
+  - `eval_timeout_rate = 0.00`
+  - trace: `dom = 0.467`, `backtrack = 0.100`.
+
+### Stage2 (`linear_5 + grid_3x3`)
+- No collapse detected.
+- Best/last eval snapshot (update 70):
+  - global:
+    - `improve = -89.14%`
+    - `win = 0.1875`
+    - `timeout = 0.1875`
+  - `grid_3x3`:
+    - `improve = -141.28%`
+    - `win = 0.00`
+    - `timeout = 0.312`
+    - swaps `33.56 / 14.44`
+  - `linear_5`:
+    - `improve = -36.99%`
+    - `win = 0.375`
+    - `timeout = 0.062`
+    - swaps `13.56 / 9.75`
+
+### Interpretation
+- Significant improvement over prior runs on `grid_3x3`:
+  - timeout reduced (down to ~0.31),
+  - swap inflation strongly reduced (from ~300+ to ~34).
+- Still not at project target:
+  - `grid_3x3` win rate remains `0.00`,
+  - still behind SABRE on average.
+
+## 32) Grid-v4 Robustness Check (2 Seeds) (2026-03-25)
+### Runs
+- `ppo_2stages_gridv4_seedcheck_20260325_162955_s42`
+- `ppo_2stages_gridv4_seedcheck_20260325_184106_s123`
+
+### Stage1 (`linear_5`)
+- Stable on both seeds, no collapse detected.
+- Best eval:
+  - seed42: `improve = -4.44%`, `win = 0.6875`, `timeout = 0.00`
+  - seed123: `improve = -10.42%`, `win = 0.5625`, `timeout = 0.00`
+
+### Stage2 (`linear_5 + grid_3x3`)
+- Stable on both seeds, no collapse detected.
+- Best eval:
+  - seed42:
+    - global: `improve = -91.47%`, `win = 0.03125`, `timeout = 0.1875`
+    - `grid_3x3`: `improve = -176.80%`, `win = 0.00`, `timeout = 0.438`, swaps `38.31 / 14.31`
+    - `linear_5`: `improve = -54.29%`, `win = 0.062`, `timeout = 0.062`, swaps `14.69 / 9.62`
+  - seed123:
+    - global: `improve = -77.76%`, `win = 0.1875`, `timeout = 0.15625`
+    - `grid_3x3`: `improve = -142.98%`, `win = 0.00`, `timeout = 0.312`, swaps `35.62 / 14.75`
+    - `linear_5`: `improve = -12.53%`, `win = 0.375`, `timeout = 0.00`, swaps `10.75 / 9.75`
+
+### Interpretation
+- The anti-collapse controls are robust across seeds (no collapse in stage2).
+- Performance remains highly seed-sensitive and still below SABRE on `grid_3x3`:
+  - win rate is still `0.00` on grid for both seeds.
+- Current PPO setup is now stable enough for ablations, but not yet sufficient to beat SABRE on grid.
+
+## 33) Grid-Only Stage2 Ablation (2026-03-25)
+### Run
+- `ppo_2stages_grid_only_20260325_192853_s42`
+
+### Stage1 (`linear_5`)
+- Stable, no collapse.
+- Best eval:
+  - `eval_improvement_pct = -4.62%`
+  - `eval_win_rate = 0.6875`
+  - `eval_timeout_rate = 0.0`
+
+### Stage2 (`grid_3x3` only)
+- Stable (no collapse), but clearly weaker than mixed stage2 (`linear_5 + grid_3x3`).
+- Best eval row (update 50):
+  - `eval_improvement_pct = -168.87%`
+  - `eval_win_rate = 0.0625`
+  - `eval_timeout_rate = 0.4375`
+  - trace: `dom = 0.630`, `backtrack = 0.597`, `trace_timeout = 0.667`
+- Last eval snapshot (update 70):
+  - `grid_3x3`: `improve = -218.22%`, `win = 0.062`, `timeout = 0.625`, swaps `40.19 / 12.44`
+
+### Interpretation
+- Removing `linear_5` from stage2 hurts rather than helps.
+- Current best direction remains the mixed stage2 curriculum (`linear_5 + grid_3x3`) with anti-collapse controls.
+
+## 34) Grid-v5 (Stronger Anti-Loop) (2026-03-25)
+### Run
+- `ppo_2stages_gridv5_20260325_195948_s42`
+
+### Config delta vs Grid-v4
+- `action_repeat_logit_penalty`: `0.15 -> 0.20`
+- `no_progress_terminate_streak`: `40 -> 30`
+- all other main settings unchanged.
+
+### Stage1 (`linear_5`)
+- Stable, no collapse.
+- Best eval:
+  - `eval_improvement_pct = -2.47%`
+  - `eval_win_rate = 0.75`
+  - `eval_timeout_rate = 0.0`
+
+### Stage2 (`linear_5 + grid_3x3`)
+- Stable, no collapse.
+- Best eval row (update 60):
+  - `eval_improvement_pct = -58.91%`
+  - `eval_win_rate = 0.09375`
+  - `eval_timeout_rate = 0.09375`
+  - trace: `dom = 0.364`, `backtrack = 0.261`, `trace_timeout = 0.167`
+- Last eval snapshot (update 70):
+  - global: `improve = -78.44%`, `win = 0.125`, `timeout = 0.156`
+  - `grid_3x3`: `improve = -103.69%`, `win = 0.00`, `timeout = 0.25`, swaps `30.00 / 14.69`
+  - `linear_5`: `improve = -53.19%`, `win = 0.25`, `timeout = 0.062`, swaps `14.06 / 9.75`
+
+### Interpretation
+- This is the best PPO trend so far on `grid_3x3`:
+  - lower swap inflation and timeout than Grid-v4 seed checks,
+  - no collapse dynamics.
+- Still below SABRE on grid (`win_rate = 0.00`), but gap is narrowing.
+
+## 35) Grid-v6 Light (Low-Compute Variant) (2026-03-26)
+### Run
+- `ppo_2stages_gridv6_light_20260326_110252_s42`
+
+### Config intent
+- reduce compute (`stage1=80k`, `stage2=180k`) and make anti-loop stronger.
+
+### Outcome
+- Stage1 remained stable.
+- Stage2 regressed strongly and entered timeout-heavy behavior very early.
+- Best stage2 eval (update 20):
+  - `eval_improvement_pct = -156.13%`
+  - `eval_win_rate = 0.0417`
+  - `eval_timeout_rate = 0.9167`
+  - trace: `dom = 0.786`, `backtrack = 0.625`, `trace_timeout = 0.833`
+- Last eval snapshot (update 40):
+  - `grid_3x3`: `improve = -173.79%`, `win = 0.00`, `timeout = 0.833`, swaps `38.25 / 14.25`
+  - `linear_5`: `improve = -198.98%`, `win = 0.00`, `timeout = 0.917`, swaps `27.58 / 10.00`
+
+### Interpretation
+- This low-compute variant is a clear regression.
+- Best current PPO baseline remains Grid-v5 (`ppo_2stages_gridv5_..._s42`).

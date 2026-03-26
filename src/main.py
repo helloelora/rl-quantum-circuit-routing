@@ -275,6 +275,15 @@ def parse_args():
         best_model_reject_trace_alert=True,
         best_model_use_latest_trace=True,
     )
+    parser.add_argument(
+        "--init-model-path",
+        type=str,
+        default="",
+        help=(
+            "Optional checkpoint path to warm-start PPO weights "
+            "(expects a state_dict or a dict with key 'model_state_dict')."
+        ),
+    )
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--save-path", type=str, default="")
 
@@ -475,6 +484,15 @@ def main():
         raise ValueError("--best-model-max-trace-dom-ratio must be in [0, 1].")
     if not (0.0 <= args.best_model_max_trace_backtrack_rate <= 1.0):
         raise ValueError("--best-model-max-trace-backtrack-rate must be in [0, 1].")
+    init_model_path: Path | None = None
+    if args.init_model_path:
+        init_model_path = Path(args.init_model_path).expanduser()
+        if not init_model_path.is_absolute():
+            init_model_path = project_root / init_model_path
+        if not init_model_path.exists():
+            raise FileNotFoundError(
+                f"--init-model-path was provided but file does not exist: {init_model_path}"
+            )
 
     resolved_eval_min_twoq = (
         args.min_two_qubit_gates
@@ -543,6 +561,7 @@ def main():
     print(f"  trace_cases_per_topology={args.trace_cases_per_topology}")
     print(f"  trace_max_steps={args.trace_max_steps}")
     print(f"  action_repeat_logit_penalty={args.action_repeat_logit_penalty}")
+    print(f"  init_model_path={init_model_path if init_model_path else 'none'}")
     print(
         "  trace_alert_thresholds="
         f"(dom>={args.trace_alert_dom_threshold}, "
@@ -566,6 +585,23 @@ def main():
         + ("OK" if TORCHMETRICS_OK else f"MISSING ({TORCHMETRICS_ERR})")
     )
 
+    initial_model_state = None
+    if init_model_path is not None:
+        loaded_checkpoint = torch.load(init_model_path, map_location="cpu")
+        if (
+            isinstance(loaded_checkpoint, dict)
+            and "model_state_dict" in loaded_checkpoint
+            and isinstance(loaded_checkpoint["model_state_dict"], dict)
+        ):
+            loaded_checkpoint = loaded_checkpoint["model_state_dict"]
+        if not isinstance(loaded_checkpoint, dict):
+            raise TypeError(
+                "--init-model-path checkpoint must be a state_dict dict "
+                "or contain key 'model_state_dict'."
+            )
+        initial_model_state = loaded_checkpoint
+        print(f"Loaded warm-start model from: {init_model_path}")
+
     final_state = None
     last_phase_run_dir: Path | None = None
     if args.curriculum:
@@ -580,7 +616,7 @@ def main():
             ("stage3_full", topologies, args.stage3_depth, args.stage3_steps),
         ]
 
-        model_state = None
+        model_state = copy.deepcopy(initial_model_state)
         eval_seed_offset = 0
         for phase_name, phase_topos, phase_depth, phase_steps in phases:
             if phase_steps <= 0:
@@ -638,7 +674,7 @@ def main():
             total_timesteps=args.total_timesteps,
             args=args,
             device=device,
-            model_state_dict=None,
+            model_state_dict=copy.deepcopy(initial_model_state),
             eval_seed_offset=0,
             eval_circuit_depth=phase_eval_depth,
             min_two_qubit_gates=phase_train_min_twoq,
