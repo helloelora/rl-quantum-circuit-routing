@@ -94,7 +94,10 @@ def evaluate_one_circuit(model, env, topo_idx: int, circuit, device) -> int:
 def main():
     args = parse_args()
 
-    device = "cuda" if args.device == "auto" and torch.cuda.is_available() else args.device
+    if args.device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    else:
+        device = args.device
     qasmbench_root = Path(args.qasmbench_root)
     topologies = [t.strip() for t in args.topologies.split(",") if t.strip()]
 
@@ -114,6 +117,8 @@ def main():
 
     model = SymmetricCNNActorCritic(matrix_size=env.N).to(device)
     state_dict = torch.load(args.model_path, map_location=device)
+    if isinstance(state_dict, dict) and "model_state_dict" in state_dict:
+        state_dict = state_dict["model_state_dict"]
     model.load_state_dict(state_dict)
     model.eval()
 
