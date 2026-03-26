@@ -127,16 +127,30 @@ def main():
         raise ValueError(f"No .qasm files found in {qasmbench_root}")
 
     rows = []
+    skipped_invalid_qasm = 0
+    skipped_too_large = 0
+    skipped_eval_error = 0
     for topo_idx, topo_name in enumerate(topologies):
         cmap = get_coupling_map(topo_name)
         n_physical = cmap.size()
         for qasm_path in qasm_files:
-            circuit = load_circuit(str(qasm_path))
+            try:
+                circuit = load_circuit(str(qasm_path))
+            except Exception as exc:
+                skipped_invalid_qasm += 1
+                print(f"[Skip invalid QASM] {qasm_path}: {exc}")
+                continue
             if circuit.num_qubits > n_physical:
+                skipped_too_large += 1
                 continue
 
-            ppo_swaps = evaluate_one_circuit(model, env, topo_idx, circuit, device)
-            sabre_swaps = int(get_sabre_swap_count(circuit, cmap))
+            try:
+                ppo_swaps = evaluate_one_circuit(model, env, topo_idx, circuit, device)
+                sabre_swaps = int(get_sabre_swap_count(circuit, cmap))
+            except Exception as exc:
+                skipped_eval_error += 1
+                print(f"[Skip eval error] {qasm_path} on {topo_name}: {exc}")
+                continue
             improvement_pct = (
                 100.0 * (sabre_swaps - ppo_swaps) / max(1, sabre_swaps)
             )
@@ -161,7 +175,11 @@ def main():
     win_rate = float(np.mean(ppo_arr <= sabre_arr))
 
     summary = {
+        "num_qasm_files_scanned": int(len(qasm_files)),
         "num_circuits_evaluated": int(len(rows)),
+        "num_skipped_invalid_qasm": int(skipped_invalid_qasm),
+        "num_skipped_too_large_for_topology": int(skipped_too_large),
+        "num_skipped_eval_error": int(skipped_eval_error),
         "mean_ppo_swaps": float(np.mean(ppo_arr)),
         "mean_sabre_swaps": float(np.mean(sabre_arr)),
         "mean_improvement_pct": float(np.mean(improvement_arr)),
