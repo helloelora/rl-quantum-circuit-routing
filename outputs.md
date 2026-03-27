@@ -3,133 +3,70 @@
 ## Overview
 
 D3QN+PER agent trained to minimize SWAP gates on quantum hardware topologies.
-Baseline: IBM SABRE compiler. Target: 15–25% fewer SWAPs.
+Baseline: IBM SABRE compiler. Target: match or beat SABRE swap count.
 
 ---
 
-## Run 1 — Heavy-Hex Baseline
+## Architecture & Fix Log
 
-| Field | Value |
-|-------|-------|
-| **Job ID** | 162244 |
-| **Config** | `configs/run1_heavy_hex_fixed.json` |
-| **Topology** | heavy_hex_19 (19 qubits, 20 edges) |
-| **Episodes** | 30,000 |
-| **LR** | 1e-4 |
-| **Batch** | 128 |
-| **Epsilon** | 1.0 → 0.10 over 3M steps |
-| **Seed** | 42 |
-| **Node** | sh00 |
-| **Logs** | `outputs/slurm_162244.out` / `.err` |
-| **Run dir** | `outputs/run_003/` |
+### V1 (Runs 1–4, cancelled)
+- 3-channel state: adjacency, mapping, gate demand
+- Hard target updates (tau=1.0, every 2000 steps)
+- distance_reward_coeff = 0.01
+- No action repetition penalty
 
-**Purpose**: Baseline heavy_hex_19 training with default hyperparameters.
+**Problem**: Training showed 60–80% completion but **eval showed 0%**. Root cause investigation revealed Q-value collapse — agent's greedy policy degenerates to spamming a single action because:
+1. State doesn't change when agent is stuck (no gate executes → same observation)
+2. All Q-values collapse to the same deeply negative value (~-33)
+3. `argmax` always picks the same action → infinite loop
+4. Epsilon exploration masked the broken policy during training
 
-**Results**: _(pending)_
+### V2 (Runs 5–8, current) — 5 fixes applied
 
-| Metric | Value |
-|--------|-------|
-| Final reward | |
-| Completion rate | |
-| Agent SWAPs (mean) | |
-| SABRE SWAPs (mean) | |
-| Swap ratio | |
+1. **5-channel state** (+2 new channels):
+   - Channel 3: Front-layer distance map — for each front-layer gate, encodes `1/distance` between its two qubits' physical positions. Tells the network _which positions need to become adjacent_.
+   - Channel 4: Stagnation signal — uniform value = `steps_since_last_gate / max_steps`. Gives network awareness of being stuck.
 
----
+2. **Action repetition penalty** (`-0.5`): Repeating the same SWAP twice undoes it (wastes 2 steps). Penalty discourages this degenerate pattern.
 
-## Run 2 — High Learning Rate
+3. **Distance reward scaling** (`0.01 → 0.1`): Old coefficient was 10× smaller than step cost (-1.0), making distance shaping negligible. Now properly competes.
 
-| Field | Value |
-|-------|-------|
-| **Job ID** | 162245 |
-| **Config** | `configs/run2_heavy_hex_highLR.json` |
-| **Topology** | heavy_hex_19 |
-| **Episodes** | 30,000 |
-| **LR** | **3e-4** (3× baseline) |
-| **Batch** | 128 |
-| **Epsilon** | 1.0 → 0.10 over 3M steps |
-| **Seed** | 123 |
-| **Node** | sh21 |
-| **Logs** | `outputs/slurm_162245.out` / `.err` |
-| **Run dir** | `outputs/run_004/` |
+4. **Soft target updates** (`tau=0.005` every 500 steps instead of hard copy every 2000): Smoother target tracking prevents Q-value oscillation.
 
-**Purpose**: Test whether higher LR speeds convergence or causes instability.
+5. **Stagnation tracking**: `_steps_since_gate` counter in environment, reset when gates execute.
 
-**What to watch**: Compare loss/Q-value curves vs Run 1. If loss spikes or Q diverges, LR is too high.
+### Files modified for V2
+- `environment.py`: 5-channel state, repetition penalty, stagnation tracking
+- `networks.py`: `NUM_STATE_CHANNELS = 5`
+- `dqn_agent.py`: State shape from `NUM_STATE_CHANNELS`
+- `config.py`: Updated defaults (distance_reward_coeff=0.1, repetition_penalty=-0.5, tau=0.005, target_update_freq=500)
+- `train.py`: Pass `repetition_penalty` to env constructor
+- `main.py`: Pass `repetition_penalty` to eval env constructor
+- `configs/*.json`: All 4 configs updated with new fields
+- `experiment.slurm`: Hard-link SLURM logs into run directory
 
-**Results**: _(pending)_
-
-| Metric | Value |
-|--------|-------|
-| Final reward | |
-| Completion rate | |
-| Agent SWAPs (mean) | |
-| SABRE SWAPs (mean) | |
-| Swap ratio | |
+### V2 Validation — linear5 sanity test (Job 162423)
+- **100% completion** throughout training and eval
+- **Final eval: agent/SABRE ratio = 0.944** (agent beats SABRE on linear5)
+- SWAPs decreased from ~26 → 5 over 2000 episodes
+- All 3 phases (train → eval → visualize) completed cleanly
 
 ---
 
-## Run 3 — Long Training + Low Final Epsilon
+## Cancelled Runs (V1 — pre-fix)
 
-| Field | Value |
-|-------|-------|
-| **Job ID** | 162246 |
-| **Config** | `configs/run3_heavy_hex_long.json` |
-| **Topology** | heavy_hex_19 |
-| **Episodes** | **40,000** |
-| **LR** | 1e-4 |
-| **Batch** | 128 |
-| **Epsilon** | 1.0 → **0.02** over 3M steps |
-| **Seed** | 42 |
-| **Node** | sh22 |
-| **Logs** | `outputs/slurm_162246.out` / `.err` |
-| **Run dir** | `outputs/run_005/` |
-
-**Purpose**: More training + nearly greedy final policy (epsilon 0.02 vs 0.10). Tests whether Run 1 is undertrained.
-
-**What to watch**: Does performance keep improving past 30k episodes? Does lower final epsilon help or hurt?
-
-**Results**: _(pending)_
-
-| Metric | Value |
-|--------|-------|
-| Final reward | |
-| Completion rate | |
-| Agent SWAPs (mean) | |
-| SABRE SWAPs (mean) | |
-| Swap ratio | |
+| Run | Job ID | Config | Status | Notes |
+|-----|--------|--------|--------|-------|
+| 1 | 162244 | run1_heavy_hex_fixed | Cancelled | 0% eval completion, Q-value collapse |
+| 2 | 162245 | run2_heavy_hex_highLR | Cancelled | Same issue |
+| 3 | 162246 | run3_heavy_hex_long | Cancelled | Same issue |
+| 4 | 162247 | run4_multi_fixed | Cancelled | Same issue |
 
 ---
 
-## Run 4 — Multi-Topology Generalization
+## V2 Runs (pending — configs TBD)
 
-| Field | Value |
-|-------|-------|
-| **Job ID** | 162247 |
-| **Config** | `configs/run4_multi_fixed.json` |
-| **Topology** | **linear_5 + grid_3x3 + heavy_hex_19** |
-| **Episodes** | **45,000** |
-| **LR** | 1e-4 |
-| **Batch** | 128 |
-| **Epsilon** | 1.0 → 0.10 over 4.5M steps |
-| **Buffer** | 300k (larger for multi-topology) |
-| **Seed** | 42 |
-| **Node** | _(pending resources)_ |
-| **Logs** | `outputs/slurm_162247.out` / `.err` |
-| **Run dir** | `outputs/run_006/` |
-
-**Purpose**: Train a single agent on 3 topologies simultaneously. Tests generalization — can one model learn routing across different hardware graphs?
-
-**What to watch**: Per-topology completion rates. Does training on easier topologies (linear_5) help or hurt heavy_hex performance?
-
-**Results**: _(pending)_
-
-| Metric | linear_5 | grid_3x3 | heavy_hex_19 |
-|--------|----------|----------|--------------|
-| Completion rate | | | |
-| Agent SWAPs (mean) | | | |
-| SABRE SWAPs (mean) | | | |
-| Swap ratio | | | |
+Runs 5–8 will use the fixed V2 codebase. Configs to be determined.
 
 ---
 
@@ -137,10 +74,10 @@ Baseline: IBM SABRE compiler. Target: 15–25% fewer SWAPs.
 
 ```bash
 # Quick status for all runs
-for f in outputs/slurm_16224{4,5,6,7}.out; do echo "=== $(basename $f) ===" && tail -n 1 "$f" 2>/dev/null || echo "not started"; done
-
-# Job queue
 squeue -u dor_ali | grep quantum
+
+# Tail latest output
+for f in outputs/slurm_*.out; do echo "=== $(basename $f) ===" && tail -3 "$f" 2>/dev/null; done
 
 # Training curves (once run finishes)
 python3 main.py visualize --run-dir outputs/run_NNN
@@ -148,14 +85,3 @@ python3 main.py visualize --run-dir outputs/run_NNN
 # Full evaluation logs
 cat outputs/run_NNN/logs/evaluations.jsonl | python3 -m json.tool
 ```
-
----
-
-## Summary Table
-
-| Run | Config | Topology | Episodes | LR | Key Change | Status | Swap Ratio |
-|-----|--------|----------|----------|----|------------|--------|------------|
-| 1 | run1_heavy_hex_fixed | heavy_hex_19 | 30k | 1e-4 | Baseline | Running | |
-| 2 | run2_heavy_hex_highLR | heavy_hex_19 | 30k | 3e-4 | Higher LR | Running | |
-| 3 | run3_heavy_hex_long | heavy_hex_19 | 40k | 1e-4 | Longer + low ε | Running | |
-| 4 | run4_multi_fixed | 3 topologies | 45k | 1e-4 | Multi-topology | Pending | |
