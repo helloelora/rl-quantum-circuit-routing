@@ -15,9 +15,10 @@ class TrainConfig:
     circuit_depth: int = 20
     max_steps: int = 500
     gamma_decay: float = 0.5
-    distance_reward_coeff: float = 0.01
+    distance_reward_coeff: float = 0.1
     completion_bonus: float = 5.0
     timeout_penalty: float = -10.0
+    repetition_penalty: float = -0.5
     initial_mapping_strategy: str = "random"
 
     # --- Network ---
@@ -28,8 +29,8 @@ class TrainConfig:
     gamma: float = 0.99
     lr: float = 1e-4
     batch_size: int = 64
-    target_update_freq: int = 1000
-    tau: float = 1.0  # 1.0 = hard copy, <1.0 = soft Polyak
+    target_update_freq: int = 500
+    tau: float = 0.005  # soft Polyak update for smoother target tracking
     grad_clip_norm: float = 10.0
 
     # --- Epsilon ---
@@ -174,6 +175,8 @@ def heavy_hex_config() -> TrainConfig:
         eval_every=500,
         eval_episodes=50,
         checkpoint_every=1000,
+        target_update_freq=500,
+        tau=0.005,
     )
 
 
