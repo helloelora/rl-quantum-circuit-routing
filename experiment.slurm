@@ -114,11 +114,10 @@ echo "Training complete at $(date)"
 # Find the latest run directory
 LATEST_RUN=$(ls -td outputs/run_* 2>/dev/null | head -1)
 
-# Hard-link SLURM logs into run dir so they appear alongside results
-# (hard links share the inode, so SLURM continues writing to both paths)
+# Move SLURM logs into run dir (mv on same FS keeps SLURM's FD writing)
 if [ -n "$LATEST_RUN" ]; then
-    ln "outputs/slurm_${SLURM_JOB_ID}.out" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.out" 2>/dev/null || true
-    ln "outputs/slurm_${SLURM_JOB_ID}.err" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.err" 2>/dev/null || true
+    mv "outputs/slurm_${SLURM_JOB_ID}.out" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.out" 2>/dev/null || true
+    mv "outputs/slurm_${SLURM_JOB_ID}.err" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.err" 2>/dev/null || true
 fi
 
 if [ -z "$LATEST_RUN" ]; then
