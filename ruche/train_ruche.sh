@@ -30,7 +30,9 @@ STAGE3_STEPS=600000
 # =============================================================================
 # ENVIRONMENT SETUP
 # =============================================================================
-# Activate the venv created by setup_ruche.sh
+# Load Python module and activate venv
+module purge
+module load python/3.14.0/gcc-15.1.0
 source "$WORKDIR/venvs/rl_qrouting/bin/activate"
 
 # Project lives in $WORKDIR
