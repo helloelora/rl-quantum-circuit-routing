@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # train_ruche.sh — SLURM batch script for PPO training on La Ruche
-# Submit with:  sbatch train_ruche.sh
+# Submit with:  sbatch ruche/train_ruche.sh
 # =============================================================================
 
 #SBATCH --job-name=rl_qrouting
@@ -30,9 +30,8 @@ STAGE3_STEPS=600000
 # =============================================================================
 # ENVIRONMENT SETUP
 # =============================================================================
-module purge
-module load anaconda3/2020.02/gcc-9.2.0
-source activate rl_qrouting
+# Activate the venv created by setup_ruche.sh
+source "$WORKDIR/venvs/rl_qrouting/bin/activate"
 
 # Project lives in $WORKDIR
 PROJECT_DIR="$WORKDIR/rl-quantum-circuit-routing"
@@ -49,6 +48,7 @@ echo "  Run name:     $RUN_NAME"
 echo "  Project dir:  $PROJECT_DIR"
 echo "  Output dir:   $RUN_DIR"
 echo "  CPUs:         $SLURM_CPUS_PER_TASK"
+echo "  Python:       $(python --version)"
 echo "  Started:      $(date)"
 echo "========================================"
 

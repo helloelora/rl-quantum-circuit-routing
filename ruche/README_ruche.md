@@ -19,7 +19,7 @@ This clones only the lightweight `elora-ruche` branch (no results, notebooks, or
 bash ruche/setup_ruche.sh
 ```
 
-This creates a conda env `rl_qrouting` in `$WORKDIR/.conda` (to avoid the 50GB `$HOME` quota).
+This creates a Python venv at `$WORKDIR/venvs/rl_qrouting` (avoids the 50GB `$HOME` quota).
 
 ### 3. Submit the training job
 
@@ -87,8 +87,7 @@ ruche-quota
 
 # Interactive session for debugging
 srun --nodes=1 --time=01:00:00 -p cpu_short --mem=4G --cpus-per-task=2 --pty /bin/bash
-module load anaconda3/2020.02/gcc-9.2.0
-source activate rl_qrouting
+source $WORKDIR/venvs/rl_qrouting/bin/activate
 cd $WORKDIR/rl-quantum-circuit-routing
 python -m src.main --help
 ```

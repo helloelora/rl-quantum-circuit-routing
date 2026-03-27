@@ -1,48 +1,59 @@
 #!/bin/bash
 # =============================================================================
 # setup_ruche.sh — One-time setup for La Ruche HPC
-# Run this ONCE from the login node after cloning the repo.
-# Usage:  bash setup_ruche.sh
+# Run this from the login node (or an interactive cpu_short session).
+# Usage:  bash ruche/setup_ruche.sh
 # =============================================================================
 set -e
 
 echo "=== Setting up RL Quantum Circuit Routing on La Ruche ==="
 
-# ---------- 1. Move conda cache to $WORKDIR (avoid $HOME 50GB quota) ---------
-if [ ! -L "$HOME/.conda" ] && [ -d "$HOME/.conda" ]; then
-    echo "Moving .conda to \$WORKDIR to save \$HOME quota..."
-    mv "$HOME/.conda" "$WORKDIR/.conda"
-    ln -s "$WORKDIR/.conda" "$HOME/.conda"
-elif [ ! -e "$HOME/.conda" ]; then
-    mkdir -p "$WORKDIR/.conda"
-    ln -s "$WORKDIR/.conda" "$HOME/.conda"
-fi
-
-# ---------- 2. Load conda module ---------------------------------------------
-module purge
-module load anaconda3/2020.02/gcc-9.2.0
-
-# ---------- 3. Create conda environment --------------------------------------
-ENV_NAME="rl_qrouting"
-
-if conda info --envs | grep -q "$ENV_NAME"; then
-    echo "Conda environment '$ENV_NAME' already exists, skipping creation."
+# ---------- 1. Find a working Python 3 ----------------------------------------
+# Try system python3, then search for a module
+if command -v python3 &>/dev/null; then
+    PY=$(command -v python3)
+    echo "Found system python3: $PY ($(python3 --version))"
 else
-    echo "Creating conda environment '$ENV_NAME' with Python 3.10..."
-    conda create -n "$ENV_NAME" python=3.10 -y
+    echo "No python3 in PATH. Trying to find a python module..."
+    # Try common module names on Ruche
+    for mod in python/3.10 python/3.9 python/3.8 python-nospack/3.6.8/gcc-9.2.0; do
+        if module load "$mod" 2>/dev/null; then
+            echo "Loaded module: $mod"
+            PY=$(command -v python3)
+            break
+        fi
+    done
+    if [ -z "$PY" ]; then
+        echo "ERROR: Cannot find Python 3. Run 'module spider python' and update this script."
+        exit 1
+    fi
 fi
 
-# ---------- 4. Activate and install dependencies ------------------------------
-source activate "$ENV_NAME"
+# ---------- 2. Create venv in $WORKDIR (avoid $HOME 50GB quota) ---------------
+VENV_DIR="$WORKDIR/venvs/rl_qrouting"
 
-echo "Installing PyTorch (CPU — this project is CPU-bound RL)..."
+if [ -d "$VENV_DIR" ]; then
+    echo "Venv already exists at $VENV_DIR, skipping creation."
+else
+    echo "Creating venv at $VENV_DIR ..."
+    $PY -m venv "$VENV_DIR"
+fi
+
+# ---------- 3. Activate and install dependencies ------------------------------
+source "$VENV_DIR/bin/activate"
+
+echo "Upgrading pip..."
+pip install --upgrade pip
+
+echo "Installing PyTorch (CPU)..."
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 echo "Installing project dependencies..."
-pip install qiskit==1.0.2 gymnasium==0.29.1 networkx==3.2.1 numpy==1.26.4 matplotlib==3.8.3 shimmy[gymnasium]
+pip install qiskit==1.0.2 gymnasium==0.29.1 networkx==3.2.1 numpy==1.26.4 matplotlib==3.8.3 "shimmy[gymnasium]"
 
 echo ""
 echo "=== Setup complete ==="
-echo "Project dir:  $(pwd)"
-echo "Conda env:    $ENV_NAME"
-echo "To activate:  module load anaconda3/2020.02/gcc-9.2.0 && source activate $ENV_NAME"
+echo "Venv:        $VENV_DIR"
+echo "To activate: source $VENV_DIR/bin/activate"
+echo "Python:      $(python --version)"
+echo "Torch:       $(python -c 'import torch; print(torch.__version__)')"
