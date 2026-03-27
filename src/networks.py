@@ -4,15 +4,19 @@ import torch
 import torch.nn as nn
 
 
+# Number of observation channels from the environment
+NUM_STATE_CHANNELS = 5
+
+
 class DuelingCNN(nn.Module):
     """
     Dueling network architecture with CNN feature extractor.
 
-    Input:  (batch, 3, N, N) state tensor
+    Input:  (batch, 5, N, N) state tensor
     Output: (batch, num_actions) Q-values
 
     Architecture:
-        Conv2d(3->32, 3x3, same) -> ReLU
+        Conv2d(5->32, 3x3, same) -> ReLU
         Conv2d(32->64, 3x3, same) -> ReLU
         Conv2d(64->32, 3x3, same) -> ReLU
         Flatten -> 32*N*N
@@ -28,7 +32,7 @@ class DuelingCNN(nn.Module):
             conv_channels = [32, 64, 32]
 
         layers = []
-        in_ch = 3
+        in_ch = NUM_STATE_CHANNELS
         for out_ch in conv_channels:
             layers.append(nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1))
             layers.append(nn.ReLU())
@@ -52,7 +56,7 @@ class DuelingCNN(nn.Module):
     def forward(self, x):
         """
         Args:
-            x: (batch, 3, N, N) float32 tensor
+            x: (batch, 5, N, N) float32 tensor
         Returns:
             (batch, num_actions) Q-values
         """

@@ -2,9 +2,15 @@
 Gymnasium environment for RL-based quantum circuit routing.
 
 Implements the QubitRoutingEnv with:
-- 3-channel N×N state (adjacency, mapping, depth-decayed gate demand)
+- 5-channel N×N state:
+    Ch 0: Hardware adjacency matrix (binary, constant per episode)
+    Ch 1: Qubit assignment / mapping permutation matrix (binary)
+    Ch 2: Depth-decayed gate demand (continuous [0, 1])
+    Ch 3: Front-layer distance map (which positions need to become adjacent)
+    Ch 4: Stagnation signal (how many steps since last gate execution)
 - SWAP-only actions with automatic gate execution
 - AlphaRouter-style reward with Pozzi distance shaping
+- Action repetition penalty to prevent swap-undo loops
 - Multi-topology support: can switch topology each episode
 - Configurable matrix size N (padded) for fixed CNN input shape
 """
@@ -38,20 +44,29 @@ class QubitRoutingEnv(gym.Env):
     - Multi-topology:  pass a list of topology names via `topologies`.
       Each reset() randomly picks one topology from the list.
 
-    In both cases the observation shape is always (3, N, N) where N =
+    In both cases the observation shape is always (5, N, N) where N =
     matrix_size, and the action space is Discrete(max_edges) where
     max_edges is the largest edge count across all topologies.
 
-    State: (3, N, N) float32 array
+    State: (5, N, N) float32 array
         Channel 0: Hardware adjacency matrix (binary, constant per episode)
         Channel 1: Qubit assignment / mapping permutation matrix (binary)
         Channel 2: Depth-decayed gate demand (continuous [0, 1])
+        Channel 3: Front-layer distance map — encodes how far apart
+                   front-layer gate qubit pairs are in position space,
+                   normalized to [0, 1] (1.0 = adjacent, 0.0 = far)
+        Channel 4: Stagnation signal — uniform value encoding steps
+                   since last gate execution, normalized by max_steps
 
     Actions: Discrete(max_edges) — one action per hardware edge (SWAP).
              Actions beyond the current topology's edge count are invalid.
 
     Reward per step:
-        r_t = (gates_auto_executed) - 1 + 0.01 * delta_distance [+ 5 if done]
+        r_t = (gates_auto_executed) - 1
+              + distance_reward_coeff * delta_distance
+              + repetition_penalty (if same action as previous step)
+              [+ completion_bonus if done]
+              [+ timeout_penalty if truncated]
     """
 
     metadata = {"render_modes": ["human"]}
@@ -66,9 +81,10 @@ class QubitRoutingEnv(gym.Env):
         circuit_depth=20,
         max_steps=500,
         gamma_decay=0.5,
-        distance_reward_coeff=0.01,
+        distance_reward_coeff=0.1,
         completion_bonus=5.0,
         timeout_penalty=-10.0,
+        repetition_penalty=-0.5,
         matrix_size=27,
         initial_mapping_strategy="random",
         seed=None,
@@ -92,6 +108,8 @@ class QubitRoutingEnv(gym.Env):
             distance_reward_coeff: Coefficient for distance reduction shaping.
             completion_bonus: Reward bonus when all gates are routed.
             timeout_penalty: Penalty when max_steps is reached.
+            repetition_penalty: Penalty for repeating the same action as
+                         the previous step (prevents swap-undo loops).
             matrix_size: Side length N of the padded state matrices.
                          Must be >= largest topology's qubit count. Default 27.
             initial_mapping_strategy: How to set the initial qubit-to-position
@@ -144,7 +162,7 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Spaces ---
         self.observation_space = spaces.Box(
-            low=0.0, high=1.0, shape=(3, self.N, self.N), dtype=np.float32
+            low=0.0, high=1.0, shape=(5, self.N, self.N), dtype=np.float32
         )
         self.action_space = spaces.Discrete(self.max_edges)
 
@@ -157,6 +175,7 @@ class QubitRoutingEnv(gym.Env):
         self.distance_reward_coeff = distance_reward_coeff
         self.completion_bonus = completion_bonus
         self.timeout_penalty = timeout_penalty
+        self.repetition_penalty = repetition_penalty
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
 
         # --- RNG ---
@@ -174,6 +193,8 @@ class QubitRoutingEnv(gym.Env):
         self.total_swaps = 0
         self.total_gates_executed = 0
         self.n_gates = 0
+        self._prev_action = -1            # for action repetition penalty
+        self._steps_since_gate = 0        # for stagnation channel
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -213,7 +234,7 @@ class QubitRoutingEnv(gym.Env):
                 - "topology_index": int, force a specific topology
 
         Returns:
-            observation: (3, N, N) state array
+            observation: (5, N, N) state array
             info: dict with episode metadata
         """
         super().reset(seed=seed)
@@ -295,6 +316,8 @@ class QubitRoutingEnv(gym.Env):
         self.step_count = 0
         self.total_swaps = 0
         self.total_gates_executed = 0
+        self._prev_action = -1
+        self._steps_since_gate = 0
         self._auto_execute_gates()
 
         obs = self._compute_state()
@@ -336,6 +359,12 @@ class QubitRoutingEnv(gym.Env):
         # --- Auto-execute routable gates ---
         gates_executed = self._auto_execute_gates()
 
+        # --- Track stagnation ---
+        if gates_executed > 0:
+            self._steps_since_gate = 0
+        else:
+            self._steps_since_gate += 1
+
         # --- Compute distance sum AFTER (for shaping reward) ---
         dist_after = self._compute_front_layer_distance()
         delta_dist = dist_before - dist_after  # positive if qubits moved closer
@@ -343,6 +372,12 @@ class QubitRoutingEnv(gym.Env):
         # --- Reward ---
         done = self._is_done()
         reward = (gates_executed - 1) + self.distance_reward_coeff * delta_dist
+
+        # Action repetition penalty (same swap twice = undo, wastes 2 steps)
+        if action == self._prev_action:
+            reward += self.repetition_penalty
+        self._prev_action = action
+
         if done:
             reward += self.completion_bonus
 
@@ -390,14 +425,16 @@ class QubitRoutingEnv(gym.Env):
 
     def _compute_state(self):
         """
-        Build the 3-channel N×N state observation.
+        Build the 5-channel N×N state observation.
 
         Channel 0: Adjacency (from current topology, padded)
         Channel 1: Mapping permutation matrix
         Channel 2: Depth-decayed gate demand
+        Channel 3: Front-layer distance map (position-space, normalized)
+        Channel 4: Stagnation signal (uniform value = steps_since_gate / max_steps)
         """
         topo = self._current_topo
-        state = np.zeros((3, self.N, self.N), dtype=np.float32)
+        state = np.zeros((5, self.N, self.N), dtype=np.float32)
 
         # Channel 0: Adjacency
         state[0] = topo["adjacency_channel"]
@@ -422,6 +459,34 @@ class QubitRoutingEnv(gym.Env):
 
             # Normalize to [0, 1]
             state[2] /= self.norm_factor
+
+        # Channel 3: Front-layer distance map
+        # For each front-layer gate, place a value at the physical positions
+        # of its two qubits. Value = 1.0 when adjacent (dist=1), decreasing
+        # for larger distances: value = 1.0 / distance.
+        if self.gates and not self._is_done():
+            dist_matrix = topo["distance_matrix"]
+            front = compute_front_layer(
+                self.gates, self.executed, self.predecessors
+            )
+            for gate_idx in front:
+                q_a, q_b = self.gates[gate_idx]
+                p_a = self.mapping[q_a]
+                p_b = self.mapping[q_b]
+                dist = dist_matrix[p_a, p_b]
+                if dist > 0:
+                    value = 1.0 / dist  # 1.0 = adjacent, 0.25 = 4 hops
+                else:
+                    value = 1.0
+                state[3, p_a, p_b] = max(state[3, p_a, p_b], value)
+                state[3, p_b, p_a] = max(state[3, p_b, p_a], value)
+
+        # Channel 4: Stagnation signal
+        # Uniform value across the matrix encoding how long since a gate
+        # was last executed. Gives the network a sense of "how stuck am I".
+        if self.max_steps > 0:
+            stagnation = min(self._steps_since_gate / self.max_steps, 1.0)
+            state[4, :, :] = stagnation
 
         return state
 
