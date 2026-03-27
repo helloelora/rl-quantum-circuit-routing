@@ -50,7 +50,8 @@ class D3QNAgent:
         )
 
         # Replay buffer
-        state_shape = (3, config.matrix_size, config.matrix_size)
+        from networks import NUM_STATE_CHANNELS
+        state_shape = (NUM_STATE_CHANNELS, config.matrix_size, config.matrix_size)
         self.buffer = PrioritizedReplayBuffer(
             capacity=config.buffer_capacity,
             state_shape=state_shape,

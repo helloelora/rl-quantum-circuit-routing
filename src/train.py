@@ -90,6 +90,7 @@ def train(config, resume_from=None):
         distance_reward_coeff=config.distance_reward_coeff,
         completion_bonus=config.completion_bonus,
         timeout_penalty=config.timeout_penalty,
+        repetition_penalty=config.repetition_penalty,
         matrix_size=config.matrix_size,
         initial_mapping_strategy=config.initial_mapping_strategy,
         seed=config.seed,
