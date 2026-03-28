@@ -31,17 +31,16 @@ STAGE3_STEPS=600000
 # =============================================================================
 # ENVIRONMENT SETUP
 # =============================================================================
-# Activate conda environment
-eval "$($WORKDIR/miniconda3/bin/conda shell.bash hook)"
-conda activate rl_qrouting
+module purge
+module load apptainer/1.4.4/gcc-15.1.0
 
-# Project lives in $WORKDIR
+SIF_PATH="$WORKDIR/rl_qrouting.sif"
 PROJECT_DIR="$WORKDIR/rl-quantum-circuit-routing"
-cd "$PROJECT_DIR"
-
-# Output directory for this run (inside $WORKDIR, not $HOME)
 RUN_DIR="$WORKDIR/rl_qrouting_runs"
 mkdir -p "$RUN_DIR"
+
+export APPTAINER_CACHEDIR=$WORKDIR/.apptainer_cache
+mkdir -p "$APPTAINER_CACHEDIR"
 
 echo "========================================"
 echo "  Job ID:       $SLURM_JOB_ID"
@@ -50,14 +49,19 @@ echo "  Run name:     $RUN_NAME"
 echo "  Project dir:  $PROJECT_DIR"
 echo "  Output dir:   $RUN_DIR"
 echo "  CPUs:         $SLURM_CPUS_PER_TASK"
-echo "  Python:       $(python --version)"
 echo "  Started:      $(date)"
 echo "========================================"
 
 # =============================================================================
-# TRAINING — 3-stage curriculum (best config from Grid-v5 + longer stage2)
+# TRAINING — 3-stage curriculum
 # =============================================================================
-python -m src.main \
+apptainer exec \
+    --nv \
+    --writable-tmpfs \
+    --bind "$WORKDIR:$WORKDIR:rw" \
+    --pwd "$PROJECT_DIR" \
+    "$SIF_PATH" \
+    python -m src.main \
     --curriculum \
     --seed "$SEED" \
     --project-root "$RUN_DIR" \
@@ -127,7 +131,12 @@ python -m src.main \
 echo "Generating plots..."
 for PHASE_DIR in "$RUN_DIR/runs/$RUN_NAME"/*/; do
     if [ -f "$PHASE_DIR/metrics.csv" ]; then
-        python -m src.visualize "$PHASE_DIR" || echo "Warning: plot failed for $PHASE_DIR"
+        apptainer exec \
+            --nv \
+            --bind "$WORKDIR:$WORKDIR:rw" \
+            --pwd "$PROJECT_DIR" \
+            "$SIF_PATH" \
+            python -m src.visualize "$PHASE_DIR" || echo "Warning: plot failed for $PHASE_DIR"
     fi
 done
 

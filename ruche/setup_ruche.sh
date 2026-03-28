@@ -1,47 +1,30 @@
 #!/bin/bash
 # =============================================================================
-# setup_ruche.sh — One-time setup for La Ruche HPC (GPU with conda)
-# Run this from the login node.
-# Usage:  bash ruche/setup_ruche.sh
+# setup_ruche.sh — One-time setup: build Apptainer image
+# Run from login node:  bash ruche/setup_ruche.sh
 # =============================================================================
 set -e
 
-echo "=== Setting up RL Quantum Circuit Routing on La Ruche ==="
+echo "=== Building Apptainer image for RL Quantum Routing ==="
 
-CONDA_DIR="$WORKDIR/miniconda3"
-ENV_NAME="rl_qrouting"
-ENV_DIR="$CONDA_DIR/envs/$ENV_NAME"
+module purge
+module load apptainer/1.4.4/gcc-15.1.0
 
-# ---------- 1. Install miniconda if not present --------------------------------
-if [ ! -d "$CONDA_DIR" ]; then
-    echo "Installing Miniconda..."
-    wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
-    bash /tmp/miniconda.sh -b -p "$CONDA_DIR"
-    rm /tmp/miniconda.sh
-fi
+export APPTAINER_CACHEDIR=$WORKDIR/.apptainer_cache
+export APPTAINER_TMPDIR=$WORKDIR/apptainer_tmp
+mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
 
-# Make conda available
-eval "$($CONDA_DIR/bin/conda shell.bash hook)"
+SIF_PATH="$WORKDIR/rl_qrouting.sif"
+DEF_PATH="$WORKDIR/rl-quantum-circuit-routing/ruche/rl_qrouting.def"
 
-# ---------- 2. Create conda env with Python 3.12 + CUDA PyTorch ---------------
-if [ -d "$ENV_DIR" ]; then
-    echo "Conda env '$ENV_NAME' already exists, activating..."
-    conda activate "$ENV_NAME"
+if [ -f "$SIF_PATH" ]; then
+    echo "Image already exists at $SIF_PATH"
+    echo "Delete it and re-run to rebuild: rm $SIF_PATH"
 else
-    echo "Creating conda env with Python 3.12..."
-    conda create -y -n "$ENV_NAME" python=3.12
-    conda activate "$ENV_NAME"
-
-    echo "Installing PyTorch (CUDA 12.4)..."
-    pip install torch --index-url https://download.pytorch.org/whl/cu124
-
-    echo "Installing project dependencies..."
-    pip install qiskit gymnasium networkx numpy matplotlib pandas "shimmy[gymnasium]"
+    apptainer build "$SIF_PATH" "$DEF_PATH"
+    echo "Image built: $SIF_PATH"
 fi
 
 echo ""
 echo "=== Setup complete ==="
-echo "Conda env:   $ENV_DIR"
-echo "To activate: eval \"\$($CONDA_DIR/bin/conda shell.bash hook)\" && conda activate $ENV_NAME"
-echo "Python:      $(python --version)"
-echo "Torch:       $(python -c 'import torch; print(torch.__version__, \"CUDA:\", torch.cuda.is_available())')"
+echo "Test with: apptainer exec --nv $SIF_PATH python -c \"import torch; print(torch.cuda.is_available())\""

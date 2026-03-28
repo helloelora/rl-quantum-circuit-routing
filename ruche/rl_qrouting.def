@@ -1,0 +1,9 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.3.1-cuda12.4-cudnn9-runtime
+
+%post
+    pip install --no-cache-dir qiskit gymnasium networkx numpy matplotlib pandas "shimmy[gymnasium]"
+
+%labels
+    Author elora
+    Description RL quantum circuit routing environment
