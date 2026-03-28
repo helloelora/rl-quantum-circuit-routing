@@ -1,40 +1,38 @@
 #!/bin/bash
 # =============================================================================
-# setup_ruche.sh — One-time setup for La Ruche HPC
-# Run this from the login node (or an interactive cpu_short session).
+# setup_ruche.sh — One-time setup for La Ruche HPC (GPU with conda)
+# Run this from the login node.
 # Usage:  bash ruche/setup_ruche.sh
 # =============================================================================
 set -e
 
 echo "=== Setting up RL Quantum Circuit Routing on La Ruche ==="
 
-# ---------- 1. Load Python module ---------------------------------------------
-module purge
-module load python/3.14.0/gcc-15.1.0
-PY=$(command -v python3)
-echo "Using: $PY ($(python3 --version))"
+CONDA_DIR="$WORKDIR/miniconda3"
+ENV_NAME="rl_qrouting"
+ENV_DIR="$CONDA_DIR/envs/$ENV_NAME"
 
-# ---------- 2. Create venv in $WORKDIR (avoid $HOME 50GB quota) ---------------
-VENV_DIR="$WORKDIR/venvs/rl_qrouting"
-
-if [ -d "$VENV_DIR" ]; then
-    echo "Venv already exists at $VENV_DIR, skipping creation."
-else
-    echo "Creating venv at $VENV_DIR ..."
-    $PY -m venv "$VENV_DIR"
+# ---------- 1. Install miniconda if not present --------------------------------
+if [ ! -d "$CONDA_DIR" ]; then
+    echo "Installing Miniconda..."
+    wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+    bash /tmp/miniconda.sh -b -p "$CONDA_DIR"
+    rm /tmp/miniconda.sh
 fi
 
-# ---------- 3. Activate and install dependencies ------------------------------
-source "$VENV_DIR/bin/activate"
+# Make conda available
+eval "$($CONDA_DIR/bin/conda shell.bash hook)"
 
-# Skip installation if packages are already present
-if python -c "import torch, qiskit, gymnasium" 2>/dev/null; then
-    echo "Dependencies already installed, skipping pip install."
+# ---------- 2. Create conda env with Python 3.12 + CUDA PyTorch ---------------
+if [ -d "$ENV_DIR" ]; then
+    echo "Conda env '$ENV_NAME' already exists, activating..."
+    conda activate "$ENV_NAME"
 else
-    echo "Upgrading pip..."
-    pip install --upgrade pip
+    echo "Creating conda env with Python 3.12..."
+    conda create -y -n "$ENV_NAME" python=3.12
+    conda activate "$ENV_NAME"
 
-    echo "Installing PyTorch (CUDA)..."
+    echo "Installing PyTorch (CUDA 12.4)..."
     pip install torch --index-url https://download.pytorch.org/whl/cu124
 
     echo "Installing project dependencies..."
@@ -43,7 +41,7 @@ fi
 
 echo ""
 echo "=== Setup complete ==="
-echo "Venv:        $VENV_DIR"
-echo "To activate: source $VENV_DIR/bin/activate"
+echo "Conda env:   $ENV_DIR"
+echo "To activate: eval \"\$($CONDA_DIR/bin/conda shell.bash hook)\" && conda activate $ENV_NAME"
 echo "Python:      $(python --version)"
-echo "Torch:       $(python -c 'import torch; print(torch.__version__)')"
+echo "Torch:       $(python -c 'import torch; print(torch.__version__, \"CUDA:\", torch.cuda.is_available())')"

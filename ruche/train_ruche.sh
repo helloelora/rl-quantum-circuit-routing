@@ -9,9 +9,10 @@
 #SBATCH --error=%x.e%j
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
-#SBATCH --mem=24G
-#SBATCH --partition=cpu_med
+#SBATCH --cpus-per-task=8
+#SBATCH --mem-per-cpu=12G
+#SBATCH --gres=gpu:1
+#SBATCH --partition=gpua100
 #SBATCH --time=23:30:00
 #SBATCH --export=NONE
 #SBATCH --propagate=NONE
@@ -30,10 +31,9 @@ STAGE3_STEPS=600000
 # =============================================================================
 # ENVIRONMENT SETUP
 # =============================================================================
-# Load Python module and activate venv
-module purge
-module load python/3.14.0/gcc-15.1.0
-source "$WORKDIR/venvs/rl_qrouting/bin/activate"
+# Activate conda environment
+eval "$($WORKDIR/miniconda3/bin/conda shell.bash hook)"
+conda activate rl_qrouting
 
 # Project lives in $WORKDIR
 PROJECT_DIR="$WORKDIR/rl-quantum-circuit-routing"
@@ -119,7 +119,7 @@ python -m src.main \
     --trace-alert-backtrack-threshold 0.50 \
     --trace-alert-patience 2 \
     \
-    --device cpu
+    --device cuda
 
 # =============================================================================
 # PLOTS — generate training_curves.png + eval_comparison.png
