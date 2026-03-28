@@ -34,8 +34,8 @@ else
     echo "Upgrading pip..."
     pip install --upgrade pip
 
-    echo "Installing PyTorch (CPU)..."
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
+    echo "Installing PyTorch (CUDA)..."
+    pip install torch --index-url https://download.pytorch.org/whl/cu124
 
     echo "Installing project dependencies..."
     pip install qiskit gymnasium networkx numpy matplotlib pandas "shimmy[gymnasium]"
