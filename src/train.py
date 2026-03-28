@@ -352,6 +352,113 @@ def train(config, resume_from=None):
     _print(f"Training complete. {elapsed:.0f}s total.")
     _print(f"All outputs in: {config.run_dir}")
 
+    # Save results summary
+    try:
+        _save_results_summary(config, elapsed, global_step)
+    except Exception as e:
+        _print(f"Warning: could not save results summary: {e}")
+
+
+def _save_results_summary(config, elapsed_seconds, global_step):
+    """Write results_summary.json with all key metrics from the run."""
+    run_dir = Path(config.run_dir)
+    log_dir = Path(config.log_dir)
+
+    summary = {
+        "run_dir": str(run_dir),
+        "topologies": config.topologies,
+        "total_episodes": config.total_episodes,
+        "elapsed_seconds": round(elapsed_seconds, 1),
+        "elapsed_human": f"{elapsed_seconds/3600:.1f}h",
+        "global_steps": global_step,
+    }
+
+    # --- Training metrics from episodes.jsonl (last 500 episodes) ---
+    ep_file = log_dir / "episodes.jsonl"
+    if ep_file.exists():
+        episodes = []
+        with open(ep_file) as f:
+            for line in f:
+                try:
+                    episodes.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        if episodes:
+            last_n = episodes[-500:]
+            summary["training"] = {
+                "total_logged_episodes": len(episodes),
+                "final_500ep": {
+                    "mean_reward": round(np.mean([e["reward"] for e in last_n]), 2),
+                    "mean_swaps": round(np.mean([e["swaps"] for e in last_n]), 1),
+                    "mean_gates_pct": round(np.mean([e.get("gates_pct", 0) for e in last_n]), 3),
+                    "completion_rate": round(np.mean([int(e["completed"]) for e in last_n]), 3),
+                    "mean_steps": round(np.mean([e["steps"] for e in last_n]), 1),
+                },
+                "final_epsilon": episodes[-1].get("epsilon", None),
+            }
+
+    # --- All evaluation checkpoints from evaluations.jsonl ---
+    eval_file = log_dir / "evaluations.jsonl"
+    if eval_file.exists():
+        evals = []
+        with open(eval_file) as f:
+            for line in f:
+                try:
+                    evals.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        if evals:
+            # Find best eval by swap ratio
+            best = min(evals, key=lambda e: e.get("mean_swap_ratio", 999))
+            latest = evals[-1]
+
+            summary["evaluations"] = {
+                "total_evals": len(evals),
+                "best": {
+                    "episode": best.get("episode"),
+                    "completion_rate": best.get("completion_rate"),
+                    "mean_agent_swaps": best.get("mean_agent_swaps"),
+                    "mean_sabre_swaps": best.get("mean_sabre_swaps"),
+                    "mean_swap_ratio": best.get("mean_swap_ratio"),
+                },
+                "final": {
+                    "episode": latest.get("episode"),
+                    "completion_rate": latest.get("completion_rate"),
+                    "mean_agent_swaps": latest.get("mean_agent_swaps"),
+                    "mean_sabre_swaps": latest.get("mean_sabre_swaps"),
+                    "mean_swap_ratio": latest.get("mean_swap_ratio"),
+                },
+                "progression": [
+                    {
+                        "episode": e.get("episode"),
+                        "completion_rate": e.get("completion_rate"),
+                        "mean_swap_ratio": e.get("mean_swap_ratio"),
+                    }
+                    for e in evals
+                ],
+            }
+
+    # --- Config snapshot (key hyperparameters only) ---
+    summary["config"] = {
+        "lr": config.lr,
+        "epsilon_end": config.epsilon_end,
+        "epsilon_decay_steps": config.epsilon_decay_steps,
+        "conv_channels": config.conv_channels,
+        "dueling_hidden": config.dueling_hidden,
+        "batch_size": config.batch_size,
+        "buffer_capacity": config.buffer_capacity,
+        "initial_mapping_strategy": config.initial_mapping_strategy,
+        "distance_reward_coeff": config.distance_reward_coeff,
+        "repetition_penalty": config.repetition_penalty,
+        "tau": config.tau,
+        "target_update_freq": config.target_update_freq,
+    }
+
+    out_path = run_dir / "results_summary.json"
+    with open(out_path, "w") as f:
+        json.dump(summary, f, indent=2)
+    _print(f"Results summary: {out_path}")
+
 
 def _run_periodic_eval(agent, env, config, episode, logger, has_tqdm=False):
     """Run eval, log summary, save results + update figures."""

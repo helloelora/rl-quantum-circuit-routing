@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=quantum_routing
-#SBATCH --output=outputs/slurm_%j.out
-#SBATCH --error=outputs/slurm_%j.err
+#SBATCH --output=/dev/null
+#SBATCH --error=/dev/null
 #SBATCH --time=24:00:00
 #SBATCH --exclusive
 #SBATCH --partition=gpu_prod_long
@@ -27,7 +27,7 @@
 #   sbatch experiment.slurm multi --episodes 50000
 #
 # Output:
-#   outputs/run_NNN/  (config, logs, checkpoints, figures, eval)
+#   outputs/run_NNN/  (config, logs, checkpoints, figures, eval, slurm logs)
 # ============================================================
 
 PRESET="${1:?Usage: sbatch experiment.slurm <PRESET> [args...]}"
@@ -37,6 +37,12 @@ PROJECT_DIR="/usr/users/rl_for_wsi/dor_ali/projects/rl-quantum-circuit-routing"
 cd "$PROJECT_DIR"
 
 mkdir -p outputs
+
+# We control stdout/stderr ourselves (SBATCH outputs to /dev/null).
+# Start in outputs/, move to run dir once we know it.
+LOG_OUT="outputs/slurm_${SLURM_JOB_ID}.out"
+LOG_ERR="outputs/slurm_${SLURM_JOB_ID}.err"
+exec > "$LOG_OUT" 2> "$LOG_ERR"
 
 echo "============================================================"
 echo "QUANTUM CIRCUIT ROUTING EXPERIMENT"
@@ -110,20 +116,26 @@ fi
 echo ""
 echo "Training complete at $(date)"
 
-# ======================== PHASE 2: EVALUATION ========================
-# Find THIS job's run directory from its own stdout (avoids race with concurrent jobs)
-RUN_DIR=$(grep -m1 "Run directory:" "outputs/slurm_${SLURM_JOB_ID}.out" 2>/dev/null | awk '{print $NF}')
+# ======================== MOVE LOGS TO RUN DIR ========================
+# Parse the run directory from our own output
+RUN_DIR=$(grep -m1 "Run directory:" "$LOG_OUT" 2>/dev/null | awk '{print $NF}')
 if [ -z "$RUN_DIR" ]; then
-    # Fallback if grep fails
     RUN_DIR=$(ls -td outputs/run_* 2>/dev/null | head -1)
 fi
-LATEST_RUN="$RUN_DIR"
 
-# Move SLURM logs into run dir (mv on same FS keeps SLURM's FD writing to the inode)
-if [ -n "$LATEST_RUN" ]; then
-    mv "outputs/slurm_${SLURM_JOB_ID}.out" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.out" 2>/dev/null || true
-    mv "outputs/slurm_${SLURM_JOB_ID}.err" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.err" 2>/dev/null || true
+# Move log files into the run dir, then reopen FDs at new location
+if [ -n "$RUN_DIR" ] && [ -d "$RUN_DIR" ]; then
+    NEW_OUT="${RUN_DIR}/slurm_${SLURM_JOB_ID}.out"
+    NEW_ERR="${RUN_DIR}/slurm_${SLURM_JOB_ID}.err"
+    mv "$LOG_OUT" "$NEW_OUT" 2>/dev/null
+    mv "$LOG_ERR" "$NEW_ERR" 2>/dev/null
+    # Reopen FDs at new paths (append so we don't lose content)
+    exec >> "$NEW_OUT" 2>> "$NEW_ERR"
+    LOG_OUT="$NEW_OUT"
+    LOG_ERR="$NEW_ERR"
 fi
+
+LATEST_RUN="$RUN_DIR"
 
 if [ -z "$LATEST_RUN" ]; then
     echo "WARNING: No run directory found."
@@ -140,6 +152,7 @@ if [ ! -f "${CHECKPOINT}" ]; then
     exit 0
 fi
 
+# ======================== PHASE 2: EVALUATION ========================
 echo ""
 echo "========== PHASE 2: EVALUATION =========="
 echo ""
