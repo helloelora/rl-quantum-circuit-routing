@@ -83,6 +83,7 @@ def cmd_evaluate(args):
         repetition_penalty=config.repetition_penalty,
         matrix_size=config.matrix_size,
         initial_mapping_strategy=config.initial_mapping_strategy,
+        topology_weights=config.topology_weights or None,
     )
 
     agent = D3QNAgent(config, env.max_edges)

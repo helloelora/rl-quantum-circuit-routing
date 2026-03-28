@@ -93,6 +93,7 @@ def train(config, resume_from=None):
         repetition_penalty=config.repetition_penalty,
         matrix_size=config.matrix_size,
         initial_mapping_strategy=config.initial_mapping_strategy,
+        topology_weights=config.topology_weights or None,
         seed=config.seed,
     )
     num_actions = env.max_edges

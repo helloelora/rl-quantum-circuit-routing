@@ -455,6 +455,25 @@ Building on V2 findings: eps=0.02 is best, more episodes help (curve not flat), 
 | Initial mapping | **mixed** (80% random, 20% SABRE) | **was random** |
 | Everything else | same as Run 7 | |
 
+### Run 18 — Multi-Topo: Bigger Net + Weighted Sampling + 60k (Job 163144, run_018)
+
+**Hypothesis**: Combine all 3 improvements for multi-topology. Run 16 showed heavy_hex at 1.188 — the bottleneck is (a) network capacity split across 3 topos, (b) equal sampling wastes time on solved topos, (c) not enough episodes. This run attacks all three.
+
+| Parameter | Value | vs Run 16 |
+|-----------|-------|-----------|
+| Config | `run18_multi_bignet_weighted.json` | |
+| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
+| Episodes | **60,000** | **+15k** |
+| Eps floor | 0.02 | same |
+| Conv channels | **[64, 128, 64]** | **2× wider** |
+| Dueling hidden | **512** | **2× wider** |
+| Topology weights | **[0.15, 0.25, 0.60]** | **was uniform (0.33 each)** |
+| Buffer | **300k** | same |
+| Eps decay steps | **5M** | +500k (slower for more episodes) |
+| Everything else | same | |
+
+**Why these weights**: linear_5 is solved (ratio 0.877), gets 15%. grid_3x3 is nearly solved (0.973), gets 25%. heavy_hex needs the most work (1.188), gets 60% of training episodes.
+
 ---
 
 ## Monitoring Commands

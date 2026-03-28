@@ -20,6 +20,7 @@ class TrainConfig:
     timeout_penalty: float = -10.0
     repetition_penalty: float = -0.5
     initial_mapping_strategy: str = "random"
+    topology_weights: list = field(default_factory=list)  # empty = uniform
 
     # --- Network ---
     conv_channels: list = field(default_factory=lambda: [32, 64, 32])

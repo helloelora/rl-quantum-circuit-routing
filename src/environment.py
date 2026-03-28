@@ -87,6 +87,7 @@ class QubitRoutingEnv(gym.Env):
         repetition_penalty=-0.5,
         matrix_size=27,
         initial_mapping_strategy="random",
+        topology_weights=None,
         seed=None,
     ):
         """
@@ -118,12 +119,17 @@ class QubitRoutingEnv(gym.Env):
                          - "identity": logical qubit q → physical position q
                          - "sabre": use SABRE's layout pass (realistic, slower)
                          - "mixed": 80% random, 20% SABRE (best for training)
+            topology_weights: Optional list of floats, same length as topologies.
+                         Controls sampling probability per topology. E.g.
+                         [0.2, 0.2, 0.6] samples heavy_hex 60% of the time.
+                         If None, uniform sampling.
             seed: Random seed for reproducibility.
         """
         super().__init__()
 
         self.N = matrix_size
         self.initial_mapping_strategy = initial_mapping_strategy
+        self.topology_weights = topology_weights
 
         # --- Build topology data for all topologies ---
         # Each topology is stored as a dict with: coupling_map, n_physical,
@@ -244,6 +250,10 @@ class QubitRoutingEnv(gym.Env):
         # --- Pick topology for this episode ---
         if options and "topology_index" in options:
             topo_idx = options["topology_index"]
+        elif self.topology_weights is not None:
+            weights = np.array(self.topology_weights, dtype=float)
+            weights /= weights.sum()
+            topo_idx = int(self._rng.choice(len(self._topologies), p=weights))
         else:
             topo_idx = int(self._rng.integers(0, len(self._topologies)))
         self._current_topo = self._topologies[topo_idx]
