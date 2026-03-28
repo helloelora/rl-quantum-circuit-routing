@@ -9,10 +9,9 @@
 #SBATCH --error=%x.e%j
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu=12G
-#SBATCH --gres=gpu:1
-#SBATCH --partition=gpua100
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=24G
+#SBATCH --partition=cpu_med
 #SBATCH --time=23:30:00
 #SBATCH --export=NONE
 #SBATCH --propagate=NONE
@@ -120,7 +119,7 @@ python -m src.main \
     --trace-alert-backtrack-threshold 0.50 \
     --trace-alert-patience 2 \
     \
-    --device cuda
+    --device cpu
 
 # =============================================================================
 # PLOTS — generate training_curves.png + eval_comparison.png
