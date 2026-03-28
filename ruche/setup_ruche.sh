@@ -38,7 +38,7 @@ else
     pip install torch --index-url https://download.pytorch.org/whl/cpu
 
     echo "Installing project dependencies..."
-    pip install qiskit gymnasium networkx numpy matplotlib "shimmy[gymnasium]"
+    pip install qiskit gymnasium networkx numpy matplotlib pandas "shimmy[gymnasium]"
 fi
 
 echo ""

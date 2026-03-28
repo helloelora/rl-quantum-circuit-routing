@@ -100,7 +100,7 @@ class SymmetricCNNActorCritic(nn.Module):
         self.matrix_size = matrix_size
 
         self.backbone = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.Conv2d(5, 32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -121,7 +121,7 @@ class SymmetricCNNActorCritic(nn.Module):
     def forward(self, obs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
-            obs: (B, 3, N, N)
+            obs: (B, 5, N, N)
         Returns:
             score_map_sym: (B, N, N)
             values: (B,)

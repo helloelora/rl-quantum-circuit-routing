@@ -209,7 +209,7 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Spaces ---
         self.observation_space = spaces.Box(
-            low=0.0, high=1.0, shape=(3, self.N, self.N), dtype=np.float32
+            low=0.0, high=1.0, shape=(5, self.N, self.N), dtype=np.float32
         )
         self.action_space = spaces.Discrete(self.max_edges)
 
@@ -573,14 +573,16 @@ class QubitRoutingEnv(gym.Env):
 
     def _compute_state(self):
         """
-        Build the 3-channel N×N state observation.
+        Build the 5-channel N×N state observation.
 
         Channel 0: Adjacency (from current topology, padded)
         Channel 1: Mapping permutation matrix
         Channel 2: Depth-decayed gate demand
+        Channel 3: Front-layer distance map (1/distance for each front-layer gate)
+        Channel 4: Stagnation signal (uniform steps_since_last_gate / max_steps)
         """
         topo = self._current_topo
-        state = np.zeros((3, self.N, self.N), dtype=np.float32)
+        state = np.zeros((5, self.N, self.N), dtype=np.float32)
 
         # Channel 0: Adjacency
         state[0] = topo["adjacency_channel"]
@@ -605,6 +607,28 @@ class QubitRoutingEnv(gym.Env):
 
             # Normalize to [0, 1]
             state[2] /= self.norm_factor
+
+            # Channel 3: Front-layer distance map
+            dist_matrix = topo["distance_matrix"]
+            front = compute_front_layer(
+                self.gates, self.executed, self.predecessors
+            )
+            for gate_idx in front:
+                q_a, q_b = self.gates[gate_idx]
+                p_a = self.mapping[q_a]
+                p_b = self.mapping[q_b]
+                d = dist_matrix[p_a, p_b]
+                if d > 0:
+                    val = 1.0 / d
+                    state[3, p_a, p_b] = max(state[3, p_a, p_b], val)
+                    state[3, p_b, p_a] = max(state[3, p_b, p_a], val)
+
+            # Channel 4: Stagnation signal
+            if self._episode_max_steps > 0:
+                stagnation = min(
+                    self._no_progress_streak / self._episode_max_steps, 1.0
+                )
+                state[4, :, :] = stagnation
 
         return state
 

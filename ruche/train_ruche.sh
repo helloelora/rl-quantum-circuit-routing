@@ -121,6 +121,16 @@ python -m src.main \
     \
     --device cpu
 
+# =============================================================================
+# PLOTS — generate training_curves.png + eval_comparison.png
+# =============================================================================
+echo "Generating plots..."
+for PHASE_DIR in "$RUN_DIR/runs/$RUN_NAME"/*/; do
+    if [ -f "$PHASE_DIR/metrics.csv" ]; then
+        python -m src.visualize "$PHASE_DIR" || echo "Warning: plot failed for $PHASE_DIR"
+    fi
+done
+
 echo "========================================"
 echo "  Finished:  $(date)"
 echo "  Results:   $RUN_DIR/runs/$RUN_NAME"
