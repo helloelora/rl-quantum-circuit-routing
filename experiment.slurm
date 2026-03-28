@@ -111,10 +111,15 @@ echo ""
 echo "Training complete at $(date)"
 
 # ======================== PHASE 2: EVALUATION ========================
-# Find the latest run directory
-LATEST_RUN=$(ls -td outputs/run_* 2>/dev/null | head -1)
+# Find THIS job's run directory from its own stdout (avoids race with concurrent jobs)
+RUN_DIR=$(grep -m1 "Run directory:" "outputs/slurm_${SLURM_JOB_ID}.out" 2>/dev/null | awk '{print $NF}')
+if [ -z "$RUN_DIR" ]; then
+    # Fallback if grep fails
+    RUN_DIR=$(ls -td outputs/run_* 2>/dev/null | head -1)
+fi
+LATEST_RUN="$RUN_DIR"
 
-# Move SLURM logs into run dir (mv on same FS keeps SLURM's FD writing)
+# Move SLURM logs into run dir (mv on same FS keeps SLURM's FD writing to the inode)
 if [ -n "$LATEST_RUN" ]; then
     mv "outputs/slurm_${SLURM_JOB_ID}.out" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.out" 2>/dev/null || true
     mv "outputs/slurm_${SLURM_JOB_ID}.err" "${LATEST_RUN}/slurm_${SLURM_JOB_ID}.err" 2>/dev/null || true
