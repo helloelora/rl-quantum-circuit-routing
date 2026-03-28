@@ -27,14 +27,19 @@ fi
 # ---------- 3. Activate and install dependencies ------------------------------
 source "$VENV_DIR/bin/activate"
 
-echo "Upgrading pip..."
-pip install --upgrade pip
+# Skip installation if packages are already present
+if python -c "import torch, qiskit, gymnasium" 2>/dev/null; then
+    echo "Dependencies already installed, skipping pip install."
+else
+    echo "Upgrading pip..."
+    pip install --upgrade pip
 
-echo "Installing PyTorch (CPU)..."
-pip install torch --index-url https://download.pytorch.org/whl/cpu
+    echo "Installing PyTorch (CPU)..."
+    pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-echo "Installing project dependencies..."
-pip install qiskit gymnasium networkx numpy matplotlib "shimmy[gymnasium]"
+    echo "Installing project dependencies..."
+    pip install qiskit gymnasium networkx numpy matplotlib "shimmy[gymnasium]"
+fi
 
 echo ""
 echo "=== Setup complete ==="
