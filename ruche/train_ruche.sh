@@ -63,9 +63,9 @@ python -m src.main \
     --project-root "$RUN_DIR" \
     --run-name "$RUN_NAME" \
     \
+    --topologies "grid_3x3,heavy_hex_19" \
     --stage1-topologies "linear_5" \
     --stage2-topologies "linear_5,grid_3x3" \
-    --stage3-topologies "grid_3x3,heavy_hex_19" \
     --stage1-steps "$STAGE1_STEPS" \
     --stage2-steps "$STAGE2_STEPS" \
     --stage3-steps "$STAGE3_STEPS" \
