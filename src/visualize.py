@@ -12,6 +12,8 @@ import matplotlib.gridspec as gridspec
 import networkx as nx
 from pathlib import Path
 
+from collections import defaultdict
+
 from circuit_utils import compute_front_layer
 
 
@@ -29,6 +31,79 @@ def _load_jsonl(path):
     return records
 
 
+def _load_per_topology_eval_data(log_dir):
+    """
+    Load per-topology metrics from eval JSON files.
+
+    Looks for eval_ep*.json in the eval/ directory (sibling of log_dir).
+    Each file contains a "results" list with per-circuit entries that include
+    "topology", and a "summary" dict with an "episode" field.
+
+    Returns:
+        dict mapping topology name -> list of dicts sorted by episode, each
+        with keys: episode, swap_ratio, completion_rate.
+        Returns empty dict if no multi-topology data found.
+    """
+    eval_dir = Path(log_dir).parent / "eval"
+    if not eval_dir.exists():
+        return {}
+
+    eval_files = sorted(eval_dir.glob("eval_ep*.json"))
+    if not eval_files:
+        return {}
+
+    # Collect per-topology metrics across all eval checkpoints
+    topo_data = defaultdict(list)  # topology -> list of (episode, ratio, comp)
+
+    for fpath in eval_files:
+        try:
+            with open(fpath) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            continue
+
+        results = data.get("results", [])
+        summary = data.get("summary", {})
+        episode = summary.get("episode")
+        if episode is None or not results:
+            continue
+
+        # Group results by topology
+        by_topo = defaultdict(list)
+        for r in results:
+            topo = r.get("topology")
+            if topo:
+                by_topo[topo].append(r)
+
+        # Only useful if there are multiple topologies
+        if len(by_topo) < 2:
+            continue
+
+        for topo, entries in by_topo.items():
+            completed = [e for e in entries if e.get("completed")]
+            valid = [
+                e for e in completed
+                if e.get("sabre_swaps", 0) > 0
+            ]
+            ratios = [
+                e["agent_swaps"] / e["sabre_swaps"] for e in valid
+            ]
+            comp_rate = len(completed) / len(entries) if entries else 0.0
+            mean_ratio = float(np.mean(ratios)) if ratios else float("nan")
+
+            topo_data[topo].append({
+                "episode": episode,
+                "swap_ratio": mean_ratio,
+                "completion_rate": comp_rate,
+            })
+
+    # Sort each topology's data by episode
+    for topo in topo_data:
+        topo_data[topo].sort(key=lambda d: d["episode"])
+
+    return dict(topo_data)
+
+
 def _smooth(values, window=50):
     if len(values) < window:
         window = max(1, len(values))
@@ -43,15 +118,22 @@ def _fig_to_array(fig):
 
 
 # ---------------------------------------------------------------------------
-# 1. Training curves  (2 rows x 3 cols)
+# 1. Training curves  (2x3, or 2x4 when multi-topology eval data exists)
 # ---------------------------------------------------------------------------
 
 def plot_training_curves(log_dir, output_dir=None, window=50):
     """
-    Plot 2x3 training dashboard:
+    Plot training dashboard.
+
+    Default 2x3 layout:
         Row 1: Reward | SWAP count + SABRE baseline | Completion rate
         Row 2: Training loss | Epsilon (exploration) | Mean Q-value
-    Every line is labelled in a legend so you know what you're looking at.
+
+    When multi-topology eval data is available, expands to 2x4:
+        Row 1: Reward | SWAP count | Completion | Per-Topology Swap Ratio
+        Row 2: Loss   | Epsilon    | Q-value    | Per-Topology Completion
+
+    Every line is labelled in a legend so you know what you are looking at.
     """
     log_dir = Path(log_dir)
     if output_dir is None:
@@ -83,7 +165,16 @@ def plot_training_curves(log_dir, output_dir=None, window=50):
     if eval_path.exists():
         evals = _load_jsonl(eval_path)
 
-    fig, axes = plt.subplots(2, 3, figsize=(20, 10))
+    # Check for per-topology eval data (multi-topology runs)
+    topo_data = _load_per_topology_eval_data(log_dir)
+    has_topo = len(topo_data) >= 2
+
+    if has_topo:
+        n_cols = 4
+        fig, axes = plt.subplots(2, 4, figsize=(26, 10))
+    else:
+        n_cols = 3
+        fig, axes = plt.subplots(2, 3, figsize=(20, 10))
     fig.suptitle("Training Dashboard", fontsize=16, fontweight="bold")
 
     # ---- (0,0) Reward ----
@@ -196,6 +287,46 @@ def plot_training_curves(log_dir, output_dir=None, window=50):
     ax.set_title("Q-value & TD Error")
     ax.legend(fontsize=8, loc="upper left")
     ax.grid(True, alpha=0.3)
+
+    # ---- Per-topology panels (only when multi-topology data exists) ----
+    if has_topo:
+        # Consistent color per topology across both panels
+        topo_names = sorted(topo_data.keys())
+        topo_cmap = plt.cm.get_cmap("tab10", max(len(topo_names), 1))
+        topo_colors = {
+            name: topo_cmap(i) for i, name in enumerate(topo_names)
+        }
+
+        # ---- (0,3) Per-Topology Swap Ratio ----
+        ax = axes[0, 3]
+        for topo in topo_names:
+            entries = topo_data[topo]
+            t_eps = [d["episode"] for d in entries]
+            t_ratios = [d["swap_ratio"] for d in entries]
+            ax.plot(t_eps, t_ratios, marker="o", markersize=3,
+                    linewidth=1.5, color=topo_colors[topo], label=topo)
+        ax.axhline(y=1.0, color="red", linestyle="--", linewidth=1.5,
+                   alpha=0.7, label="SABRE baseline (1.0)")
+        ax.set_xlabel("Episode")
+        ax.set_ylabel("Swap Ratio (agent / SABRE)")
+        ax.set_title("Per-Topology Swap Ratio")
+        ax.legend(fontsize=7, loc="best")
+        ax.grid(True, alpha=0.3)
+
+        # ---- (1,3) Per-Topology Completion Rate ----
+        ax = axes[1, 3]
+        for topo in topo_names:
+            entries = topo_data[topo]
+            t_eps = [d["episode"] for d in entries]
+            t_comp = [d["completion_rate"] * 100 for d in entries]
+            ax.plot(t_eps, t_comp, marker="s", markersize=3,
+                    linewidth=1.5, color=topo_colors[topo], label=topo)
+        ax.set_xlabel("Episode")
+        ax.set_ylabel("Completion %")
+        ax.set_title("Per-Topology Completion Rate")
+        ax.set_ylim(-5, 105)
+        ax.legend(fontsize=7, loc="best")
+        ax.grid(True, alpha=0.3)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     out_path = output_dir / "training_curves.png"
