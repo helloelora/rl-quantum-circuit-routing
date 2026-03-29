@@ -36,12 +36,12 @@ shift
 PROJECT_DIR="/usr/users/rl_for_wsi/dor_ali/projects/rl-quantum-circuit-routing"
 cd "$PROJECT_DIR"
 
-mkdir -p outputs
+mkdir -p outputs/.pending_logs
 
 # We control stdout/stderr ourselves (SBATCH outputs to /dev/null).
-# Start in outputs/, move to run dir once we know it.
-LOG_OUT="outputs/slurm_${SLURM_JOB_ID}.out"
-LOG_ERR="outputs/slurm_${SLURM_JOB_ID}.err"
+# Start in hidden dir so they don't clutter outputs/, move to run dir after training.
+LOG_OUT="outputs/.pending_logs/slurm_${SLURM_JOB_ID}.out"
+LOG_ERR="outputs/.pending_logs/slurm_${SLURM_JOB_ID}.err"
 exec > "$LOG_OUT" 2> "$LOG_ERR"
 
 echo "============================================================"
