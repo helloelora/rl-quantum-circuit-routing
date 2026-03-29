@@ -200,6 +200,7 @@ def parse_args():
     parser.add_argument("--total-timesteps", type=int, default=200000)
     parser.add_argument("--rollout-steps", type=int, default=4096)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--learning-rate-end", type=float, default=0.0)
     parser.add_argument("--gamma", type=float, default=0.995)
     parser.add_argument("--gae-lambda", type=float, default=0.97)
     parser.add_argument("--clip-range", type=float, default=0.15)
@@ -338,6 +339,7 @@ def train_phase(
         total_timesteps=total_timesteps,
         rollout_steps=args.rollout_steps,
         learning_rate=args.learning_rate,
+        learning_rate_end=args.learning_rate_end,
         gamma=args.gamma,
         gae_lambda=args.gae_lambda,
         clip_range=args.clip_range,

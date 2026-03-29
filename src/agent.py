@@ -45,6 +45,7 @@ class PPOConfig:
     total_timesteps: int = 200_000
     rollout_steps: int = 2048
     learning_rate: float = 2.5e-4
+    learning_rate_end: float = 0.0  # 0 = no annealing
     gamma: float = 0.99
     gae_lambda: float = 0.95
     clip_range: float = 0.2
@@ -215,6 +216,14 @@ class PPOAgent:
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
+
+    def _update_learning_rate(self, global_step: int) -> None:
+        if self.cfg.learning_rate_end <= 0.0:
+            return
+        frac = min(max(global_step / max(1, self.cfg.total_timesteps), 0.0), 1.0)
+        lr = self.cfg.learning_rate + frac * (self.cfg.learning_rate_end - self.cfg.learning_rate)
+        for param_group in self.optimizer.param_groups:
+            param_group["lr"] = lr
 
     def _entropy_coef(self, global_step: int) -> float:
         frac = min(max(global_step / max(1, self.cfg.total_timesteps), 0.0), 1.0)
@@ -427,6 +436,7 @@ class PPOAgent:
         batch_size = obs.shape[0]
         indices = np.arange(batch_size)
 
+        self._update_learning_rate(global_step)
         entropy_coef = self._entropy_coef(global_step)
         approx_kl = 0.0
         pg_loss_val = 0.0
