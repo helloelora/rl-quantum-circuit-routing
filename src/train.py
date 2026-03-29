@@ -91,11 +91,21 @@ def train(config, resume_from=None):
         completion_bonus=config.completion_bonus,
         timeout_penalty=config.timeout_penalty,
         repetition_penalty=config.repetition_penalty,
+        gate_execution_reward=getattr(config, 'gate_execution_reward', 1.0),
         matrix_size=config.matrix_size,
         initial_mapping_strategy=config.initial_mapping_strategy,
         topology_weights=config.topology_weights or None,
         seed=config.seed,
     )
+
+    # Curriculum setup
+    curriculum_depths = getattr(config, 'curriculum_depths', [])
+    curriculum_milestones = getattr(config, 'curriculum_milestones', [])
+    use_curriculum = bool(curriculum_depths) and bool(curriculum_milestones)
+    if use_curriculum:
+        _print(f"Curriculum: depths={curriculum_depths}, "
+               f"milestones={curriculum_milestones}")
+        env.circuit_depth = curriculum_depths[0]
     num_actions = env.max_edges
     _print("Environment OK.")
 
@@ -223,7 +233,25 @@ def train(config, resume_from=None):
                 action_mask = next_mask
 
                 if terminated or truncated:
+                    agent.end_episode()
                     break
+
+            # Curriculum: update circuit depth based on progress
+            if use_curriculum:
+                progress = (episode + 1) / config.total_episodes
+                depth_idx = 0
+                for mi, ms in enumerate(curriculum_milestones):
+                    if progress >= ms:
+                        depth_idx = mi + 1
+                depth_idx = min(depth_idx, len(curriculum_depths) - 1)
+                new_depth = curriculum_depths[depth_idx]
+                if new_depth != env.circuit_depth:
+                    env.circuit_depth = new_depth
+                    if has_tqdm:
+                        from tqdm.auto import tqdm as _tqdm
+                        _tqdm.write(f"  Curriculum: depth → {new_depth} at ep{episode+1}")
+                    else:
+                        _print(f"  Curriculum: depth → {new_depth} at ep{episode+1}")
 
             # Log episode
             gates_pct = (info["total_gates_executed"] / info["n_gates"]

@@ -81,6 +81,7 @@ def cmd_evaluate(args):
         completion_bonus=config.completion_bonus,
         timeout_penalty=config.timeout_penalty,
         repetition_penalty=config.repetition_penalty,
+        gate_execution_reward=getattr(config, 'gate_execution_reward', 1.0),
         matrix_size=config.matrix_size,
         initial_mapping_strategy=config.initial_mapping_strategy,
         topology_weights=config.topology_weights or None,

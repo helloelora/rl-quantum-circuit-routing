@@ -62,7 +62,7 @@ class QubitRoutingEnv(gym.Env):
              Actions beyond the current topology's edge count are invalid.
 
     Reward per step:
-        r_t = (gates_auto_executed) - 1
+        r_t = -1 + gates_auto_executed * gate_execution_reward
               + distance_reward_coeff * delta_distance
               + repetition_penalty (if same action as previous step)
               [+ completion_bonus if done]
@@ -85,6 +85,7 @@ class QubitRoutingEnv(gym.Env):
         completion_bonus=5.0,
         timeout_penalty=-10.0,
         repetition_penalty=-0.5,
+        gate_execution_reward=1.0,
         matrix_size=27,
         initial_mapping_strategy="random",
         topology_weights=None,
@@ -111,6 +112,9 @@ class QubitRoutingEnv(gym.Env):
             timeout_penalty: Penalty when max_steps is reached.
             repetition_penalty: Penalty for repeating the same action as
                          the previous step (prevents swap-undo loops).
+            gate_execution_reward: Reward per gate routed in a step. Default
+                         1.0 matches the original (gates_executed - 1) formula.
+                         Higher values (e.g. 2.0) give stronger signal for progress.
             matrix_size: Side length N of the padded state matrices.
                          Must be >= largest topology's qubit count. Default 27.
             initial_mapping_strategy: How to set the initial qubit-to-position
@@ -182,6 +186,7 @@ class QubitRoutingEnv(gym.Env):
         self.completion_bonus = completion_bonus
         self.timeout_penalty = timeout_penalty
         self.repetition_penalty = repetition_penalty
+        self.gate_execution_reward = gate_execution_reward
         self.norm_factor = 1.0 / (1.0 - gamma_decay)  # e.g., 2.0 for γ=0.5
 
         # --- RNG ---
@@ -381,7 +386,7 @@ class QubitRoutingEnv(gym.Env):
 
         # --- Reward ---
         done = self._is_done()
-        reward = (gates_executed - 1) + self.distance_reward_coeff * delta_dist
+        reward = -1 + gates_executed * self.gate_execution_reward + self.distance_reward_coeff * delta_dist
 
         # Action repetition penalty (same swap twice = undo, wastes 2 steps)
         if action == self._prev_action:

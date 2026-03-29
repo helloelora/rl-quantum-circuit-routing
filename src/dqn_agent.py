@@ -49,6 +49,17 @@ class D3QNAgent:
             self.online_net.parameters(), lr=config.lr
         )
 
+        # LR scheduler
+        self.lr_schedule = getattr(config, "lr_schedule", "constant")
+        self.scheduler = None
+        if self.lr_schedule == "cosine":
+            lr_min = getattr(config, "lr_min", 1e-5)
+            # T_max = estimated total gradient steps
+            est_steps = config.total_episodes * 50  # rough estimate
+            self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                self.optimizer, T_max=est_steps, eta_min=lr_min
+            )
+
         # Replay buffer
         from networks import NUM_STATE_CHANNELS
         state_shape = (NUM_STATE_CHANNELS, config.matrix_size, config.matrix_size)
@@ -62,6 +73,10 @@ class D3QNAgent:
             beta_anneal_steps=config.per_beta_anneal_steps,
             epsilon=config.per_epsilon,
         )
+
+        # N-step returns
+        self.n_step = getattr(config, "n_step", 1)
+        self._nstep_buf = []
 
         # Epsilon
         self.epsilon = config.epsilon_start
@@ -86,9 +101,45 @@ class D3QNAgent:
 
     def store_transition(self, state, action, reward, next_state, done,
                          next_action_mask):
-        """Store transition in replay buffer."""
-        self.buffer.add(state, action, reward, next_state, done,
-                        next_action_mask)
+        """Store transition in replay buffer (with n-step accumulation)."""
+        if self.n_step <= 1:
+            self.buffer.add(state, action, reward, next_state, done,
+                            next_action_mask)
+            return
+
+        self._nstep_buf.append(
+            (state, action, reward, next_state, done, next_action_mask)
+        )
+
+        if done:
+            # Episode ended — flush all accumulated transitions
+            while self._nstep_buf:
+                self._pop_nstep()
+            return
+
+        if len(self._nstep_buf) >= self.n_step:
+            self._pop_nstep()
+
+    def _pop_nstep(self):
+        """Pop the oldest transition, compute its n-step return, store in PER."""
+        n = min(len(self._nstep_buf), self.n_step)
+        s0, a0 = self._nstep_buf[0][0], self._nstep_buf[0][1]
+        R = 0.0
+        final_ns, final_done, final_nm = None, False, None
+        for i in range(n):
+            _, _, r, ns, d, nm = self._nstep_buf[i]
+            R += (self.config.gamma ** i) * r
+            final_ns, final_done, final_nm = ns, d, nm
+            if d:
+                break
+        self.buffer.add(s0, a0, R, final_ns, final_done, final_nm)
+        self._nstep_buf.pop(0)
+
+    def end_episode(self):
+        """Flush n-step buffer at episode end (needed for truncated episodes)."""
+        if self.n_step > 1:
+            while self._nstep_buf:
+                self._pop_nstep()
 
     def train_step(self) -> dict:
         """
@@ -135,7 +186,8 @@ class D3QNAgent:
                 1, best_actions.unsqueeze(1)
             ).squeeze(1)
 
-            targets = rewards + self.config.gamma * q_next * (1 - dones)
+            gamma_n = self.config.gamma ** self.n_step
+            targets = rewards + gamma_n * q_next * (1 - dones)
 
         # TD errors for priority update
         td_errors = (q_current - targets).detach().cpu().numpy()
@@ -150,14 +202,18 @@ class D3QNAgent:
             self.online_net.parameters(), self.config.grad_clip_norm
         )
         self.optimizer.step()
+        if self.scheduler is not None:
+            self.scheduler.step()
 
         self.buffer.update_priorities(tree_indices, td_errors)
 
+        current_lr = self.optimizer.param_groups[0]["lr"]
         return {
             "loss": loss.item(),
             "mean_q": q_current.mean().item(),
             "mean_td_error": float(np.abs(td_errors).mean()),
             "epsilon": self.epsilon,
+            "lr": current_lr,
             "beta": min(
                 self.config.per_beta_end,
                 self.config.per_beta_start

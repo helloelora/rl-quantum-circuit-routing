@@ -21,6 +21,7 @@ class TrainConfig:
     repetition_penalty: float = -0.5
     initial_mapping_strategy: str = "random"
     topology_weights: list = field(default_factory=list)  # empty = uniform
+    gate_execution_reward: float = 1.0  # reward per gate routed (default matches original behavior)
 
     # --- Network ---
     conv_channels: list = field(default_factory=lambda: [32, 64, 32])
@@ -29,6 +30,9 @@ class TrainConfig:
     # --- DQN ---
     gamma: float = 0.99
     lr: float = 1e-4
+    lr_schedule: str = "constant"  # "constant" or "cosine"
+    lr_min: float = 1e-5  # minimum LR for cosine schedule
+    n_step: int = 1  # n-step returns (1 = standard TD)
     batch_size: int = 64
     target_update_freq: int = 500
     tau: float = 0.005  # soft Polyak update for smoother target tracking
@@ -58,6 +62,10 @@ class TrainConfig:
     # --- Eval ---
     eval_episodes: int = 20
     eval_deterministic: bool = True
+
+    # --- Curriculum ---
+    curriculum_depths: list = field(default_factory=list)  # e.g. [5, 10, 20]
+    curriculum_milestones: list = field(default_factory=list)  # e.g. [0.15, 0.35] (fraction of total episodes)
 
     # --- Output (unified: logs + checkpoints + figures + evals) ---
     output_base: str = "outputs"

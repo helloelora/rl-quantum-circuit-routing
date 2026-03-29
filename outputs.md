@@ -584,27 +584,40 @@ Based on V3 findings: standard net > bignet, more episodes is the #1 lever, weig
 | Buffer | **400k** | +100k |
 | Eps decay steps | **5M** | +1M |
 
-### Run 20 — Multi-Topo Weighted + Standard Net + 60k (Job 163453, run_020)
+### Run 20 — N-Step Returns + Gate Reward (Job 163461, run_020)
 
-**Hypothesis**: Run 18 uses bignet (which hurts). Does the standard net + weighted sampling do better for multi-topo?
-
-| Parameter | Value | vs Run 18 |
-|-----------|-------|-----------|
-| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
-| Topology weights | [0.15, 0.25, 0.60] | same |
-| Conv channels | **[32, 64, 32]** | **standard (was bignet)** |
-| Dueling hidden | **256** | **standard (was 512)** |
-| Episodes | 60,000 | same |
-
-### Run 21 — Heavy Hex Mixed Mapping + 60k (Job 163454, run_021)
-
-**Hypothesis**: Combine two V3 winners — mixed mapping (Run 017, 1.059) + more episodes (Run 015, 1.028). Does mixed + 60k outperform pure random + 60k?
+**Hypothesis**: The main bottleneck is reward signal. 1-step TD means the completion bonus (+5) takes 200+ updates to propagate back to early actions. N-step returns (n=3) propagate reward 3× faster. Doubling the gate execution reward (1.0→2.0) gives stronger mid-episode signal for progress.
 
 | Parameter | Value | vs Run 015 |
 |-----------|-------|-----------|
+| Config | `run20_nstep_gate_reward.json` | |
 | Topology | heavy_hex_19 | same |
 | Episodes | 60,000 | same |
-| Initial mapping | **mixed** (80% random, 20% SABRE) | **was random** |
+| N-step | **3** | **was 1 (standard TD)** |
+| Gate reward | **2.0 per gate** | **was 1.0** |
+| Everything else | same (standard net, eps=0.02) | |
+
+**Why n=3**: With γ=0.99, the 3-step return is R = r₀ + 0.99·r₁ + 0.98·r₂ + 0.97³·Q(s₃). The completion bonus at step 200 now reaches step 198 in one update instead of taking 200 updates. Across the whole episode, information propagates ~3× faster.
+
+**Why gate_reward=2.0**: Original reward is -1 per step + 1 per gate = net 0 when a gate executes. With 2.0, the net is +1, making gate execution a clearly positive event the agent can learn from.
+
+### Run 21 — LR Cosine Annealing + Curriculum (Job 163462, run_021)
+
+**Hypothesis**: Training schedule is suboptimal. Early: constant LR=1e-4 wastes gradient steps on easy-to-learn features. Late: same LR=1e-4 overshoots fine-grained policy improvements. Also, starting with depth-20 circuits means the agent fails everything early on — depth-5 circuits let it learn basic routing first.
+
+| Parameter | Value | vs Run 015 |
+|-----------|-------|-----------|
+| Config | `run21_lr_anneal_curriculum.json` | |
+| Topology | heavy_hex_19 | same |
+| Episodes | 60,000 | same |
+| LR schedule | **cosine 1e-4 → 1e-5** | **was constant 1e-4** |
+| Curriculum | **depth 5 → 10 → 20** | **was 20 throughout** |
+| Milestones | ep0-9k: depth 5, ep9k-21k: depth 10, ep21k+: depth 20 | |
+| Everything else | same (standard net, eps=0.02) | |
+
+**Why cosine**: LR starts at 1e-4 (aggressive learning during exploration phase), smoothly decays to 1e-5 (fine-tuning during exploitation). The transition aligns roughly with epsilon reaching its floor.
+
+**Why curriculum**: Depth-5 circuits have ~5 gates. The agent can complete them in 10-20 steps, getting fast completion bonuses and learning the fundamentals of routing. Then depth-10 (~10 gates) teaches intermediate strategies. Finally depth-20 is the real task.
 
 ### Run 22 — Multi-Topo Weighted + Standard Net + 80k (Job 163455, run_022)
 
