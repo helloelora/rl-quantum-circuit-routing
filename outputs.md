@@ -398,81 +398,224 @@ The 67% completion plateau (ep2k-14k) is the most interesting phenomenon — the
 
 ---
 
-## V3 Runs (14–17) — In Progress
+## V3 Runs (14–18)
 
 Building on V2 findings: eps=0.02 is best, more episodes help (curve not flat), LR=1e-4 confirmed. Each run tests one hypothesis.
 
-### Run 14 — Heavy Hex 60k Episodes (Job 162867, run_014)
+**Note**: Due to concurrent sbatch submission, directory numbering got swapped — run_014 received the bignet config and run_015 received the 60k config. Actual configs are listed below per directory.
 
+### Run 14 — Heavy Hex Bigger Network (Job 162867, run_014) — RUNNING
+
+**Actual config**: `run15_heavy_hex_bignet.json` (swapped at submission)
+**Hypothesis**: Does a 2× wider network learn better routing strategies?
+
+| Parameter | Value |
+|-----------|-------|
+| Topology | heavy_hex_19 |
+| Episodes | 40,000 |
+| Conv channels | **[64, 128, 64]** (2× wider) |
+| Dueling hidden | **512** (2× wider) |
+| Eps floor | 0.02 |
+
+**Results** (ep30.5k/40k, still running):
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs |
+|---------|-----------|-------|-------------|-------------|
+| 8,500 | 0.48 | 1.784 | 364.8 | 186.1 |
+| 14,000 | 1.00 | 1.272 | 238.2 | 187.3 |
+| 20,500 | 1.00 | 1.193 | 223.9 | 187.8 |
+| 25,000 | 1.00 | 1.194 | 224.5 | 188.4 |
+| 30,500 | 1.00 | 1.173 | 220.8 | 188.5 |
+
+**Training dynamics**: Phase transition at ep8k (same as other runs). Hit 100% completion at ep14k. But then **plateaued around ratio 1.19** from ep20k onward and barely improved to 1.17 by ep30k. At the same episode count, the standard net (Run 015) was already at ratio 1.10.
+
+**Verdict**: Bigger network is **worse**, not better. The 2× wider CNN converges slower and plateaus higher (~1.17 vs ~1.07 for standard net at ep30k). The extra parameters likely make optimization harder without enough data to justify the capacity. The standard [32,64,32] network is sufficient for this problem.
+
+### Run 15 — Heavy Hex 60k Episodes (Job 162868, run_015) — DONE ✓
+
+**Actual config**: `run14_heavy_hex_60k.json` (swapped at submission)
 **Hypothesis**: Run 7 was still improving at ep40k. Does 60k reach ratio <1.05?
+**Time**: 16.7h
 
-| Parameter | Value | vs Run 7 |
-|-----------|-------|----------|
-| Config | `run14_heavy_hex_60k.json` | |
-| Topology | heavy_hex_19 | same |
-| Episodes | **60,000** | **+20k** |
-| Eps floor | 0.02 | same |
-| Buffer | **300k** | +100k (more data for longer training) |
-| Eps decay steps | **4M** | +1M (slower decay over more episodes) |
-| Everything else | same as Run 7 | |
+| Parameter | Value |
+|-----------|-------|
+| Topology | heavy_hex_19 |
+| Episodes | **60,000** |
+| Conv channels | [32, 64, 32] |
+| Buffer | **300k** |
+| Eps floor | 0.02 |
 
-### Run 15 — Heavy Hex Bigger Network (Job 162868, run_015)
+**Results — eval progression**:
 
-**Hypothesis**: The 32→64→32 CNN may be capacity-limited. A bigger network can represent more complex routing strategies.
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | What's happening |
+|---------|-----------|-------|-------------|-------------|------------------|
+| 8,500 | 0.16 | 2.094 | 395.8 | 185.9 | Phase transition starting |
+| 11,000 | 0.90 | 1.575 | 306.8 | 189.1 | Rapid completion ramp |
+| 14,000 | 1.00 | 1.352 | 256.6 | 189.8 | First 100% completion |
+| 20,000 | 1.00 | 1.185 | 223.4 | 188.5 | Steady improvement |
+| 28,000 | 1.00 | 1.094 | 206.8 | 189.0 | Below Run 7's best (1.08) |
+| 33,500 | 1.00 | 1.080 | 202.9 | 188.2 | Matching Run 7's 40k result |
+| 40,000 | 1.00 | 1.070 | 201.4 | 188.4 | Still improving |
+| 46,000 | 1.00 | 1.046 | 194.1 | 185.9 | Breaking 1.05 |
+| 50,500 | 1.00 | 1.074 | 199.2 | 185.4 | Fluctuating 1.03–1.07 |
+| 55,000 | 1.00 | 1.045 | 194.6 | 186.1 | |
+| 59,000 | 1.00 | **1.014** | 188.5 | 186.2 | **Best eval — nearly matching SABRE** |
+| 60,000 | 1.00 | **1.028** | 192.3 | 187.2 | Final eval |
 
-| Parameter | Value | vs Run 7 |
-|-----------|-------|----------|
-| Config | `run15_heavy_hex_bignet.json` | |
-| Topology | heavy_hex_19 | same |
-| Episodes | 40,000 | same |
-| Eps floor | 0.02 | same |
-| Conv channels | **[64, 128, 64]** | **2× wider** |
-| Dueling hidden | **512** | **2× wider** |
-| Everything else | same as Run 7 | |
+**Training dynamics**: Identical phase transition pattern to Run 7 (ep8k–12k). After ep30k the curve was in the 1.06–1.08 range — similar to where Run 7 ended at ep40k. The extra 20k episodes pushed from 1.07 → 1.03 average, with a best of **1.014** at ep59k. Diminishing returns: the first 40k episodes took ratio from ∞ → 1.07, the last 20k only improved by 0.04.
 
-### Run 16 — Multi-Topology + Low Epsilon (Job 162869, run_016)
+**Final training metrics (last 500 eps)**: reward=-92.97, swaps=225.6, completion=100%, steps=225.6
 
-**Hypothesis**: Run 8 used eps=0.10. The biggest V2 finding was eps=0.02 >> 0.10. Does low epsilon fix multi-topology heavy_hex performance?
+**Verdict**: **Our best heavy_hex result.** More episodes clearly help. Best eval ratio 1.014 = agent uses only 1.4% more SWAPs than SABRE. Final ratio 1.028 shows the agent is within 3% of SABRE on average. Still improving slightly — 80k episodes could potentially break 1.0.
 
-| Parameter | Value | vs Run 8 |
-|-----------|-------|----------|
-| Config | `run16_multi_low_eps.json` | |
-| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
-| Episodes | 45,000 | same |
-| Eps floor | **0.02** | **was 0.10** |
-| Everything else | same as Run 8 | |
+### Run 16 — Multi-Topology + Low Epsilon (Job 162869, run_016) — DONE ✓
 
-### Run 17 — Heavy Hex Mixed Mapping (Job 162870, run_017)
+**Hypothesis**: Does eps=0.02 fix multi-topology heavy_hex performance (was 1.232 with eps=0.10)?
+**Time**: 6.3h
 
-**Hypothesis**: Training always starts from random mapping. SABRE-initialized mappings are closer to optimal, requiring fewer SWAPs. Does training on a mix (80% random, 20% SABRE) teach the agent to exploit good starting positions?
+| Parameter | Value |
+|-----------|-------|
+| Topologies | linear_5, grid_3x3, heavy_hex_19 |
+| Episodes | 45,000 |
+| Eps floor | **0.02** (was 0.10) |
 
-| Parameter | Value | vs Run 7 |
-|-----------|-------|----------|
-| Config | `run17_heavy_hex_mixed_map.json` | |
-| Topology | heavy_hex_19 | same |
-| Episodes | 40,000 | same |
-| Eps floor | 0.02 | same |
-| Initial mapping | **mixed** (80% random, 20% SABRE) | **was random** |
-| Everything else | same as Run 7 | |
+**Results** — per-topology breakdown (final eval):
 
-### Run 18 — Multi-Topo: Bigger Net + Weighted Sampling + 60k (Job 163144, run_018)
+| Topology | Ratio | Verdict |
+|----------|-------|---------|
+| linear_5 | **0.877** | Beats SABRE by 12% |
+| grid_3x3 | **0.973** | Beats SABRE by 3% |
+| heavy_hex_19 | **1.188** | 19% worse than SABRE |
+| **Overall** | **1.018** | **1.8% worse than SABRE** |
 
-**Hypothesis**: Combine all 3 improvements for multi-topology. Run 16 showed heavy_hex at 1.188 — the bottleneck is (a) network capacity split across 3 topos, (b) equal sampling wastes time on solved topos, (c) not enough episodes. This run attacks all three.
+**Verdict**: Low epsilon helped heavy_hex (1.232 → 1.188, a 4% improvement) and overall ratio is excellent at 1.018. But the per-topology breakdown reveals heavy_hex is still the bottleneck at 1.188 — far from the specialized heavy_hex result (1.028). The agent clearly allocates most of its capacity to the easier topologies.
 
-| Parameter | Value | vs Run 16 |
+### Run 17 — Heavy Hex Mixed Mapping (Job 162870, run_017) — DONE ✓
+
+**Hypothesis**: Does training on mixed initial mappings (80% random + 20% SABRE) improve performance?
+**Time**: 12.6h
+
+| Parameter | Value |
+|-----------|-------|
+| Topology | heavy_hex_19 |
+| Episodes | 40,000 |
+| Initial mapping | **mixed** (80% random, 20% SABRE) |
+
+**Results — eval progression**:
+
+| Episode | Completion | Ratio | What's happening |
+|---------|-----------|-------|------------------|
+| 7,000 | 0.16 | 2.083 | Phase transition starting |
+| 9,000 | 0.84 | 1.673 | Rapid ramp-up |
+| 13,000 | 1.00 | 1.382 | First 100% |
+| 17,000 | 1.00 | 1.222 | Steady descent |
+| 20,500 | 1.00 | 1.172 | |
+| 25,500 | 1.00 | 1.126 | |
+| 30,500 | 1.00 | 1.105 | |
+| 35,500 | 1.00 | 1.092 | |
+| 38,500 | 1.00 | **1.054** | Best eval |
+| 40,000 | 1.00 | **1.059** | Final eval |
+
+**Final training metrics (last 500 eps)**: reward=-97.9, swaps=228.8, completion=99.8%, steps=228.8
+
+**Verdict**: Mixed mapping (1.059) is marginally better than Run 7's random-only (1.08) at 40k episodes, but the difference is small. The SABRE-initialized episodes (20%) are easier — the agent sees shorter episodes and gets completion bonus faster. But this didn't translate to a dramatic improvement. Run 015 with just more episodes (1.028 at 60k) beats this easily. Mixed mapping is a minor optimization, not a game-changer.
+
+### Run 18 — Multi-Topo: Bigger Net + Weighted Sampling + 60k (Job 163144, run_018) — RUNNING
+
+**Hypothesis**: Combine all 3 multi-topo improvements: bigger network, weighted sampling (60% heavy_hex), more episodes.
+
+| Parameter | Value |
+|-----------|-------|
+| Topologies | linear_5, grid_3x3, heavy_hex_19 |
+| Topology weights | [0.15, 0.25, 0.60] |
+| Conv channels | [64, 128, 64] |
+| Dueling hidden | 512 |
+| Episodes | 60,000 |
+
+**Results so far** (ep17k/60k):
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | What's happening |
+|---------|-----------|-------|-------------|-------------|------------------|
+| 1,000 | 0.65 | 2.529 | 175.8 | 77.2 | linear+grid completing, heavy_hex failing |
+| 6,000 | 0.67 | 0.995 | 147.7 | 75.7 | Ratio <1 on easy topos (beating SABRE!) |
+| 10,000 | 0.67 | 0.959 | 146.8 | 77.2 | Still 67% — heavy_hex not completing yet |
+| 13,000 | 0.76 | 1.040 | 139.4 | 76.8 | Heavy_hex starting to complete |
+| 17,000 | 0.89 | 1.127 | 126.0 | 77.6 | Climbing toward 100% |
+
+**Training dynamics**: The 67% plateau (ep1k–12k) = linear_5 + grid_3x3 solved (2/3 topologies = 67% of eval), heavy_hex at 0%. At ep13k heavy_hex transitions — exactly the same phase transition pattern, just delayed because the bigger network is slower to learn. The overall ratio rose from 0.96 to 1.13 when heavy_hex started adding its worse results to the average. Expected to continue improving as heavy_hex ratio drops.
+
+**Prediction**: Based on Run 014 (bignet), heavy_hex will plateau around 1.17–1.19 ratio. Overall multi-topo ratio should settle around 1.05–1.10 by ep60k. The bignet may be hurting more than helping.
+
+---
+
+## V3 Summary Table
+
+| Run | Dir | Config | Topology | Key Change | Final Ratio | Best Ratio | Status |
+|-----|-----|--------|----------|------------|-------------|------------|--------|
+| 14 | run_014 | bignet | heavy_hex | 2× wider CNN | 1.173 @ep30k | 1.173 | running |
+| 15 | run_015 | 60k | heavy_hex | +20k episodes | **1.028** | **1.014** | **done** |
+| 16 | run_016 | multi+low_eps | multi | eps 0.10→0.02 | 1.018 overall | 1.018 | done |
+| 17 | run_017 | mixed_map | heavy_hex | 80/20 random/SABRE | **1.059** | **1.054** | **done** |
+| 18 | run_018 | multi+bignet+weighted | multi | all 3 fixes | 1.127 @ep17k | 1.127 | running |
+
+### V3 Key Findings
+
+1. **More episodes >> bigger network**: Run 015 (standard net, 60k) reached 1.014. Run 014 (bignet, 40k) stuck at 1.17. More data beats more capacity for this problem.
+2. **Mixed mapping = minor gain**: Run 017 (1.059) vs Run 7 (1.08) — small improvement, not worth the complexity.
+3. **Low epsilon saves multi-topo**: Run 16 heavy_hex improved from 1.232 → 1.188 just by using eps=0.02.
+4. **Diminishing returns but not flat**: Run 015 gained 0.04 ratio in the last 20k episodes (ep40k–60k). The curve is logarithmic — each 20k episodes gives less, but it's not zero.
+5. **Bignet hurts convergence**: In every comparison, the bigger network plateaus higher. The problem isn't network capacity — it's sample efficiency.
+
+---
+
+## V4 Runs (19–22) — In Progress
+
+Based on V3 findings: standard net > bignet, more episodes is the #1 lever, weighted sampling helps multi-topo.
+
+### Run 19 — Heavy Hex 80k Episodes (Job 163452, run_019)
+
+**Hypothesis**: Run 015 reached 1.014 at ep59k and was still improving. Can 80k break ratio 1.0 (beat SABRE)?
+
+| Parameter | Value | vs Run 015 |
 |-----------|-------|-----------|
-| Config | `run18_multi_bignet_weighted.json` | |
-| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
-| Episodes | **60,000** | **+15k** |
-| Eps floor | 0.02 | same |
-| Conv channels | **[64, 128, 64]** | **2× wider** |
-| Dueling hidden | **512** | **2× wider** |
-| Topology weights | **[0.15, 0.25, 0.60]** | **was uniform (0.33 each)** |
-| Buffer | **300k** | same |
-| Eps decay steps | **5M** | +500k (slower for more episodes) |
-| Everything else | same | |
+| Topology | heavy_hex_19 | same |
+| Episodes | **80,000** | **+20k** |
+| Conv channels | [32, 64, 32] | same |
+| Buffer | **400k** | +100k |
+| Eps decay steps | **5M** | +1M |
 
-**Why these weights**: linear_5 is solved (ratio 0.877), gets 15%. grid_3x3 is nearly solved (0.973), gets 25%. heavy_hex needs the most work (1.188), gets 60% of training episodes.
+### Run 20 — Multi-Topo Weighted + Standard Net + 60k (Job 163453, run_020)
+
+**Hypothesis**: Run 18 uses bignet (which hurts). Does the standard net + weighted sampling do better for multi-topo?
+
+| Parameter | Value | vs Run 18 |
+|-----------|-------|-----------|
+| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
+| Topology weights | [0.15, 0.25, 0.60] | same |
+| Conv channels | **[32, 64, 32]** | **standard (was bignet)** |
+| Dueling hidden | **256** | **standard (was 512)** |
+| Episodes | 60,000 | same |
+
+### Run 21 — Heavy Hex Mixed Mapping + 60k (Job 163454, run_021)
+
+**Hypothesis**: Combine two V3 winners — mixed mapping (Run 017, 1.059) + more episodes (Run 015, 1.028). Does mixed + 60k outperform pure random + 60k?
+
+| Parameter | Value | vs Run 015 |
+|-----------|-------|-----------|
+| Topology | heavy_hex_19 | same |
+| Episodes | 60,000 | same |
+| Initial mapping | **mixed** (80% random, 20% SABRE) | **was random** |
+
+### Run 22 — Multi-Topo Weighted + Standard Net + 80k (Job 163455, run_022)
+
+**Hypothesis**: The longest multi-topo run yet. Even heavier weight on heavy_hex (70%). Can multi-topo heavy_hex ratio drop below 1.10?
+
+| Parameter | Value | vs Run 20 |
+|-----------|-------|-----------|
+| Topologies | linear_5, grid_3x3, heavy_hex_19 | same |
+| Topology weights | **[0.10, 0.20, 0.70]** | **more heavy_hex** |
+| Episodes | **80,000** | **+20k** |
+| Buffer | **400k** | +100k |
 
 ---
 
@@ -480,7 +623,6 @@ Building on V2 findings: eps=0.02 is best, more episodes help (curve not flat), 
 
 ```bash
 squeue -u dor_ali | grep quantum
-for f in outputs/slurm_*.out; do echo "=== $(basename $f) ===" && tail -3 "$f" 2>/dev/null; done
 # Quick results (V3+): each run now saves results_summary.json
 cat outputs/run_NNN/results_summary.json | python3 -m json.tool
 ```
