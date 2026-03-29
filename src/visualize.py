@@ -126,8 +126,8 @@ def plot_eval_comparison(eval_dir, out_path):
         return
 
     topos = sorted(per_topo.keys())
-    ppo_swaps = [per_topo[t]["mean_ppo_swaps"] for t in topos]
-    sabre_swaps = [per_topo[t]["mean_sabre_swaps"] for t in topos]
+    ppo_swaps = [per_topo[t]["eval_mean_ppo_swaps"] for t in topos]
+    sabre_swaps = [per_topo[t]["eval_mean_sabre_swaps"] for t in topos]
 
     x = np.arange(len(topos))
     width = 0.35
