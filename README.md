@@ -87,7 +87,7 @@ Run 023 (curriculum + cosine LR) achieved ratio **0.994** in only **60k episodes
 
 <img src="assets/eval_comparison_run019.png" width="700" alt="Agent vs SABRE eval comparison">
 
-*Final evaluation: per-circuit SWAP count comparison between agent (blue) and SABRE (orange)*
+*Best checkpoint evaluation (ep63k, ratio 0.991): per-circuit SWAP count comparison between agent (blue) and SABRE (orange)*
 
 </div>
 
