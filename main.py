@@ -42,7 +42,7 @@ def cmd_train(args):
     if args.save_buffer:
         config.save_buffer = True
 
-    train(config, resume_from=args.resume)
+    train(config, resume_from=args.resume, finetune_from=args.finetune)
 
 
 def cmd_evaluate(args):
@@ -195,6 +195,9 @@ def main():
     )
     tp.add_argument("--config", type=str, help="Path to config.json")
     tp.add_argument("--resume", type=str, help="Checkpoint to resume from")
+    tp.add_argument("--finetune", type=str,
+                    help="Checkpoint to fine-tune from (loads weights only, "
+                         "fresh optimizer and epsilon, new run dir)")
     tp.add_argument("--output-dir", type=str, help="Base output dir (default: outputs)")
     tp.add_argument("--episodes", type=int)
     tp.add_argument("--device", type=str)

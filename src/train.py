@@ -49,7 +49,7 @@ class TrainingLogger:
         self._step_file.close()
 
 
-def train(config, resume_from=None):
+def train(config, resume_from=None, finetune_from=None):
     """Main training loop."""
 
     # If resuming, reuse the existing run directory; otherwise create new
@@ -117,7 +117,7 @@ def train(config, resume_from=None):
     _print(f"Parameters: {param_count:,}")
     _print(f"Actions: {num_actions} | Topologies: {config.topologies}")
 
-    # Resume
+    # Resume or fine-tune
     start_episode = 0
     resume_global_step = 0
     resume_elapsed = 0.0
@@ -129,6 +129,14 @@ def train(config, resume_from=None):
         resume_elapsed = ckpt.get("elapsed_time", 0.0)
         _print(f"Resumed from episode {start_episode} "
                f"(env steps: {resume_global_step}, elapsed: {resume_elapsed:.0f}s)")
+    elif finetune_from:
+        # Load network weights only — fresh optimizer, fresh epsilon, new run dir
+        ckpt = torch.load(str(finetune_from), map_location=agent.device,
+                          weights_only=False)
+        agent.online_net.load_state_dict(ckpt["online_net"])
+        agent.target_net.load_state_dict(ckpt["target_net"])
+        _print(f"Fine-tuning from {finetune_from} "
+               f"(weights only, fresh optimizer @ LR={config.lr})")
 
     # Logger
     logger = TrainingLogger(config.log_dir)
