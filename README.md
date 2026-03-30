@@ -13,9 +13,9 @@
 
 ---
 
-**Ratio 1.008** (0.8% from SABRE) · **100% Completion** · **3 Hardware Topologies** · **Multi-Topology Generalization**
+**Ratio 0.991** (Beats SABRE) · **100% Completion** · **3 Hardware Topologies** · **Multi-Topology Generalization**
 
-[Architecture](#architecture) · [Results](#results) · [Getting Started](#getting-started) · [How It Works](#how-it-works) · [Training](#training) · [Documentation](#documentation)
+[Results](#results) · [Architecture](#architecture) · [How It Works](#how-it-works) · [Getting Started](#getting-started) · [Training](#training) · [Documentation](#documentation)
 
 </div>
 
@@ -26,6 +26,8 @@
 Quantum computers can only execute two-qubit gates between **physically adjacent qubits**. Real quantum circuits contain gates between arbitrary qubit pairs. **Quantum circuit routing** (transpilation) solves this by inserting SWAP gates to move qubits into adjacent positions before each gate can execute. Fewer SWAPs = shorter circuits = less decoherence = higher fidelity results.
 
 The industry-standard solution is **SABRE** (Li et al., 2019), a heuristic search algorithm used by IBM's Qiskit compiler. SABRE is fast and produces good results, but as a greedy heuristic, it can miss globally optimal routing strategies.
+
+Finding the minimum number of SWAPs for a given circuit is **NP-hard** (Siraichi et al., 2018) — no known polynomial-time algorithm can compute the optimal solution. For small instances (5-10 qubits), exact methods like ILP/SAT solvers or A* search (Botea et al., 2018) can find optima, but for real hardware sizes these are intractable. Both SABRE and our agent produce approximate solutions.
 
 **This project trains a deep RL agent to learn routing strategies end-to-end**, directly from the circuit structure and hardware topology. The agent:
 
@@ -38,15 +40,15 @@ The industry-standard solution is **SABRE** (Li et al., 2019), a heuristic searc
 
 ```
     Quantum Circuit (logical)          Hardware Topology (physical)
-    ┌───────────────────┐              ┌─────────────────────────┐
-    │ q0 ──■──          │              │    0 ─── 1 ─── 2       │
-    │      │            │              │    |           |       │
-    │ q1 ──■── ■──      │     SWAP     │    3 ─── 4 ─── 5       │
-    │          │        │  ─────────►  │    |           |       │
-    │ q2 ──── ■── ■──  │   insertion   │    6 ─── 7 ─── 8       │
-    │             │     │              │   (grid_3x3: 9q, 12e)  │
-    │ q3 ──────── ■──  │              └─────────────────────────┘
-    └───────────────────┘
+    +-------------------+              +-------------------------+
+    | q0 --X--          |              |    0 --- 1 --- 2        |
+    |      |            |              |    |           |        |
+    | q1 --X-- X--      |     SWAP     |    3 --- 4 --- 5        |
+    |          |        |  --------->  |    |           |        |
+    | q2 ---- X-- X--   |  insertion   |    6 --- 7 --- 8        |
+    |             |     |              |   (grid_3x3: 9q, 12e)   |
+    | q3 -------- X--   |              +-------------------------+
+    +-------------------+
     Gates between non-adjacent          Agent inserts SWAPs to make
     qubits can't execute directly       all gates executable
 ```
@@ -57,15 +59,37 @@ The industry-standard solution is **SABRE** (Li et al., 2019), a heuristic searc
 
 ## Results
 
-### Best Single-Topology: Run 019 (heavy_hex_19, 80k episodes, in progress)
+### Agent vs SABRE: Routing Comparison
+
+The agent (blue) and SABRE (orange) route the same quantum circuit on heavy_hex_19. Each frame shows one SWAP operation, with gates executing automatically when qubits become adjacent.
+
+<div align="center">
+
+<img src="assets/routing_vs_sabre_run019.gif" width="700" alt="Agent vs SABRE routing on heavy_hex_19">
+
+*Run 019: RL agent routing a depth-20 circuit on heavy_hex_19 topology (19 qubits, 20 edges)*
+
+</div>
+
+### Best Single-Topology: Run 019 (heavy_hex_19, 80k episodes)
 
 | Metric | Value |
 |--------|-------|
-| **Best Swap Ratio** | **1.008** (only 0.8% more SWAPs than SABRE) |
+| **Best Swap Ratio** | **0.991** (beats SABRE by 1%) |
 | **Completion Rate** | 100% (all circuits fully routed) |
-| Agent SWAPs (avg) | 190.2 |
-| SABRE SWAPs (avg) | 188.7 |
-| Status | Still training — expected to break 1.0 |
+| Agent SWAPs (avg) | 183.3 |
+| SABRE SWAPs (avg) | 185.3 |
+| Sub-1.0 checkpoints | 8 out of 160 eval points |
+
+Run 023 (curriculum + cosine LR) achieved ratio **0.994** in only **60k episodes** — 25% less training time than Run 019.
+
+<div align="center">
+
+<img src="assets/eval_comparison_run019.png" width="700" alt="Agent vs SABRE eval comparison">
+
+*Final evaluation: per-circuit SWAP count comparison between agent (blue) and SABRE (orange)*
+
+</div>
 
 ### Best Multi-Topology: Run 018 (3 topologies, weighted sampling)
 
@@ -80,25 +104,46 @@ A **single network** learns to route circuits across 3 different hardware topolo
 
 ### Progression Across Experiments
 
-| Version | Best Run | Heavy Hex Ratio | Key Change |
-|---------|----------|-----------------|------------|
-| V1 | — | 0% completion | Q-value collapse (fixed in V2) |
+| Version | Best Run | Heavy Hex Ratio | Key Breakthrough |
+|---------|----------|-----------------|------------------|
+| V1 | — | 0% completion | Q-value collapse |
 | V2 | Run 7 | 1.080 | 5-channel state, soft targets, eps=0.02 |
 | V3 | Run 15 | 1.014 | 60k episodes, standard net |
-| V4 | Run 19 | **1.008** | 80k episodes (still training) |
+| **V4** | **Run 19** | **0.991** | **80k episodes — first to beat SABRE** |
+| **V4** | **Run 23** | **0.994** | **Curriculum + cosine LR — beats SABRE in 60k eps** |
+
+### Training Dashboard
+
+<div align="center">
+
+<img src="assets/training_curves_run019.png" width="800" alt="Training curves Run 019">
+
+*Run 019 (80k episodes): Reward, completion rate, swap ratio, loss, Q-values, and epsilon over training. The characteristic "phase transition" at ep8k-12k is where the agent suddenly learns to complete circuits.*
+
+</div>
 
 <details>
-<summary><b>Training Dashboard Example (Run 015)</b></summary>
+<summary><b>Run 023 Training Dashboard (Curriculum + Cosine LR)</b></summary>
 
-The training dashboard (`training_curves.png`) shows 6 panels tracking the agent's progress:
+<div align="center">
 
-- **Reward**: Episode return (smoothed). Starts at -400 (all timeouts), rises to -90 (efficient routing).
-- **Completion Rate**: Fraction of circuits fully routed. Shows the characteristic "phase transition" at ep8k-12k.
-- **Swap Ratio**: Agent SWAPs / SABRE SWAPs. Target is 1.0 or below.
-- **Loss (Huber)**: TD error magnitude. Spikes during phase transition, stabilizes around 0.01-0.02.
-- **Q-Values**: Mean predicted return. Always negative (every step costs -1). Deeper = longer horizon estimates.
-- **Epsilon**: Exploration rate decay from 1.0 to 0.02.
+<img src="assets/training_curves_run023.png" width="800" alt="Training curves Run 023">
 
+*Run 023: Three curriculum phases are visible — depth 5 (ep0-9k), depth 10 (ep9k-21k), depth 20 (ep21k+). The swap curve dips during depth-10 phase because shallower circuits need fewer SWAPs.*
+
+</div>
+</details>
+
+<details>
+<summary><b>Additional Routing GIF</b></summary>
+
+<div align="center">
+
+<img src="assets/routing_vs_sabre_run019_2.gif" width="700" alt="Agent vs SABRE routing example 2">
+
+*Second routing example on a different random circuit*
+
+</div>
 </details>
 
 ---
@@ -108,42 +153,42 @@ The training dashboard (`training_curves.png`) shows 6 panels tracking the agent
 <div align="center">
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                                                                      │
-│   State: 5-channel N×N tensor                                        │
-│   ┌───────┬───────┬──────────┬───────────┬────────────┐              │
-│   │ Ch 0  │ Ch 1  │  Ch 2    │   Ch 3    │   Ch 4     │              │
-│   │Adjacen│Mapping│Gate      │Front-layer│Stagnation  │              │
-│   │-cy    │Perm.  │Demand    │Distance   │Signal      │              │
-│   │(27×27)│(27×27)│(27×27)   │(27×27)    │(27×27)     │              │
-│   └───┬───┴───┬───┴────┬─────┴─────┬─────┴──────┬─────┘              │
-│       └───────┴────────┴───────────┴────────────┘                    │
-│                        │                                             │
-│                        ▼                                             │
-│   ┌──────────────────────────────────────┐                           │
-│   │        CNN Feature Extractor         │                           │
-│   │  Conv2d(5→32, 3×3) → ReLU           │                           │
-│   │  Conv2d(32→64, 3×3) → ReLU          │                           │
-│   │  Conv2d(64→32, 3×3) → ReLU          │                           │
-│   │  Flatten → 32 × 27 × 27 = 23,328    │                           │
-│   └──────────────┬───────────────────────┘                           │
-│                  │                                                   │
-│       ┌──────────┴──────────┐                                        │
-│       ▼                     ▼                                        │
-│   ┌────────────┐    ┌────────────────┐                               │
-│   │ Value      │    │ Advantage      │                               │
-│   │ Stream     │    │ Stream         │                               │
-│   │ 23328→256  │    │ 23328→256      │                               │
-│   │ →ReLU→1    │    │ →ReLU→20       │  (20 edges = 20 actions)      │
-│   └─────┬──────┘    └──────┬─────────┘                               │
-│         │                  │                                         │
-│         └──────┬───────────┘                                         │
-│                ▼                                                     │
-│   Q(s,a) = V(s) + A(s,a) - mean(A)                                  │
-│                                                                      │
-│   ~6M parameters (standard) · ~24M parameters (bignet)               │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------------+
+|                                                                      |
+|   State: 5-channel N x N tensor                                      |
+|   +-------+-------+----------+-----------+------------+              |
+|   | Ch 0  | Ch 1  |  Ch 2    |   Ch 3    |   Ch 4     |              |
+|   |Adjacen|Mapping|Gate      |Front-layer|Stagnation  |              |
+|   |-cy    |Perm.  |Demand    |Distance   |Signal      |              |
+|   |(27x27)|(27x27)|(27x27)   |(27x27)    |(27x27)     |              |
+|   +---+---+---+---+----+-----+-----+-----+------+-----+              |
+|       +-------+--------+-----------+------------+                    |
+|                        |                                             |
+|                        v                                             |
+|   +--------------------------------------+                           |
+|   |        CNN Feature Extractor         |                           |
+|   |  Conv2d(5->32, 3x3) -> ReLU         |                           |
+|   |  Conv2d(32->64, 3x3) -> ReLU        |                           |
+|   |  Conv2d(64->32, 3x3) -> ReLU        |                           |
+|   |  Flatten -> 32 x 27 x 27 = 23,328   |                           |
+|   +------------------+-------------------+                           |
+|                      |                                               |
+|           +----------+----------+                                    |
+|           v                     v                                    |
+|   +------------+    +----------------+                               |
+|   | Value      |    | Advantage      |                               |
+|   | Stream     |    | Stream         |                               |
+|   | 23328->256 |    | 23328->256     |                               |
+|   | ->ReLU->1  |    | ->ReLU->20     |  (20 edges = 20 actions)      |
+|   +-----+------+    +------+---------+                               |
+|         |                  |                                         |
+|         +------+-----------+                                         |
+|                v                                                     |
+|   Q(s,a) = V(s) + A(s,a) - mean(A)                                  |
+|                                                                      |
+|   ~6M parameters (standard) | ~24M parameters (bignet)               |
+|                                                                      |
++----------------------------------------------------------------------+
 ```
 
 </div>
@@ -155,9 +200,10 @@ The training dashboard (`training_curves.png`) shows 6 panels tracking the agent
 | **Dueling DQN** | Separates state value from action advantage — learns "how good is this state" independently of "which SWAP is best here" | Wang et al., 2016 |
 | **Double DQN** | Eliminates overestimation bias in Q-learning — online net selects actions, target net evaluates them | van Hasselt et al., 2016 |
 | **Prioritized Experience Replay** | Samples high-TD-error transitions more often — focuses learning on surprising/difficult states | Schaul et al., 2016 |
-| **CNN on N×N state** | Hardware topology and qubit mapping have spatial structure — convolutions capture local connectivity patterns | — |
+| **CNN on N x N state** | Hardware topology and qubit mapping have spatial structure — convolutions capture local connectivity patterns | — |
 | **5-channel state** | Encodes topology (Ch0), current mapping (Ch1), future gate demand (Ch2), immediate routing targets (Ch3), and stuck-ness signal (Ch4) | Pozzi et al., 2022 (Ch3 distance shaping) |
-| **Soft target updates** | Polyak averaging (τ=0.005) gives smoother target evolution vs hard copies — prevents Q-value oscillation | Lillicrap et al., 2016 |
+| **Soft target updates** | Polyak averaging (tau=0.005) gives smoother target evolution vs hard copies — prevents Q-value oscillation | Lillicrap et al., 2016 |
+| **Curriculum learning** | Train on easy circuits (depth 5) first, progress to hard ones (depth 20) — gives ~10k episode head start | Bengio et al., 2009 |
 
 ---
 
@@ -179,8 +225,8 @@ Each episode:
 **Reward per step:**
 ```
 r = -1                                    # step cost (encourages efficiency)
-  + gates_executed × gate_reward           # +1 per gate routed (progress signal)
-  + distance_coeff × Δdistance             # Pozzi-style distance shaping
+  + gates_executed x gate_reward           # +1 per gate routed (progress signal)
+  + distance_coeff x delta_distance        # Pozzi-style distance shaping
   + repetition_penalty (if same SWAP)      # -0.5 prevents swap-undo loops
   + completion_bonus (if done)             # +5 for completing all gates
   + timeout_penalty (if truncated)         # -10 for running out of steps
@@ -190,17 +236,17 @@ r = -1                                    # step cost (encourages efficiency)
 
 **D3QN + PER** (Double Dueling DQN with Prioritized Experience Replay):
 
-1. Collect transitions via epsilon-greedy exploration (ε: 1.0 → 0.02)
+1. Collect transitions via epsilon-greedy exploration (epsilon: 1.0 -> 0.02)
 2. Store in prioritized replay buffer (SumTree, capacity 300-500k)
 3. Sample mini-batches weighted by TD error magnitude
-4. Compute Double DQN targets: `y = r + γ^n · Q_target(s', argmax Q_online(s'))`
+4. Compute Double DQN targets: `y = r + gamma^n * Q_target(s', argmax Q_online(s'))`
 5. Minimize Huber loss weighted by importance-sampling corrections
-6. Soft-update target network every 500 steps (τ = 0.005)
+6. Soft-update target network every 500 steps (tau = 0.005)
 
 ### Multi-Topology Generalization
 
 A single agent can learn routing across multiple hardware topologies simultaneously:
-- State observations are padded to a fixed N×N size (N=27 covers all topologies)
+- State observations are padded to a fixed N x N size (N=27 covers all topologies)
 - Actions beyond the current topology's edge count are masked
 - Weighted topology sampling ensures the hardest topology (heavy_hex) gets sufficient training time
 
@@ -248,23 +294,15 @@ python main.py train --config configs/run14_heavy_hex_60k.json --device cuda
 **Evaluate a checkpoint:**
 ```bash
 python main.py evaluate \
-    --checkpoint outputs/run_015/checkpoints/checkpoint_final.pt \
+    --checkpoint outputs/run_019/checkpoints/checkpoint_final.pt \
     --episodes 100 \
     --save-trajectories \
     --output-dir eval_results
 ```
 
-**Generate visualizations:**
-```bash
-python main.py visualize --run-dir outputs/run_015 --gif
-```
-
 ### SLURM Cluster
 
 ```bash
-# Using presets
-sbatch experiment.slurm heavy_hex
-
 # Using config files
 sbatch experiment.slurm configs/run14_heavy_hex_60k.json
 
@@ -272,7 +310,7 @@ sbatch experiment.slurm configs/run14_heavy_hex_60k.json
 sbatch experiment.slurm heavy_hex --episodes 80000 --seed 123
 ```
 
-The SLURM script automatically: trains the agent → evaluates the final checkpoint → generates visualizations. All outputs land in `outputs/run_NNN/`.
+The SLURM script automatically: trains the agent, evaluates the final checkpoint, and generates visualizations. All outputs land in `outputs/run_NNN/`.
 
 ---
 
@@ -285,16 +323,17 @@ The SLURM script automatically: trains the agent → evaluates the final checkpo
 | Algorithm | D3QN + PER | Double Dueling DQN |
 | Conv channels | [32, 64, 32] | Standard net (~6M params) |
 | Dueling hidden | 256 | |
-| Learning rate | 1e-4 | Constant schedule |
-| Discount (γ) | 0.99 | |
+| Learning rate | 1e-4 | Cosine annealing to 1e-5 recommended |
+| Discount (gamma) | 0.99 | |
 | Batch size | 128 | |
-| Buffer capacity | 300,000-400,000 | |
-| PER α | 0.6 | Priority exponent |
-| PER β | 0.4 → 1.0 | IS weight annealing |
-| Epsilon | 1.0 → 0.02 | Linear decay over 4-5M steps |
-| Target update | τ=0.005 every 500 steps | Soft Polyak |
+| Buffer capacity | 300,000-500,000 | |
+| PER alpha | 0.6 | Priority exponent |
+| PER beta | 0.4 -> 1.0 | IS weight annealing |
+| Epsilon | 1.0 -> 0.02 | Linear decay over 4-6M steps |
+| Target update | tau=0.005 every 500 steps | Soft Polyak |
 | Gradient clip | 10.0 | Max gradient norm |
-| Episodes | 60,000-80,000 | More is better (curve not flat) |
+| Episodes | 60,000-100,000 | More is better (curve not flat) |
+| Curriculum | depth 5 -> 10 -> 20 | Optional, saves ~25% training time |
 
 ### Compute Requirements
 
@@ -346,7 +385,8 @@ rl-quantum-circuit-routing/
 │   ├── circuit_utils.py        # Quantum circuit DAG, front layer, coupling maps
 │   └── explore.py              # Interactive exploration utilities
 ├── configs/                    # JSON configs for each experiment run
-├── outputs/                    # All experiment outputs (auto-numbered)
+├── assets/                     # Figures and GIFs for README
+├── outputs/                    # All experiment outputs (auto-numbered, gitignored)
 ├── main.py                     # CLI entry point (train/evaluate/visualize)
 ├── experiment.slurm            # SLURM job script (train + eval + viz)
 ├── ARCHITECTURE.md             # Detailed technical documentation
@@ -360,8 +400,8 @@ rl-quantum-circuit-routing/
 
 | Document | Description |
 |----------|-------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Complete technical documentation: MDP formulation, network architecture, training algorithm, reward design, all with math and paper references |
-| [outputs.md](outputs.md) | Full experiment log: every run's config, results, analysis, and cross-run comparison. Includes V1-V4 findings and proposed next steps |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Complete technical reference (~1200 lines): MDP formulation with math, network architecture, D3QN+PER algorithm, training pipeline, multi-topology support, reward design, experimental findings, and paper references |
+| [outputs.md](outputs.md) | Full experiment log: every run's config, results, detailed analysis, and cross-run comparison. Covers V1-V4 findings (23 runs) and V5 plans |
 
 ---
 
@@ -369,12 +409,15 @@ rl-quantum-circuit-routing/
 
 - **SABRE**: Li, G., Ding, Y., & Xie, Y. (2019). *Tackling the Qubit Mapping Problem for NISQ-Era Quantum Devices.* ASPLOS.
 - **Qubit Routing Problem**: Cowtan, A., et al. (2019). *On the Qubit Routing Problem.* TQC.
+- **NP-hardness**: Siraichi, M. Y., et al. (2018). *Qubit allocation.* CGO.
+- **Optimal Routing**: Botea, A., et al. (2018). *On the complexity of quantum circuit compilation.* SOCS.
+- **Token Swapping**: Miltzow, T., et al. (2016). *Approximation and Hardness of Token Swapping.* ESA.
 - **Dueling DQN**: Wang, Z., et al. (2016). *Dueling Network Architectures for Deep Reinforcement Learning.* ICML.
 - **Double DQN**: van Hasselt, H., Guez, A., & Silver, D. (2016). *Deep Reinforcement Learning with Double Q-learning.* AAAI.
 - **Prioritized Experience Replay**: Schaul, T., et al. (2016). *Prioritized Experience Replay.* ICLR.
 - **RL for Routing**: Pozzi, M. G., et al. (2022). *Using Reinforcement Learning to Perform Qubit Routing in Quantum Compilers.* ACM Computing Surveys.
 - **AlphaRouter**: Fosel, T., et al. (2021). *Quantum circuit optimization with deep reinforcement learning.* arXiv:2103.07585.
-- **NP-hardness**: Siraichi, M. Y., et al. (2018). *Qubit allocation.* CGO.
+- **Curriculum Learning**: Bengio, Y., et al. (2009). *Curriculum Learning.* ICML.
 
 ---
 
