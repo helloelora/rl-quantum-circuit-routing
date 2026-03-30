@@ -67,7 +67,7 @@ The agent (blue) and SABRE (orange) route the same quantum circuit on heavy_hex_
 
 <img src="assets/routing_vs_sabre_run019.gif" width="700" alt="Agent vs SABRE routing on heavy_hex_19">
 
-*Run 019: RL agent routing a depth-20 circuit on heavy_hex_19 topology (19 qubits, 20 edges)*
+*Run 019 (best checkpoint, ep63k): Agent uses 189 SWAPs vs SABRE's 213 — ratio 0.887 on this circuit*
 
 </div>
 
@@ -141,7 +141,7 @@ A **single network** learns to route circuits across 3 different hardware topolo
 
 <img src="assets/routing_vs_sabre_run019_2.gif" width="700" alt="Agent vs SABRE routing example 2">
 
-*Second routing example on a different random circuit*
+*Run 019 (best checkpoint, ep63k): Agent uses 163 SWAPs vs SABRE's 175 — ratio 0.931*
 
 </div>
 </details>
