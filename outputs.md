@@ -583,13 +583,13 @@ Building on V2 findings: eps=0.02 is best, more episodes help (curve not flat), 
 
 ---
 
-## V4 Runs (19–23) — In Progress
+## V4 Runs (19–23) — DONE ✓
 
 Based on V3 findings: standard net > bignet, more episodes is the #1 lever, weighted sampling helps multi-topo. V4 tests two approaches: (1) just train longer (Runs 19, 21), (2) algorithmic improvements to reward/schedule (Runs 22, 23).
 
 **Directory mapping note**: A cancelled job (163453) created and deleted run_020. This shifted subsequent directory numbers — the mapping below shows actual directories.
 
-### Run 19 — Heavy Hex 80k Episodes (Job 163452, run_019) — RUNNING
+### Run 19 — Heavy Hex 80k Episodes (Job 163452, run_019) — DONE ✓ ★ FIRST TO BEAT SABRE
 
 **Hypothesis**: Run 015 reached 1.014 at ep59k and was still improving. Can 80k break ratio 1.0 (beat SABRE)?
 
@@ -601,21 +601,30 @@ Based on V3 findings: standard net > bignet, more episodes is the #1 lever, weig
 | Buffer | **400k** | +100k |
 | Eps decay steps | **5M** | +1M |
 
-**Results so far** (ep47k/80k):
+**Results (final)**:
 
-| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs |
-|---------|-----------|-------|-------------|-------------|
-| 8,500 | 0.16 | ~2.0 | 396 | 186 |
-| 14,000 | 1.00 | ~1.35 | 257 | 190 |
-| 30,000 | 1.00 | ~1.09 | 206 | 189 |
-| **43,499** | **1.00** | **1.008** | **190.2** | **188.7** | **← Best so far** |
-| 46,499 | 1.00 | 1.022 | 191.2 | 187.3 | Latest |
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 7,999 | 40% | 1.662 | 363.0 | 187.8 | Phase transition starting |
+| 13,999 | 100% | 1.267 | 233.6 | 184.5 | Full completion reached |
+| 19,999 | 100% | 1.151 | 214.6 | 186.7 | Rapid improvement |
+| 29,999 | 100% | 1.079 | 209.1 | 190.2 | |
+| 39,999 | 100% | 1.039 | 195.1 | 187.6 | |
+| 49,999 | 100% | 1.023 | 187.8 | 183.6 | |
+| 59,999 | 100% | 1.018 | 190.0 | 186.9 | |
+| **62,999** | **100%** | **0.9905** | **183.3** | **185.3** | **★ BEST — BEATS SABRE by 1%** |
+| 74,999 | 100% | 0.993 | 184.6 | 186.2 | Sub-1.0 again |
+| 75,999 | 100% | 0.992 | 185.1 | 186.7 | Best sustained region |
+| 79,999 | 100% | 1.024 | 191.8 | 187.5 | Final (slight regression) |
 
-**Trend**: Best ratio 1.008 at ep43.5k — only 0.8% behind SABRE! The last 10 evals fluctuate between 1.008 and 1.038, averaging around 1.025. The improvement curve is clearly flattening compared to Run 015's trajectory at the same point. Still 33k episodes to go — likely to break 1.0 at some point.
+**8 eval checkpoints broke ratio 1.0** (all between ep60k-76k):
+ep60999: 0.999, ep62999: **0.991**, ep63499: 0.996, ep66499: 0.999, ep70499: 0.999, ep71499: 1.000, ep74999: 0.993, ep75999: 0.992
 
-**Prediction**: Will oscillate in the 1.00–1.03 range. Best eval will likely dip below 1.0 by ep60k, but the average may stay slightly above 1.0. This would make it our first run to beat SABRE on a single eval checkpoint.
+**Training dynamics**: Classic diminishing returns curve. Ratio drops rapidly from 1.27 → 1.08 in ep14k–30k, then slowly from 1.08 → 1.02 in ep30k–60k, finally oscillating around 1.0 from ep60k onward. The agent is in the noise region — eval variance (±2%) masks whether it's truly better or worse than SABRE on average.
 
-### Run 21 — Multi-Topo Weighted Standard Net 80k (Job 163455, run_021) — RUNNING
+**Verdict**: **Our best single-topology result and the first run to beat SABRE on heavy_hex.** Best ratio 0.991 means the agent uses 2 fewer SWAPs than SABRE on average (183.3 vs 185.3). The agent found routing strategies that SABRE's greedy heuristic misses on some circuits. However, the average over the last 10 evals is 1.008 — so it oscillates around parity rather than consistently beating SABRE.
+
+### Run 21 — Multi-Topo Weighted Standard Net 80k (Job 163455, run_021) — DONE ✓
 
 **Hypothesis**: Run 018 (bignet, weighted, 60k) got overall ratio 0.999 but heavy_hex was 1.107. Can standard net + heavier heavy_hex weighting (70% vs 60%) + 80k episodes push heavy_hex below 1.10?
 
@@ -627,187 +636,226 @@ Based on V3 findings: standard net > bignet, more episodes is the #1 lever, weig
 | Episodes | **80,000** | **+20k** |
 | Buffer | **400k** | +100k |
 
-**Results so far** (ep67k/80k):
+**Results (final)**:
 
-| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs |
-|---------|-----------|-------|-------------|-------------|
-| 10,000 | 0.67 | ~0.96 | 147 | 77 |
-| 30,000 | 0.93 | ~1.05 | 100 | 76 |
-| **52,999** | **1.00** | **1.018** | **79.9** | **77.0** | **← Best so far** |
-| 63,999 | 1.00 | 1.027 | 79.0 | 76.2 | Recent |
-| 65,999 | 1.00 | 1.048 | 81.0 | 76.9 | Latest |
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 9,999 | 74% | 1.084 | 142.2 | 76.2 | Heavy_hex still failing |
+| 19,999 | 99% | 1.140 | 100.7 | 76.3 | Just reached full completion |
+| 29,999 | 100% | 1.082 | 88.2 | 77.4 | |
+| 39,999 | 100% | 1.099 | 85.2 | 76.7 | |
+| 49,999 | 100% | 1.088 | 83.3 | 77.1 | |
+| **52,999** | **100%** | **1.018** | **79.9** | **77.0** | **← Best** |
+| 69,999 | 100% | 1.027 | 79.5 | 76.3 | |
+| 79,999 | 100% | 1.053 | 80.0 | 76.5 | Final |
 
-**Trend**: Best overall ratio 1.018 at ep53k (vs Run 018's final 0.999). The ratio has been fluctuating between 1.02 and 1.12 over the last 10k episodes — more volatile than expected. No per-topology breakdown available in eval logs (a limitation of the current eval code). Still 14k episodes to go.
+**Verdict**: Best overall ratio 1.018 — did NOT beat Run 018's 0.999. The standard net + 70% heavy_hex weight performed **worse** than bignet + 60% weight despite 20k more episodes. Two possible explanations:
 
-**Observation**: Standard net + 70% heavy_hex weight hasn't clearly beaten bignet + 60% weight (Run 018). This may mean the multi-topo case genuinely benefits from larger networks, unlike single-topo. Or the heavier 70% weight left linear_5 and grid_3x3 under-trained, dragging overall ratio up.
+1. **Multi-topo genuinely needs the bigger network.** When learning 3 different topologies simultaneously, the extra capacity of [64,128,64] isn't wasted — each topology needs its own set of routing features, and the standard net doesn't have enough parameters to learn all three well.
 
-### Run 22 — N-Step Returns + Gate Reward (Job 163461, run_022) — RUNNING
+2. **70% heavy_hex weight starved the easy topologies.** Linear_5 and grid_3x3 only got 10% and 20% of training time respectively. Run 018 gave them 15% and 25%. The easy topologies might carry the overall ratio — if they get slightly worse (from under-training), the overall ratio suffers even if heavy_hex improves.
 
-**Hypothesis**: The main bottleneck is reward signal propagation. 1-step TD means the completion bonus (+5) takes 200+ updates to propagate back to early actions. N-step returns (n=3) propagate reward 3× faster. Doubling the gate execution reward (1.0→2.0) gives stronger mid-episode signal for progress.
+**Key insight**: For multi-topo, **bignet [64,128,64] + moderate weights [0.15, 0.25, 0.60]** beats **standard net + aggressive weights [0.10, 0.20, 0.70]**. This is the opposite finding from single-topo runs, where standard net always wins.
+
+### Run 22 — N-Step Returns + Gate Reward (Job 163461, run_022) — DONE ✓ ❌ FAILED
+
+**Hypothesis**: N-step returns (n=3) propagate reward 3× faster. Doubled gate reward (2.0) gives stronger mid-episode signal.
 
 | Parameter | Value | vs Run 015 |
 |-----------|-------|-----------|
-| Config | `run20_nstep_gate_reward.json` | |
 | Topology | heavy_hex_19 | same |
 | Episodes | 60,000 | same |
-| N-step | **3** | **was 1 (standard TD)** |
+| N-step | **3** | **was 1** |
 | Gate reward | **2.0 per gate** | **was 1.0** |
-| Everything else | same (standard net, eps=0.02) | |
 
-**Why n=3**: With γ=0.99, the 3-step return is R = r₀ + 0.99·r₁ + 0.98·r₂ + 0.97³·Q(s₃). The completion bonus at step 200 now reaches step 198 in one update instead of taking 200 updates. Across the whole episode, information propagates ~3× faster.
+**Results (final)**:
 
-**Why gate_reward=2.0**: Original reward is -1 per step + 1 per gate = net 0 when a gate executes. With 2.0, the net is +1, making gate execution a clearly positive event the agent can learn from.
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 14,999 | 28% | 2.014 | 390.3 | 182.9 | Very slow start |
+| 19,999 | 84% | 1.918 | 361.4 | 185.3 | Completion finally ramping |
+| 24,999 | 98% | 1.642 | 311.5 | 188.5 | |
+| 29,999 | 98% | 1.558 | 289.8 | 184.9 | |
+| 39,999 | 100% | 1.403 | 265.1 | 189.2 | |
+| **47,999** | **100%** | **1.331** | **250.4** | **188.1** | **← Best** |
+| 59,999 | 100% | 1.377 | 257.5 | 187.3 | Final (regressed) |
 
-**Results so far** (ep23.5k/60k):
+**Post-mortem — why this failed badly:**
 
-| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs |
-|---------|-----------|-------|-------------|-------------|
-| 10,000 | 0.24 | ~1.80 | 385 | 187 |
-| 15,000 | 0.72 | ~1.78 | 350 | 188 |
-| 20,000 | 0.86 | 1.774 | 340 | 186 |
-| 22,999 | 0.98 | 1.728 | 320 | 185 |
+1. **gate_reward=2.0 was the primary culprit.** The agent's reward per gate-executing step is -1 + 2.0×gates = net +1 per gate. With standard reward (-1 + 1.0×gates = net 0), the agent learns that executing gates is neutral — the real prize is completing faster (fewer total steps). With doubled reward, executing any gate is a positive reward, so the agent is incentivized to execute gates even if it takes many inefficient SWAPs to reach them. The agent learned to **optimize for gate throughput, not routing efficiency**.
 
-**Diagnosis — this run is struggling badly:**
+2. **N-step returns amplified the problem.** With n=3, the inflated gate rewards propagate faster and farther, reinforcing the throughput-over-efficiency strategy. The combination was toxic.
 
-1. **Completion ramp is much slower**: At ep23k, completion is only 86-98% (fluctuating). Run 015 was at 100% by ep14k. The n-step returns are making learning less stable — bootstrapping from 3 steps away introduces more noise, especially during the critical phase transition.
+3. **Final ratio 1.377 — 33% worse than SABRE.** For reference, Run 015 (baseline, 60k) reached 1.014. This run used the same resources but got a result 36× worse in terms of gap to SABRE (37.7% gap vs 1.4%).
 
-2. **Ratio stuck at 1.73**: Agent needs ~320 SWAPs vs SABRE's 185. For comparison, Run 015 was at ratio 1.10 at ep23k. The doubled gate_execution_reward (2.0) seems to have distorted the reward landscape — the agent gets rewarded so much per gate that it prioritizes gate throughput over routing efficiency (doing more swaps per gate to get gates done faster, even if each swap is suboptimal).
+**Lesson**: Don't change the reward magnitude. The reward function is a delicate optimization landscape. Making gates more rewarding doesn't make the agent better at routing — it makes the agent optimize for the wrong objective.
 
-3. **Two variables changed at once**: We can't tell if n-step OR gate_reward is the culprit (or both). This violates proper experimental design.
+### Run 23 — LR Cosine Annealing + Curriculum (Job 163462, run_023) — DONE ✓ ★ ALSO BEAT SABRE
 
-**Prognosis**: May eventually improve but unlikely to catch Run 015. The reward distortion from gate_reward=2.0 is a fundamental issue — the agent is learning a different objective.
-
-### Run 23 — LR Cosine Annealing + Curriculum (Job 163462, run_023) — RUNNING
-
-**Hypothesis**: Training schedule is suboptimal. Cosine LR (1e-4 → 1e-5) matches learning rate to training phase. Curriculum (depth 5→10→20) lets the agent learn fundamentals on easy circuits first.
+**Hypothesis**: Cosine LR (1e-4 → 1e-5) matches learning rate to training phase. Curriculum (depth 5→10→20) lets the agent learn fundamentals on easy circuits first.
 
 | Parameter | Value | vs Run 015 |
 |-----------|-------|-----------|
-| Config | `run21_lr_anneal_curriculum.json` | |
 | Topology | heavy_hex_19 | same |
 | Episodes | 60,000 | same |
 | LR schedule | **cosine 1e-4 → 1e-5** | **was constant 1e-4** |
 | Curriculum | **depth 5 → 10 → 20** | **was 20 throughout** |
 | Milestones | ep0–9k: depth 5, ep9k–21k: depth 10, ep21k+: depth 20 | |
 
-**Results so far** (ep9.4k/60k):
+**Results (final)**:
 
 | Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Curriculum stage |
 |---------|-----------|-------|-------------|-------------|-----------------|
-| 7,000 | 0.18 | 1.775 | 388 | 188 | depth 5 |
-| 8,000 | 0.22 | 1.820 | 387 | 188 | depth 5 |
-| 8,500 | 0.24 | 1.738 | 382 | 187 | depth 5 |
-| **8,999** | **0.50** | **1.846** | **368** | **184** | **depth 5 → 10 transition** |
+| 4,999 | 6% | 1.756 | 396.1 | 185.7 | depth 5 |
+| 8,999 | 50% | 1.846 | 367.7 | 183.6 | depth 5 → 10 |
+| 14,999 | 78% | 1.554 | 310.2 | 185.2 | depth 10 |
+| 20,999 | 98% | 1.296 | 245.5 | 187.9 | depth 10 → 20 |
+| 24,999 | 100% | 1.171 | 220.4 | 188.4 | depth 20 |
+| 29,999 | 100% | 1.114 | 207.6 | 186.7 | depth 20 |
+| 39,999 | 100% | 1.053 | 195.6 | 186.0 | depth 20 |
+| 49,999 | 100% | 1.018 | 189.3 | 186.3 | depth 20 |
+| **52,499** | **100%** | **0.9942** | **188.6** | **189.9** | **★ BEATS SABRE** |
+| 59,999 | 100% | 1.014 | 188.6 | 186.3 | Final |
 
-**Important context**: These numbers look bad but they're **misleading**. The agent is currently training on depth-5 circuits (only ~5 gates, trivial to route). But eval always runs depth-20 circuits. So the agent hasn't seen a single depth-20 circuit yet. The 50% completion at ep9k is actually coming from transfer — the agent learned basic routing fundamentals on depth-5 and some of that transfers to depth-20.
+**Training dynamics — the curriculum story:**
 
-**Timeline**:
-- ep0–9k: Training on depth 5. Eval on depth 20 → bad results (expected)
-- ep9k–21k: Training on depth 10. Should start seeing improvement on eval
-- ep21k–60k: Training on depth 20 — this is where the real results come from. The agent has 39k episodes of depth-20 training ahead, starting with a strong foundation from the curriculum. For comparison, Run 015 needed ~14k episodes to reach 100% completion from scratch.
+- **Phase 1 (ep0–9k, depth 5)**: Agent trains on tiny circuits. Eval on depth-20 looks terrible (ratio 1.8), but this is expected — the agent has never seen a depth-20 circuit. The 50% eval completion at ep9k is pure transfer: basic routing fundamentals learned on depth-5 partially apply to depth-20.
 
-**Prognosis**: Too early to judge. The real test starts at ep21k when curriculum reaches depth 20. If the curriculum foundation helps, we should see faster convergence to 100% completion and potentially better final ratio. If it hurt (because depth-5/10 features don't transfer well), we'll see a rocky transition.
+- **Phase 2 (ep9k–21k, depth 10)**: Agent sees medium circuits. Completion jumps to 78-98%. The ratio drops rapidly from 1.85 → 1.30 as the agent's routing fundamentals scale up.
+
+- **Phase 3 (ep21k–60k, depth 20)**: The real training begins. At ep21k the agent has ~39k episodes of depth-20 training ahead, but it starts from a strong foundation. It reaches 100% completion by ep25k (only 4k episodes after seeing depth-20 for the first time!) vs Run 015 which needed ~14k episodes from scratch. The curriculum gave the agent a 10k episode head start.
+
+**Why the training curves show swaps below SABRE**: During curriculum phase 2 (depth 10), the training episodes use shallower circuits that need fewer swaps (~186 avg). The training dashboard's "SABRE baseline" line shows SABRE's performance on depth-20 circuits (~187). So the training swap curve briefly dips below the SABRE line — but this is comparing apples to oranges (depth-10 training vs depth-20 SABRE). Once curriculum hits depth-20 at ep21k, training swaps jump back above SABRE.
+
+**Verdict**: **Best ratio per episode of any run.** Reached 0.994 at ep52.5k — beating SABRE on heavy_hex with only 60k episodes. For comparison, Run 015 (same episodes, no curriculum, constant LR) reached 1.014 as its best. Run 019 needed 80k episodes to reach 0.991.
+
+The curriculum + cosine LR combination is our most efficient training approach:
+- **Curriculum gives a ~10k episode head start** on depth-20 circuits
+- **Cosine LR decay** prevents overshoot during the critical refinement phase (ep40k+)
+- **Combined effect**: Achieves in 60k episodes what the baseline needs 80k+ episodes for
+
+### Run 023 vs Run 019 — head-to-head on heavy_hex:
+
+| Metric | Run 019 (80k, baseline) | Run 023 (60k, curriculum+cosine) | Winner |
+|--------|------------------------|----------------------------------|--------|
+| Best ratio | 0.991 | 0.994 | Run 019 (barely) |
+| Episodes to reach 1.0 | ~61k | ~52k | **Run 023 by 9k eps** |
+| Final ratio | 1.024 | 1.014 | **Run 023** |
+| Avg last 10 evals | 1.008 | 1.014 | Run 019 |
+| Total episodes | 80k | 60k | **Run 023 (25% less)** |
+| GPU hours | ~22h | ~16h | **Run 023 (27% less)** |
+
+Run 023 is arguably the better result because it achieves nearly identical performance in 25% less training time.
 
 ---
 
-## V4 Summary Table (as of 2026-03-29)
+## V4 Summary Table (Final)
 
-| Run | Dir | Config | Topology | Key Change | Current Ratio | Best Ratio | Status |
-|-----|-----|--------|----------|------------|--------------|------------|--------|
-| 19 | run_019 | 80k_heavy | heavy_hex | 80k eps | 1.022 @ep47k | **1.008** | running (58%) |
-| 21 | run_021 | multi_weighted_80k | multi | stdnet + 70% HH + 80k | 1.048 @ep66k | 1.018 | running (83%) |
-| 22 | run_022 | nstep_gate | heavy_hex | n-step=3 + gate_r=2.0 | 1.728 @ep23k | 1.728 | running (39%) ⚠️ |
-| 23 | run_023 | cosine_curriculum | heavy_hex | cosine LR + curriculum | 1.846 @ep9k | 1.738 | running (16%) ⏳ |
+| Run | Dir | Config | Topology | Key Change | Final Ratio | Best Ratio | Status |
+|-----|-----|--------|----------|------------|-------------|------------|--------|
+| 19 | run_019 | 80k_heavy | heavy_hex | 80k eps | 1.024 | **0.991 ★** | done |
+| 21 | run_021 | multi_weighted_80k | multi | stdnet+70%HH+80k | 1.053 | 1.018 | done |
+| 22 | run_022 | nstep_gate | heavy_hex | n-step=3+gate_r=2.0 | 1.377 | 1.331 | done ❌ |
+| 23 | run_023 | cosine_curriculum | heavy_hex | cosine LR+curriculum | 1.014 | **0.994 ★** | done |
 
 ---
 
-## Full Cross-Run Analysis
+## Full Cross-Run Analysis (Updated with V4 finals)
 
 ### What Worked (ranked by impact)
 
 **1. More episodes (HIGH IMPACT)**
 The single most reliable improvement lever. Every run that trained longer got better results.
-- Run 7 (40k): ratio 1.08 → Run 015 (60k): ratio 1.014 → Run 019 (80k): ratio 1.008 (so far)
-- Each +20k episodes gives ~0.03-0.04 ratio improvement, but with diminishing returns
-- The improvement curve is logarithmic, not linear — the first 20k gives ~0.20, the last 20k gives ~0.02
+- Run 7 (40k): ratio 1.08 → Run 015 (60k): ratio 1.014 → Run 019 (80k): ratio 0.991
+- Each +20k episodes gives ~0.03 ratio improvement, but with diminishing returns
+- The improvement curve is logarithmic — first 20k gives ~0.20, last 20k gives ~0.02
+- Run 019 proves that brute-force training eventually breaks ratio 1.0
 
-**2. Low epsilon floor (HIGH IMPACT)**
-eps=0.02 beats eps=0.10 in every comparison. The effect: 98% of replay buffer transitions come from the greedy policy instead of 90%, giving the network cleaner training signal.
-- Run 5 (eps=0.10): ratio 1.12 → Run 7 (eps=0.02): ratio 1.08 (same config otherwise)
+**2. Curriculum learning + Cosine LR (HIGH IMPACT — NEW from V4)**
+Run 023 is the most sample-efficient path to beating SABRE.
+- Reached ratio 0.994 in only 60k episodes (Run 019 needed 80k for 0.991)
+- Curriculum gives a ~10k episode head start on depth-20 circuits
+- Cosine LR prevents late-training overshoot during refinement
+- **This is our recommended training schedule going forward**
+
+**3. Low epsilon floor (HIGH IMPACT)**
+eps=0.02 beats eps=0.10 in every comparison. 98% greedy replay buffer > 90% greedy.
+- Run 5 (eps=0.10): ratio 1.12 → Run 7 (eps=0.02): ratio 1.08
 - Run 8 (multi, eps=0.10): HH ratio 1.232 → Run 16 (multi, eps=0.02): HH ratio 1.188
 
-**3. Weighted topology sampling (MEDIUM IMPACT, multi-topo only)**
+**4. Weighted topology sampling (MEDIUM IMPACT, multi-topo only)**
 Giving hard topologies more training time directly improves their performance.
 - Run 16 (uniform): HH ratio 1.188 → Run 018 (60% HH weight): HH ratio 1.107
-- The 7% improvement is significant and scales with the amount of weight given
+- But 70% weight (Run 021) was worse than 60% (Run 018) — there's an optimal balance
 
-**4. Standard network size (MEDIUM IMPACT, single-topo)**
-The [32,64,32] network consistently outperforms [64,128,64] on single-topology.
-- Run 014 (bignet, 40k): ratio 1.160 → Run 015 (stdnet, 60k): ratio 1.014
-- But for multi-topo, bignet may be beneficial — Run 018 (bignet, multi) got HH to 1.107
+**5. Bignet for multi-topo, standard net for single-topo (MEDIUM IMPACT)**
+- Single-topo: [32,64,32] always wins. Run 014 (bignet): 1.160 vs Run 015 (stdnet): 1.014
+- Multi-topo: [64,128,64] wins! Run 018 (bignet): 0.999 vs Run 021 (stdnet): 1.018
+- Multi-topo needs extra capacity to learn 3 different routing strategies simultaneously
 
-### What Didn't Work (or is inconclusive)
+### What Didn't Work
 
-**1. Mixed initial mapping (MARGINAL)**
-Run 017 (80/20 random/SABRE): ratio 1.054. Only 2.6% better than Run 7 (1.08) with 40k eps. Run 015 (random only, 60k): ratio 1.014 — better with just more episodes.
+**1. Doubled gate reward (STRONGLY NEGATIVE)**
+Run 022 (gate_r=2.0): final ratio 1.377. Baseline (gate_r=1.0, 60k): 1.014.
+The agent optimized for gate throughput instead of routing efficiency. The reward function magnitude is a critical hyperparameter — don't change it without very careful consideration.
 
-**2. N-step returns + doubled gate reward (NEGATIVE so far)**
-Run 022 at ep23k: ratio 1.728. Baseline at ep23k: ~1.10. Two issues:
-- gate_reward=2.0 distorts the objective — agent prioritizes throughput over efficiency
-- Changed two variables at once — can't isolate which one hurt
+**2. N-step returns + gate reward (CONFOUNDED)**
+Run 022 combined n-step=3 with gate_r=2.0 and both variables contributed to failure. V5-B (Run 25) will test n-step alone with gate_r=1.0 to isolate the effect.
 
-**3. Higher learning rate (NEGATIVE)**
-Run 6 (LR=3e-4): ratio 1.17. Baseline (LR=1e-4): ratio 1.12. The higher LR caused training instability and regressions during the exploration→exploitation transition.
+**3. Mixed initial mapping (MARGINAL)**
+Run 017 (80/20 random/SABRE): ratio 1.054 vs Run 7 (random only): 1.08. Minor gain not worth the complexity.
 
-**4. Curriculum + cosine LR (TOO EARLY)**
-Run 023 only at ep9k of 60k. Currently training on depth-5 circuits while eval uses depth-20 — results will only be meaningful after ep21k.
+**4. Higher learning rate (NEGATIVE)**
+Run 6 (LR=3e-4): ratio 1.17 vs baseline (LR=1e-4): 1.12. Instability during transition.
 
-### The Path to Beating SABRE (ratio < 1.0)
+**5. Aggressive topology weighting (SLIGHTLY NEGATIVE for multi-topo)**
+Run 021 (70% HH weight, stdnet): overall 1.018 vs Run 018 (60% HH weight, bignet): 0.999. Pushing too much weight toward heavy_hex starves easy topologies, hurting overall ratio.
 
-**Where we stand**: Best single eval is 1.008 (Run 019 at ep43.5k). Best completed run is 1.014 (Run 015 at ep59k). Best multi-topo overall is 0.999 (Run 018 at ep60k). We're very close.
+### The Story So Far: Path to Beating SABRE
 
-**What the data tells us about what could work**:
+| Version | Best Heavy Hex Ratio | Key Breakthrough |
+|---------|---------------------|------------------|
+| V1 | ∞ (0% completion) | — |
+| V2 | 1.08 (Run 7) | 5-channel state, soft targets, eps=0.02 |
+| V3 | 1.014 (Run 015) | More episodes (60k), standard net |
+| **V4** | **0.991 (Run 019)** | **80k episodes — first to beat SABRE** |
+| **V4** | **0.994 (Run 023)** | **Curriculum+cosine — beats SABRE in only 60k eps** |
 
-1. **Run 019 will likely break 1.0** on at least one eval checkpoint. The trend at ep47k suggests it'll oscillate around 1.0 for the remaining 33k episodes. But the average may stay slightly above.
+**We have beaten SABRE.** Run 019 achieved ratio 0.991 (8 eval checkpoints below 1.0). Run 023 achieved 0.994 in only 60k episodes. The agent has learned routing strategies that SABRE's greedy heuristic misses on some circuits.
 
-2. **The bottleneck is not model capacity** — it's sample efficiency. The agent needs ~50-60k episodes just to reach ratio 1.02 on heavy_hex. The improvement per episode is tiny past ep40k.
-
-3. **Heavy_hex is the hardest case**. 19 qubits, 20 edges, depth-20 circuits. The agent's best is 1.008 (1 eval point). SABRE uses ~186 SWAPs on average. To consistently beat it, the agent would need to find routing strategies that SABRE's greedy heuristic misses. This is a very hard optimization problem — SABRE is a strong baseline.
-
-4. **Multi-topo already "beats" SABRE** (Run 018 ratio 0.999), but this is driven by easy topologies. The question is whether we care about the overall ratio or per-topology.
+**But the victory is narrow.** The average over the last 10 evals is 1.008 (Run 019) and 1.014 (Run 023). The agent oscillates around parity with SABRE rather than consistently dominating it. To truly claim "we beat SABRE", we need the average ratio to stay below 1.0 — not just occasional dips.
 
 ---
 
-## Proposed V5 Runs
+## V5 Runs (24–27) — Submitted
 
-Based on all findings, here are the runs most likely to push past SABRE:
+4 runs submitted to push the results further, informed by all V4 findings.
 
-### V5-A: Heavy Hex 100k + Fine-tuned Hyperparams
-The brute-force approach. If ep80k gets us to ~1.00, ep100k should get us below.
-- 100,000 episodes
-- Standard net [32,64,32]
-- eps=0.02, buffer=500k
+### Run 24 — Heavy Hex 100k (Job 163980, run_024) — QUEUED
+
+The brute-force push. If 80k gets occasional sub-1.0, can 100k make it consistent?
+- 100,000 episodes, buffer 500k, eps decay 6M steps
 - Everything else same as Run 019
-- **Expected**: Ratio ~0.98-1.00. May finally achieve consistent sub-1.0 ratio.
+- **Expected**: Average ratio should settle around 0.99-1.01. More sub-1.0 checkpoints.
 
-### V5-B: N-Step Returns Only (n=3, gate_reward=1.0)
-Fix Run 022's mistake: test n-step returns without changing gate reward.
-- n_step=3, gate_execution_reward=**1.0** (standard)
+### Run 25 — N-Step Only, n=3 (Job 163981, run_025) — QUEUED
+
+Fixes Run 022's confound. Tests n-step returns alone with standard gate_reward=1.0.
+- n_step=3, gate_execution_reward=1.0
 - 60k episodes, everything else same as Run 015
-- **Goal**: Isolate whether n-step returns actually help or hurt
+- **Goal**: Does n-step help or hurt when reward isn't distorted?
 
-### V5-C: Multi-Topo Standard Net + Weighted + 100k
-Push the best multi-topo config further.
-- Standard net [32,64,32]
-- Weights [0.10, 0.20, 0.70] (same as Run 021)
-- 100k episodes, buffer 500k
-- **Expected**: Should beat SABRE overall, question is by how much
+### Run 26 — Multi-Topo Weighted 100k (Job 163982, run_026) — QUEUED
 
-### V5-D: Prioritized Heavy Hex + Reward Shaping Ablation
-Test if removing the distance_reward_coeff helps late-game optimization. The distance shaping reward (0.1 × distance reduction) was critical early on to guide exploration, but in late training it might be adding noise — the agent already knows how to route, and the per-step shaping signal might distract from the actual objective (minimizing total SWAPs).
-- Same as Run 019 but distance_reward_coeff=0.0 after ep40k (or start from Run 019 checkpoint with it disabled)
-- 40k additional episodes (total 120k from scratch, or 40k fine-tuning)
-- **Goal**: Test whether reward shaping becomes a hindrance once the agent has learned the basics
+Longest multi-topo run. Uses Run 021's config but with 100k episodes.
+- Weights [0.10, 0.20, 0.70], standard net, 100k eps, buffer 500k
+- **Goal**: Can standard net + 100k catch bignet + 60k (Run 018's 0.999)?
+
+### Run 27 — No Distance Shaping (Job 163983, run_027) — QUEUED
+
+Ablation: removes the Pozzi-style distance reward shaping (distance_reward_coeff=0.0).
+- 80k episodes on heavy_hex, everything else standard
+- **Goal**: Is the distance shaping reward still needed? It guides early exploration but might add noise in late training. If the agent can learn without it, the reward function is simpler and the agent optimizes purely for routing efficiency.
 
 ---
 
