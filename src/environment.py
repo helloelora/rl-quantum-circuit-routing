@@ -262,6 +262,32 @@ class QubitRoutingEnv(gym.Env):
         self._cache_valid = False
         self._action_history = None  # decay map of recent SWAPs
 
+        # Pre-generated circuit pool to avoid per-episode generation cost
+        self._circuit_pool = {}  # keyed by (n_physical, circuit_depth)
+        self._circuit_pool_size = 200
+        self._circuit_pool_idx = {}
+
+    def _get_pooled_circuit(self, n_physical):
+        """Return a circuit from the pre-generated pool, refilling if needed."""
+        key = (n_physical, self.circuit_depth)
+        if key not in self._circuit_pool or self._circuit_pool_idx[key] >= len(self._circuit_pool[key]):
+            # Generate fresh pool
+            pool = []
+            for _ in range(self._circuit_pool_size):
+                c = generate_random_circuit(
+                    n_physical, self.circuit_depth,
+                    seed=int(self._rng.integers(0, 2**31)),
+                    min_two_qubit_gates=self.min_two_qubit_gates,
+                    max_attempts=self.circuit_generation_attempts,
+                )
+                pool.append(c)
+            self._circuit_pool[key] = pool
+            self._circuit_pool_idx[key] = 0
+
+        idx = self._circuit_pool_idx[key]
+        self._circuit_pool_idx[key] = idx + 1
+        return self._circuit_pool[key][idx]
+
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
         n_physical = coupling_map.size()
@@ -371,13 +397,7 @@ class QubitRoutingEnv(gym.Env):
                 if self._num_qubits_override
                 else n_physical
             )
-            circuit = generate_random_circuit(
-                num_qubits,
-                self.circuit_depth,
-                seed=int(self._rng.integers(0, 2**31)),
-                min_two_qubit_gates=self.min_two_qubit_gates,
-                max_attempts=self.circuit_generation_attempts,
-            )
+            circuit = self._get_pooled_circuit(num_qubits)
 
         # --- Extract gates and build DAG ---
         self.gates = extract_two_qubit_gates(circuit)
@@ -580,15 +600,21 @@ class QubitRoutingEnv(gym.Env):
         """
         Execute all routable front-layer gates. Repeat until no more can execute.
 
+        Uses incremental front-layer maintenance: after executing gates, only
+        checks their successors for new front-layer candidates instead of
+        recomputing the entire front layer from scratch each iteration.
+
         Returns:
             int: number of gates executed in this round.
         """
         adj = self._current_topo["adjacency_channel"]
         total_executed = 0
+        # Start from cached front layer or compute fresh
+        front = set(self._get_front_layer()) if self._cache_valid else set(
+            compute_front_layer(self.gates, self.executed, self.predecessors)
+        )
+
         while True:
-            front = compute_front_layer(
-                self.gates, self.executed, self.predecessors
-            )
             executed_this_round = []
             for gate_idx in front:
                 q_a, q_b = self.gates[gate_idx]
@@ -602,10 +628,18 @@ class QubitRoutingEnv(gym.Env):
 
             for gate_idx in executed_this_round:
                 self.executed.add(gate_idx)
+                front.discard(gate_idx)
+                # Check successors for new front layer candidates
+                for succ in self.successors[gate_idx]:
+                    if succ not in self.executed:
+                        if all(p in self.executed for p in self.predecessors[succ]):
+                            front.add(succ)
             total_executed += len(executed_this_round)
 
-        # Invalidate cache (front layer changed) and recompute fresh
-        self._invalidate_cache()
+        # Update cache with current front layer
+        self._cached_front_layer = list(front)
+        self._cached_dag_depths = None
+        self._cache_valid = True
         self.total_gates_executed += total_executed
         return total_executed
 

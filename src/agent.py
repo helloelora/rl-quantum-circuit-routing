@@ -351,12 +351,25 @@ class PPOAgent:
         rollout_entropies: List[float] = []
         prev_action_for_policy = int(self._policy_prev_action)
 
-        for _ in range(self.cfg.rollout_steps):
-            edge_index, action_mask = self._current_edges_and_mask()
+        # Pre-allocate rollout buffers (Fix 4)
+        rollout_size = self.cfg.rollout_steps
+        obs_buf = np.zeros((rollout_size, *obs.shape), dtype=np.float32)
+        edge_buf = np.zeros((rollout_size, self.max_actions, 2), dtype=np.int64)
+        mask_buf = np.zeros((rollout_size, self.max_actions), dtype=bool)
+        prev_buf = np.zeros(rollout_size, dtype=np.int64)
+        act_buf = np.zeros(rollout_size, dtype=np.int64)
+        logp_buf = np.zeros(rollout_size, dtype=np.float32)
+        rew_buf = np.zeros(rollout_size, dtype=np.float32)
+        done_buf = np.zeros(rollout_size, dtype=np.float32)
+        val_buf = np.zeros(rollout_size, dtype=np.float32)
 
+        # Cache topology tensors on GPU (Fix 3) — only change at episode boundary
+        edge_index, action_mask = self._current_edges_and_mask()
+        edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
+        mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
+
+        for step_idx in range(self.cfg.rollout_steps):
             obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
-            edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
-            mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
             prev_t = torch.as_tensor(
                 [prev_action_for_policy], dtype=torch.long, device=self.device
             )
@@ -375,15 +388,15 @@ class PPOAgent:
             self._running_ep_return += float(reward)
             self._running_ep_len += 1
 
-            data["obs"].append(obs.copy())
-            data["edge_index"].append(edge_index.copy())
-            data["action_mask"].append(action_mask.copy())
-            data["prev_actions"].append(int(prev_action_for_policy))
-            data["actions"].append(int(action.item()))
-            data["logprobs"].append(float(logprob.item()))
-            data["rewards"].append(float(reward))
-            data["dones"].append(float(done))
-            data["values"].append(float(value.item()))
+            obs_buf[step_idx] = obs
+            edge_buf[step_idx] = edge_index
+            mask_buf[step_idx] = action_mask
+            prev_buf[step_idx] = prev_action_for_policy
+            act_buf[step_idx] = int(action.item())
+            logp_buf[step_idx] = float(logprob.item())
+            rew_buf[step_idx] = float(reward)
+            done_buf[step_idx] = float(done)
+            val_buf[step_idx] = float(value.item())
 
             obs = next_obs
             if done:
@@ -393,11 +406,19 @@ class PPOAgent:
                 self._running_ep_len = 0
                 obs, _ = self.env.reset()
                 prev_action_for_policy = -1
+                # Recompute topology tensors after reset (topology may change)
+                edge_index, action_mask = self._current_edges_and_mask()
+                edge_t = torch.as_tensor(edge_index, dtype=torch.long, device=self.device).unsqueeze(0)
+                mask_t = torch.as_tensor(action_mask, dtype=torch.bool, device=self.device).unsqueeze(0)
             else:
                 prev_action_for_policy = int(action.item())
 
         self._policy_prev_action = int(prev_action_for_policy)
-        rollout = {k: np.asarray(v) for k, v in data.items()}
+        rollout = {
+            "obs": obs_buf, "edge_index": edge_buf, "action_mask": mask_buf,
+            "prev_actions": prev_buf, "actions": act_buf, "logprobs": logp_buf,
+            "rewards": rew_buf, "dones": done_buf, "values": val_buf,
+        }
 
         # Compute rollout diagnostics
         actions_arr = rollout["actions"]
