@@ -100,38 +100,46 @@ class TrainConfig:
 
 def setup_run_dir(config: TrainConfig) -> TrainConfig:
     """
-    Create a numbered run directory under config.output_base.
+    Create a run directory under config.output_base.
+
+    Uses SLURM_JOB_ID as the directory name when running on a cluster,
+    otherwise falls back to auto-incrementing run_NNN.
 
     Structure:
         outputs/
-        ├── run_001/
+        ├── 164850/             (SLURM job ID)
         │   ├── config.json
-        │   ├── logs/          (episodes.jsonl, train_steps.jsonl, evaluations.jsonl)
-        │   ├── checkpoints/   (.pt files)
-        │   ├── figures/       (training_curves.png, etc.)
-        │   └── eval/          (random_eval.json, trajectories, etc.)
-        ├── run_002/
+        │   ├── logs/
+        │   ├── checkpoints/
+        │   ├── figures/
+        │   └── eval/
+        ├── run_001/            (local fallback)
         ...
 
     Returns the config with all directory paths filled in.
     """
+    import os
     base = Path(config.output_base)
     base.mkdir(parents=True, exist_ok=True)
 
-    # Find next run number
-    existing = sorted(base.glob("run_*"))
-    if existing:
-        last_num = max(
-            int(p.name.split("_")[1])
-            for p in existing
-            if p.name.split("_")[1].isdigit()
-        )
-        run_num = last_num + 1
+    slurm_job_id = os.environ.get("SLURM_JOB_ID")
+    if slurm_job_id:
+        run_dir = base / slurm_job_id
     else:
-        run_num = 1
+        # Local fallback: auto-increment
+        existing = sorted(base.glob("run_*"))
+        if existing:
+            last_num = max(
+                int(p.name.split("_")[1])
+                for p in existing
+                if p.name.split("_")[1].isdigit()
+            )
+            run_num = last_num + 1
+        else:
+            run_num = 1
+        run_dir = base / f"run_{run_num:03d}"
 
-    run_dir = base / f"run_{run_num:03d}"
-    run_dir.mkdir()
+    run_dir.mkdir(exist_ok=True)
 
     config.run_dir = str(run_dir)
     config.log_dir = str(run_dir / "logs")
