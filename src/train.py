@@ -58,7 +58,7 @@ def train(config, resume_from=None, finetune_from=None):
         # checkpoints/file.pt -> run_NNN/
         run_dir = ckpt_path.parent.parent
         config_path = run_dir / "config.json"
-        if config_path.exists() and run_dir.name.startswith("run_"):
+        if config_path.exists():
             # Reuse existing run dir and its subdirectories
             config.run_dir = str(run_dir)
             config.log_dir = str(run_dir / "logs")
