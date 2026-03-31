@@ -22,16 +22,17 @@
 #   multi      — 30k episodes, ~8-10 hours (generalization)
 #
 # Examples:
-#   sbatch experiment.slurm linear5
-#   sbatch experiment.slurm heavy_hex --seed 123
-#   sbatch experiment.slurm multi --episodes 50000
+#   sbatch experiment.slurm linear5 001
+#   sbatch experiment.slurm heavy_hex 028 --seed 123
+#   sbatch experiment.slurm run29_finetune.json 029 --finetune outputs/run019/checkpoints/best.pt
 #
 # Output:
-#   outputs/run_NNN/  (config, logs, checkpoints, figures, eval, slurm logs)
+#   outputs/run028_165476/  (runID_slurmJobID)
 # ============================================================
 
-PRESET="${1:?Usage: sbatch experiment.slurm <PRESET> [args...]}"
-shift
+PRESET="${1:?Usage: sbatch experiment.slurm <PRESET> <RUN_ID> [args...]}"
+RUN_ID="${2:?Usage: sbatch experiment.slurm <PRESET> <RUN_ID> [args...]}"
+shift 2
 
 PROJECT_DIR="/usr/users/rl_for_wsi/dor_ali/projects/rl-quantum-circuit-routing"
 cd "$PROJECT_DIR"
@@ -47,6 +48,7 @@ exec > "$LOG_OUT" 2> "$LOG_ERR"
 echo "============================================================"
 echo "QUANTUM CIRCUIT ROUTING EXPERIMENT"
 echo "Preset:     ${PRESET}"
+echo "Run ID:     ${RUN_ID}"
 echo "Job ID:     ${SLURM_JOB_ID}"
 echo "Node:       ${SLURM_NODELIST}"
 echo "Extra args: $@"
@@ -94,12 +96,14 @@ if [[ "${PRESET}" == *.json ]]; then
     echo "Using config file: ${PRESET}"
     python3 -u main.py train \
         --config "${PRESET}" \
+        --run-id "${RUN_ID}" \
         --output-dir outputs \
         --device cuda \
         "$@"
 else
     python3 -u main.py train \
         --preset "${PRESET}" \
+        --run-id "${RUN_ID}" \
         --output-dir outputs \
         --device cuda \
         "$@"

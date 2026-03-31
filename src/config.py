@@ -98,23 +98,15 @@ class TrainConfig:
         return cls(**data)
 
 
-def setup_run_dir(config: TrainConfig) -> TrainConfig:
+def setup_run_dir(config: TrainConfig, run_id: str = None) -> TrainConfig:
     """
     Create a run directory under config.output_base.
 
-    Uses SLURM_JOB_ID as the directory name when running on a cluster,
-    otherwise falls back to auto-incrementing run_NNN.
-
-    Structure:
-        outputs/
-        ├── 164850/             (SLURM job ID)
-        │   ├── config.json
-        │   ├── logs/
-        │   ├── checkpoints/
-        │   ├── figures/
-        │   └── eval/
-        ├── run_001/            (local fallback)
-        ...
+    Naming priority:
+      1. --run-id + SLURM_JOB_ID  →  run028_165476
+      2. --run-id alone            →  run_028
+      3. SLURM_JOB_ID alone        →  165476
+      4. Auto-increment            →  run_001
 
     Returns the config with all directory paths filled in.
     """
@@ -123,7 +115,11 @@ def setup_run_dir(config: TrainConfig) -> TrainConfig:
     base.mkdir(parents=True, exist_ok=True)
 
     slurm_job_id = os.environ.get("SLURM_JOB_ID")
-    if slurm_job_id:
+    if run_id and slurm_job_id:
+        run_dir = base / f"run{run_id}_{slurm_job_id}"
+    elif run_id:
+        run_dir = base / f"run_{run_id}"
+    elif slurm_job_id:
         run_dir = base / slurm_job_id
     else:
         # Local fallback: auto-increment

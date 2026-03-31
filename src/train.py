@@ -49,7 +49,7 @@ class TrainingLogger:
         self._step_file.close()
 
 
-def train(config, resume_from=None, finetune_from=None):
+def train(config, resume_from=None, finetune_from=None, run_id=None):
     """Main training loop."""
 
     # If resuming, reuse the existing run directory; otherwise create new
@@ -69,9 +69,9 @@ def train(config, resume_from=None, finetune_from=None):
                       config.figures_dir, config.eval_dir]:
                 Path(d).mkdir(parents=True, exist_ok=True)
         else:
-            config = setup_run_dir(config)
+            config = setup_run_dir(config, run_id=run_id)
     else:
-        config = setup_run_dir(config)
+        config = setup_run_dir(config, run_id=run_id)
     _print(f"Run directory: {config.run_dir}")
 
     # Seed
