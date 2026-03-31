@@ -996,16 +996,26 @@ Results from runs 014-019 on the `experiment-v2` branch.
 | 016 | multi (3 topos) | 45k | [32,64,32]/256 | 0.02 | 0.939* | 1.018 | 100% |
 | 017 | heavy_hex_19 | 40k | [32,64,32]/256 | 0.02 | 1.059 | 1.059 | 100% |
 | 018 | multi (3 topos) | 60k | [64,128,64]/512 | 0.02 | 0.947* | **0.999** | 99.3% |
-| 019 | heavy_hex_19 | 80k | [32,64,32]/256 | 0.02 | ~1.008** | ~1.008** | ~100% |
+| 019 | heavy_hex_19 | 80k | [32,64,32]/256 | 0.02 | **0.991** | 1.024 | 100% |
+| 023 | heavy_hex_19 | 60k | [32,64,32]/256 | 0.02 | **0.994** | 1.014 | 100% |
+| 024 | heavy_hex_19 | 100k | [32,64,32]/256 | 0.02 | **0.987** | 1.015 | 100% |
+| 026 | multi (3 topos) | 100k | [32,64,32]/256 | 0.02 | **0.996** | 1.020 | 100% |
+| 029 | heavy_hex_19 | 20k (finetune) | [32,64,32]/256 | 0.01 | **0.969** | 0.980 | 100% |
 
 \* Low completion rate at best ratio (67%) — only completed episodes counted.
-\** Run 019 still training at time of writing; ratio trending toward < 1.0.
+
+Run 029 fine-tunes from Run 019's best checkpoint (ep64k) with LR=1e-5 — our best result overall.
 
 ### 9.2 What Worked
 
-1. **More episodes (60k+):** The agent continues improving well past 20k
-   episodes. Run 015 (60k) reached 1.028 on heavy_hex vs. Run 017 (40k)
-   at 1.059 with the same network. Run 019 (80k target) is still improving.
+1. **Fine-tuning from best checkpoint (NEW — V6):** Run 029 loaded Run 019's
+   best weights (ep64k, ratio 0.991) and trained 20k more at LR=1e-5, reaching
+   **0.969** — our best result, beating SABRE by 3.1%. The most compute-efficient
+   approach: only 4.5h wall time for a 2.2% improvement over the base run.
+
+2. **More episodes (60k+):** The agent continues improving well past 20k
+   episodes. Run 015 (60k): 1.014 → Run 019 (80k): 0.991 → Run 024 (100k): 0.987.
+   Consistent but diminishing returns.
 
 2. **Low epsilon ($\epsilon = 0.02$):** All successful runs use
    $\epsilon_{\text{end}} = 0.02$. This keeps the replay buffer clean in late
@@ -1036,9 +1046,15 @@ Results from runs 014-019 on the `experiment-v2` branch.
    worse than the standard network's 1.028. The extra capacity likely led to
    overfitting to recent experiences or slower feature learning.
 
-2. **Higher gate execution reward (Run with $r_{\text{gate}} = 2.0$, not
-   shown):** Doubling the gate reward distorted the reward landscape, making the
+2. **Higher gate execution reward (Run 022, $r_{\text{gate}} = 2.0$):**
+   Doubling the gate reward distorted the reward landscape, making the
    agent focus on executing easy gates rather than minimizing total SWAPs.
+   Final ratio 1.377 — strongly negative.
+
+3. **N-step returns without stabilization (Runs 022, 025):** N-step=3 alone
+   caused 0% completion in Run 025 (60k episodes). The 3-step bootstrap
+   creates too much variance during early exploration. Only viable when
+   paired with curriculum learning to stabilize the early phase.
 
 3. **Higher learning rate ($10^{-3}$):** Caused unstable Q-values and poor
    convergence. $10^{-4}$ is the sweet spot for this problem.
@@ -1057,7 +1073,8 @@ Typical training progression on heavy_hex_19:
 | Exploration | 0 - 5k | 0% - 5% | N/A | Random actions, learning state structure |
 | Learning to complete | 5k - 15k | 5% - 100% | 1.5 - 2.0 | Agent learns to route, but inefficiently |
 | Optimizing efficiency | 15k - 40k | ~100% | 1.2 - 1.05 | Swap ratio steadily decreasing |
-| Fine-tuning | 40k+ | 100% | 1.05 - 1.00 | Slow improvement, approaching SABRE |
+| Approaching SABRE | 40k - 80k | 100% | 1.05 - 0.99 | Slow improvement, occasional sub-1.0 evals |
+| Fine-tuning (Stage 2) | +20k @ LR=1e-5 | 100% | 0.99 - 0.97 | Low-LR refinement from best checkpoint |
 
 The multi-topology agents follow a similar pattern but shifted: simpler
 topologies (linear_5, grid_3x3) reach 100% completion first, then heavy_hex
@@ -1067,9 +1084,11 @@ catches up, then all three optimize simultaneously.
 
 ## 10. Current Best Configuration
 
-**Goal: single agent, heavy_hex_19, minimize swap ratio vs. SABRE.**
+### Recommended approach: Train + Fine-tune (2-stage)
 
-Based on Run 019 (still training at time of writing, trending toward ratio ~1.008):
+**Stage 1**: Full training run (80k episodes, ~16h):
+
+Based on Run 019 (ratio 0.991 at ep63k):
 
 ```python
 TrainConfig(
@@ -1126,9 +1145,52 @@ TrainConfig(
 )
 ```
 
-**Goal: single agent, multi-topology, overall SABRE parity.**
+**Stage 2**: Fine-tune from best checkpoint (20k episodes, ~4.5h):
 
-Based on Run 018 (completed, overall ratio 0.999):
+Based on Run 029 (ratio **0.969** — our best result, beats SABRE by 3.1%):
+
+```python
+# Load best checkpoint weights only (fresh optimizer, fresh epsilon)
+# python main.py train --config configs/run29_finetune_run019.json \
+#     --finetune outputs/run_019/checkpoints/checkpoint_ep64000.pt
+TrainConfig(
+    topologies=["heavy_hex_19"],
+    lr=1e-5,                     # 10x lower than Stage 1
+    lr_schedule="constant",       # No annealing needed
+    epsilon_start=0.05,           # Start low — network already knows routing
+    epsilon_end=0.01,
+    epsilon_decay_steps=2_000_000,
+    buffer_capacity=300_000,
+    total_episodes=20_000,
+    train_start=500,              # Start training sooner (network is warm)
+    # All other params same as Stage 1
+)
+```
+
+The `--finetune` flag loads only network weights from the checkpoint, keeping a fresh
+optimizer at the new LR and fresh epsilon schedule. This avoids restoring the old
+optimizer momentum which would fight the new learning rate.
+
+### Alternative: Curriculum + Cosine LR (single-stage, most sample-efficient)
+
+Based on Run 023 (ratio 0.994 in only 60k episodes):
+
+```python
+TrainConfig(
+    lr=1e-4,
+    lr_schedule="cosine",
+    lr_min=1e-5,
+    curriculum_depths=[5, 10, 20],
+    curriculum_milestones=[0.15, 0.35],
+    total_episodes=60_000,
+    epsilon_decay_steps=4_000_000,
+    # All other params same as Run 019
+)
+```
+
+### Multi-topology: best overall ratio
+
+Based on Run 026 (ratio 0.996, first multi-topo to beat SABRE):
 
 ```python
 TrainConfig(
