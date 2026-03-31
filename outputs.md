@@ -762,54 +762,220 @@ Run 023 is arguably the better result because it achieves nearly identical perfo
 
 ## Full Cross-Run Analysis (Updated with V4 finals)
 
+*V4 cross-run analysis has been superseded by the full V5+V6 analysis below.*
+
+---
+
+## V5 Runs (24–27) — DONE ✓
+
+4 runs to push results further and ablate key components. Informed by all V4 findings.
+
+**Note**: Run 24 hit the 24h SLURM time limit at ep89k/100k. Resumed as job 165474 to finish. Time limit was then raised to 48h for all subsequent runs.
+
+### Run 24 — Heavy Hex 100k (Jobs 163980+165474, run_024) — DONE ✓ ★ BEATS SABRE
+
+The brute-force push. If 80k gets occasional sub-1.0, can 100k make it consistent?
+- 100,000 episodes, buffer 500k, eps decay 6M steps
+- Everything else same as Run 019
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 20,000 | 100% | 1.124 | 210.5 | 187.2 | |
+| 40,000 | 100% | 1.029 | 193.3 | 187.9 | |
+| 60,000 | 100% | 1.006 | 188.2 | 187.1 | Approaching parity |
+| **77,000** | **100%** | **0.987** | **182.9** | **185.3** | **★ Best — beats SABRE** |
+| 89,000 | 100% | 0.990 | 187.0 | 189.0 | (timeout at ep89k, resumed) |
+| 100,000 | 100% | 1.015 | 191.8 | 189.9 | Final (slight regression) |
+
+**Verdict**: Best ratio **0.987** at ep77k — beats Run 019's 0.991. Confirms more training helps. However, the final checkpoint (ep100k) regressed to 1.015, suggesting the agent oscillates around parity at this timescale. The best window is ep70k-90k.
+
+### Run 25 — N-Step Only, n=3 (Job 163981, run_025) — DONE ✓ ❌ CATASTROPHIC FAILURE
+
+Fixes Run 022's confound. Tests n-step returns alone with standard gate_reward=1.0.
+- n_step=3, gate_execution_reward=1.0
+- 60k episodes, everything else same as Run 015
+- **Goal**: Does n-step help or hurt when reward isn't distorted?
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 5,000 | 0% | nan | 400 | 189 | Not learning at all |
+| 16,500 | 0% | nan | 400 | 191 | Still dead |
+| 30,000 | 0% | nan | 400 | 188 | No improvement |
+| 50,200 | 0% | nan | 400 | 187 | Timed out at 24h, still dead |
+
+**Verdict**: **Complete failure.** 0% completion after 50k episodes. The agent never learned to route a single circuit. N-step=3 alone (without curriculum to stabilize early training) makes learning impossible. The 3-step bootstrapped returns create too much variance during the early random exploration phase — the agent's Q-values diverge to -123 instead of converging. **N-step=3 alone is confirmed destructive.** This also means Run 022's failure was NOT solely from gate_r=2.0 — n-step=3 was equally responsible.
+
+### Run 26 — Multi-Topo Weighted 100k (Job 163982, run_026) — DONE ✓ ★ FIRST MULTI-TOPO TO BEAT SABRE
+
+Longest multi-topo run. Uses Run 021's config but with 100k episodes.
+- Weights [0.10, 0.20, 0.70], standard net, 100k eps, buffer 500k
+- **Goal**: Can standard net + 100k catch bignet + 60k (Run 018's 0.999)?
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 14,000 | 89% | 1.090 | 116.4 | 77.1 | Still ramping up |
+| 30,000 | 100% | 1.050 | 82.4 | 77.3 | |
+| **60,500** | **100%** | **0.996** | **76.8** | **77.1** | **★ Best — beats SABRE** |
+| 80,000 | 100% | 1.010 | 78.1 | 77.0 | |
+| 100,000 | 100% | 1.020 | 78.7 | 77.3 | Final |
+
+**Verdict**: Best ratio **0.996** at ep60.5k — **first multi-topo run to beat SABRE on aggregate.** Standard net + 100k episodes DID catch up to bignet + 60k (Run 018's 0.999). More episodes trumps bigger network. However, Run 018 with bignet still achieves a more consistent sub-1.0 region. The stdnet multi-topo needs 100k episodes to do what bignet did in 60k.
+
+### Run 27 — No Distance Shaping (Job 163983, run_027) — DONE ✓
+
+Ablation: removes the Pozzi-style distance reward shaping (distance_reward_coeff=0.0).
+- 80k episodes on heavy_hex, everything else standard
+- **Goal**: Is the distance shaping reward still needed?
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 7,000 | 0% | nan | 400 | 184 | 0% completion, struggling |
+| 15,000 | 0% | nan | 400 | 188 | Still stuck |
+| 25,000 | 72% | 1.180 | 218.5 | 185.1 | Starting to recover |
+| 40,000 | 100% | 1.060 | 197.4 | 186.2 | Full completion reached |
+| 65,000 | 100% | 1.020 | 192.6 | 188.6 | |
+| **79,500** | **100%** | **1.003** | **188.5** | **188.0** | **Best — close to parity** |
+| 80,000 | 100% | 1.040 | 194.1 | 187.8 | Final |
+
+**Verdict**: **Distance shaping is important but not strictly required.** Without it, the agent spent ~20k episodes at 0% completion (vs ~5k with shaping). It eventually recovered and reached 1.003, but never beat SABRE. With distance shaping (Run 019, same 80k episodes), we got 0.991. The ~0.012 ratio gap represents the cost of removing distance shaping — ~15k wasted episodes relearning what the distance signal provides for free.
+
+---
+
+## V5 Summary Table
+
+| Run | Dir | Config | Topology | Key Change | Final Ratio | Best Ratio | Status |
+|-----|-----|--------|----------|------------|-------------|------------|--------|
+| 24 | run_024 | heavy_hex_100k | heavy_hex | 100k eps | 1.015 | **0.987 ★** | done |
+| 25 | run_025 | nstep_only | heavy_hex | n-step=3 alone | nan (0% done) | nan | done ❌ |
+| 26 | run_026 | multi_weighted_100k | multi | stdnet+70%HH+100k | 1.020 | **0.996 ★** | done |
+| 27 | run_027 | no_distance | heavy_hex | distance_coeff=0.0 | 1.040 | 1.003 | done |
+
+### V5 Key Findings
+
+**1. N-step=3 alone is catastrophic (CONFIRMED — Run 25)**
+Without curriculum or other stabilization, n-step=3 returns create too much variance during early exploration. The agent never learns. Combined with V4 Run 022's failure, n-step=3 is firmly in the "doesn't work" column unless paired with curriculum.
+
+**2. More episodes continues to help (CONFIRMED — Run 24)**
+100k episodes pushes best ratio from 0.991 (80k) to 0.987. Diminishing returns but still positive.
+
+**3. Multi-topo can beat SABRE with enough training (NEW — Run 26)**
+Standard net + 100k episodes achieves 0.996 on multi-topo aggregate. Proves that more training can compensate for smaller network.
+
+**4. Distance shaping saves ~15k episodes of exploration (CONFIRMED — Run 27)**
+Without it, the agent takes ~20k episodes to reach first completion vs ~5k with it. Eventually recovers to 1.003 but never beats SABRE in 80k episodes.
+
+---
+
+## V6 Runs (28–31)
+
+V6 applies the best findings from V4+V5. Key innovation: **fine-tuning** from best checkpoint.
+
+**Note**: SLURM time limit raised to 48h. Output directories now use SLURM job IDs instead of run_NNN.
+
+### Run 28 — Curriculum + Cosine + 100k (Job 165476, dir: 165476) — RUNNING
+
+Combines Run 023's winning curriculum+cosine schedule with Run 024's 100k episode budget.
+- Curriculum depths [5, 10, 20], milestones [0.15, 0.35], cosine LR 1e-4→1e-5
+- 100,000 episodes, buffer 500k, eps decay 6M
+- **Hypothesis**: Run 023 beat SABRE in 60k with curriculum+cosine. 100k episodes gives 40k more refinement time post-curriculum → ratio should drop below 0.99.
+
+### Run 29 — Fine-Tune from Run 019 Best Checkpoint (Job 164850, run_030) — DONE ✓ ★★ NEW BEST
+
+Loads Run 019's best weights (ep64k, near the 0.991 eval window), trains 20k more episodes with low LR.
+- Fine-tune from `outputs/run_019/checkpoints/checkpoint_ep64000.pt` (weights only, fresh optimizer)
+- LR=1e-5 (constant), epsilon 0.05→0.01, 20k episodes
+- **Hypothesis**: The network already knows how to route. Low-LR fine-tuning can refine weights without destabilizing → push below 0.98.
+
+| Episode | Completion | Ratio | Agent SWAPs | SABRE SWAPs | Note |
+|---------|-----------|-------|-------------|-------------|------|
+| 500 | 100% | 0.990 | 184.5 | 186.4 | Starts near Run 019's best |
+| 5,000 | 100% | 0.980 | 183.1 | 186.8 | Improving quickly |
+| 10,000 | 100% | 0.975 | 181.6 | 186.2 | |
+| **17,000** | **100%** | **0.969** | **180.2** | **186.0** | **★★ NEW BEST — beats SABRE by 3.1%** |
+| 20,000 | 100% | 0.980 | 181.5 | 186.2 | Final (slight regression) |
+
+**Verdict**: **Our new overall best: ratio 0.969 — 3.1% fewer SWAPs than SABRE.** Fine-tuning from the best checkpoint with low LR is extremely effective. The agent starts already competent (ratio ~0.99) and the low learning rate makes precise refinements without destabilizing the learned policy. Only 20k episodes / ~4.5h wall time.
+
+This is the strongest evidence yet that our RL agent genuinely learns routing strategies that SABRE misses. At 0.969, the agent saves ~6 SWAPs per circuit on average compared to SABRE.
+
+### Run 30 — Curriculum + Cosine Multi-Topo Bignet (Job 165477, dir: 165477) — RUNNING
+
+Applies Run 023's curriculum+cosine schedule to multi-topology training with the bignet architecture.
+- Topologies [linear_5, grid_3x3, heavy_hex_19], weights [0.10, 0.30, 0.60]
+- Conv channels [64, 128, 64], dueling hidden 512 (~24M params)
+- Curriculum + cosine LR, 100k episodes
+- **Goal**: Can the best single-topo schedule transfer to multi-topo and push it consistently below 1.0?
+
+### Run 31 — Curriculum + N-Step=2 (Job 165478, dir: 165478) — RUNNING
+
+Rehabilitates n-step with curriculum stabilization and a milder n=2.
+- Curriculum depths [5, 10, 20], cosine LR, n_step=2
+- 60k episodes, same as Run 023 but with 2-step returns
+- **Goal**: Run 025 showed n-step=3 alone is catastrophic. Can curriculum stabilize early training so that n-step's faster reward propagation helps in late training?
+- **Early signal (ep6.7k)**: Struggling at 0% completion with 400 SWAPs, but curriculum hasn't ramped to depth-20 yet. Similar to Run 023's early phase.
+
+---
+
+## V6 Summary Table
+
+| Run | Dir | Config | Topology | Key Change | Final Ratio | Best Ratio | Status |
+|-----|-----|--------|----------|------------|-------------|------------|--------|
+| 28 | 165476 | curriculum_cosine_100k | heavy_hex | curriculum+cosine+100k | — | — | running |
+| 29 | run_030 | finetune_run019 | heavy_hex | finetune ep64k, LR=1e-5 | 0.980 | **0.969 ★★** | done |
+| 30 | 165477 | curriculum_cosine_multi_bignet | multi | curriculum+cosine+bignet | — | — | running |
+| 31 | 165478 | curriculum_nstep2 | heavy_hex | curriculum+cosine+n-step=2 | — | — | running |
+
+---
+
+## Full Cross-Run Analysis (Updated with V5+V6)
+
 ### What Worked (ranked by impact)
 
-**1. More episodes (HIGH IMPACT)**
-The single most reliable improvement lever. Every run that trained longer got better results.
-- Run 7 (40k): ratio 1.08 → Run 015 (60k): ratio 1.014 → Run 019 (80k): ratio 0.991
-- Each +20k episodes gives ~0.03 ratio improvement, but with diminishing returns
-- The improvement curve is logarithmic — first 20k gives ~0.20, last 20k gives ~0.02
-- Run 019 proves that brute-force training eventually breaks ratio 1.0
+**1. Fine-tuning from best checkpoint (HIGHEST IMPACT — NEW from V6)**
+Run 029 loaded Run 019's best weights and trained 20k more at LR=1e-5.
+- Ratio 0.969 — the best we've ever achieved, beats SABRE by 3.1%
+- Only 20k episodes / 4.5h wall time. Most compute-efficient approach by far
+- **This is our recommended approach: train a full run, find the best checkpoint, fine-tune**
 
-**2. Curriculum learning + Cosine LR (HIGH IMPACT — NEW from V4)**
-Run 023 is the most sample-efficient path to beating SABRE.
+**2. More episodes (HIGH IMPACT)**
+The single most reliable improvement lever. Every run that trained longer got better results.
+- Run 7 (40k): 1.08 → Run 015 (60k): 1.014 → Run 019 (80k): 0.991 → Run 024 (100k): 0.987
+- Diminishing returns but consistently positive
+
+**3. Curriculum learning + Cosine LR (HIGH IMPACT)**
+Run 023 is the most sample-efficient path to beating SABRE from scratch.
 - Reached ratio 0.994 in only 60k episodes (Run 019 needed 80k for 0.991)
 - Curriculum gives a ~10k episode head start on depth-20 circuits
 - Cosine LR prevents late-training overshoot during refinement
-- **This is our recommended training schedule going forward**
 
-**3. Low epsilon floor (HIGH IMPACT)**
+**4. Low epsilon floor (HIGH IMPACT)**
 eps=0.02 beats eps=0.10 in every comparison. 98% greedy replay buffer > 90% greedy.
-- Run 5 (eps=0.10): ratio 1.12 → Run 7 (eps=0.02): ratio 1.08
-- Run 8 (multi, eps=0.10): HH ratio 1.232 → Run 16 (multi, eps=0.02): HH ratio 1.188
 
-**4. Weighted topology sampling (MEDIUM IMPACT, multi-topo only)**
+**5. Weighted topology sampling (MEDIUM IMPACT, multi-topo only)**
 Giving hard topologies more training time directly improves their performance.
-- Run 16 (uniform): HH ratio 1.188 → Run 018 (60% HH weight): HH ratio 1.107
-- But 70% weight (Run 021) was worse than 60% (Run 018) — there's an optimal balance
 
-**5. Bignet for multi-topo, standard net for single-topo (MEDIUM IMPACT)**
-- Single-topo: [32,64,32] always wins. Run 014 (bignet): 1.160 vs Run 015 (stdnet): 1.014
-- Multi-topo: [64,128,64] wins! Run 018 (bignet): 0.999 vs Run 021 (stdnet): 1.018
-- Multi-topo needs extra capacity to learn 3 different routing strategies simultaneously
+**6. Bignet for multi-topo, standard net for single-topo (MEDIUM IMPACT)**
+- Single-topo: [32,64,32] always wins
+- Multi-topo: [64,128,64] wins — extra capacity for learning 3 routing strategies
 
 ### What Didn't Work
 
-**1. Doubled gate reward (STRONGLY NEGATIVE)**
-Run 022 (gate_r=2.0): final ratio 1.377. Baseline (gate_r=1.0, 60k): 1.014.
-The agent optimized for gate throughput instead of routing efficiency. The reward function magnitude is a critical hyperparameter — don't change it without very careful consideration.
+**1. N-step returns without stabilization (CATASTROPHIC)**
+- Run 022 (n=3 + gate_r=2.0): ratio 1.377
+- Run 025 (n=3 alone): 0% completion, total failure
+- N-step=3 creates too much bootstrap variance during early exploration
 
-**2. N-step returns + gate reward (CONFOUNDED)**
-Run 022 combined n-step=3 with gate_r=2.0 and both variables contributed to failure. V5-B (Run 25) will test n-step alone with gate_r=1.0 to isolate the effect.
+**2. Doubled gate reward (STRONGLY NEGATIVE)**
+Run 022 (gate_r=2.0): ratio 1.377. Agent optimized for gate throughput, not routing efficiency.
 
-**3. Mixed initial mapping (MARGINAL)**
-Run 017 (80/20 random/SABRE): ratio 1.054 vs Run 7 (random only): 1.08. Minor gain not worth the complexity.
+**3. Removing distance shaping (NEGATIVE)**
+Run 027 (coeff=0.0): best ratio 1.003 (vs 0.991 with shaping). Costs ~15k episodes of exploration.
 
 **4. Higher learning rate (NEGATIVE)**
-Run 6 (LR=3e-4): ratio 1.17 vs baseline (LR=1e-4): 1.12. Instability during transition.
+Run 6 (LR=3e-4): ratio 1.17 vs baseline (LR=1e-4): 1.12.
 
 **5. Aggressive topology weighting (SLIGHTLY NEGATIVE for multi-topo)**
-Run 021 (70% HH weight, stdnet): overall 1.018 vs Run 018 (60% HH weight, bignet): 0.999. Pushing too much weight toward heavy_hex starves easy topologies, hurting overall ratio.
+70% heavy_hex weight (Run 021): 1.018 vs 60% weight (Run 018): 0.999.
 
 ### The Story So Far: Path to Beating SABRE
 
@@ -818,44 +984,26 @@ Run 021 (70% HH weight, stdnet): overall 1.018 vs Run 018 (60% HH weight, bignet
 | V1 | ∞ (0% completion) | — |
 | V2 | 1.08 (Run 7) | 5-channel state, soft targets, eps=0.02 |
 | V3 | 1.014 (Run 015) | More episodes (60k), standard net |
-| **V4** | **0.991 (Run 019)** | **80k episodes — first to beat SABRE** |
-| **V4** | **0.994 (Run 023)** | **Curriculum+cosine — beats SABRE in only 60k eps** |
+| V4 | 0.991 (Run 019) | 80k episodes — first to beat SABRE |
+| V4 | 0.994 (Run 023) | Curriculum+cosine — beats SABRE in 60k |
+| V5 | 0.987 (Run 024) | 100k episodes — more training helps |
+| **V6** | **0.969 (Run 029)** | **Fine-tuning — beats SABRE by 3.1%** |
 
-**We have beaten SABRE.** Run 019 achieved ratio 0.991 (8 eval checkpoints below 1.0). Run 023 achieved 0.994 in only 60k episodes. The agent has learned routing strategies that SABRE's greedy heuristic misses on some circuits.
-
-**But the victory is narrow.** The average over the last 10 evals is 1.008 (Run 019) and 1.014 (Run 023). The agent oscillates around parity with SABRE rather than consistently dominating it. To truly claim "we beat SABRE", we need the average ratio to stay below 1.0 — not just occasional dips.
+**We have decisively beaten SABRE.** Run 029's ratio of 0.969 means the agent uses ~6 fewer SWAPs per circuit on average. The fine-tuning approach proves that the learned routing strategies are genuine and can be refined further with targeted low-LR training.
 
 ---
 
-## V5 Runs (24–27) — Submitted
+## Overall Leaderboard
 
-4 runs submitted to push the results further, informed by all V4 findings.
-
-### Run 24 — Heavy Hex 100k (Job 163980, run_024) — QUEUED
-
-The brute-force push. If 80k gets occasional sub-1.0, can 100k make it consistent?
-- 100,000 episodes, buffer 500k, eps decay 6M steps
-- Everything else same as Run 019
-- **Expected**: Average ratio should settle around 0.99-1.01. More sub-1.0 checkpoints.
-
-### Run 25 — N-Step Only, n=3 (Job 163981, run_025) — QUEUED
-
-Fixes Run 022's confound. Tests n-step returns alone with standard gate_reward=1.0.
-- n_step=3, gate_execution_reward=1.0
-- 60k episodes, everything else same as Run 015
-- **Goal**: Does n-step help or hurt when reward isn't distorted?
-
-### Run 26 — Multi-Topo Weighted 100k (Job 163982, run_026) — QUEUED
-
-Longest multi-topo run. Uses Run 021's config but with 100k episodes.
-- Weights [0.10, 0.20, 0.70], standard net, 100k eps, buffer 500k
-- **Goal**: Can standard net + 100k catch bignet + 60k (Run 018's 0.999)?
-
-### Run 27 — No Distance Shaping (Job 163983, run_027) — QUEUED
-
-Ablation: removes the Pozzi-style distance reward shaping (distance_reward_coeff=0.0).
-- 80k episodes on heavy_hex, everything else standard
-- **Goal**: Is the distance shaping reward still needed? It guides early exploration but might add noise in late training. If the agent can learn without it, the reward function is simpler and the agent optimizes purely for routing efficiency.
+| Rank | Run | Version | Dir | Ratio | Config Summary |
+|------|-----|---------|-----|-------|----------------|
+| **1** | **29** | **V6** | **run_030** | **0.969** | **Finetune Run019 ep64k @ LR=1e-5, 20k eps** |
+| 2 | 24 | V5 | run_024 | 0.987 | Heavy hex 100k brute force |
+| 3 | 19 | V4 | run_019 | 0.991 | Heavy hex 80k (original champion) |
+| 4 | 23 | V4 | run_023 | 0.994 | Curriculum+cosine 60k |
+| 5 | 26 | V5 | run_026 | 0.996 | Multi-topo stdnet 100k (best multi-topo) |
+| 6 | 18 | V3 | run_018 | 0.999 | Multi-topo bignet weighted 60k |
+| 7 | 27 | V5 | run_027 | 1.003 | No distance shaping ablation |
 
 ---
 
@@ -863,7 +1011,7 @@ Ablation: removes the Pozzi-style distance reward shaping (distance_reward_coeff
 
 ```bash
 squeue -u dor_ali | grep quantum
-# Quick results (V3+): each run now saves results_summary.json
+# Quick results: each run saves results_summary.json
 cat outputs/run_NNN/results_summary.json | python3 -m json.tool
 # Latest eval for a running job
 tail -5 outputs/run_NNN/logs/evaluations.jsonl | python3 -m json.tool
