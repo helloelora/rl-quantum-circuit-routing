@@ -260,6 +260,7 @@ class QubitRoutingEnv(gym.Env):
         self._cached_front_layer = None
         self._cached_dag_depths = None
         self._cache_valid = False
+        self._action_history = None  # decay map of recent SWAPs
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -397,6 +398,7 @@ class QubitRoutingEnv(gym.Env):
             self._no_progress_streak = 0
             self._episode_max_steps = 0
             self._invalidate_cache()
+            self._action_history = np.zeros((self.N, self.N), dtype=np.float32)
             obs = self._compute_state()
             return obs, self._get_info(done=True)
 
@@ -438,6 +440,7 @@ class QubitRoutingEnv(gym.Env):
         self._same_edge_streak = 0
         self._no_progress_streak = 0
         self._episode_max_steps = self._resolve_episode_max_steps()
+        self._action_history = np.zeros((self.N, self.N), dtype=np.float32)
         self._auto_execute_gates()
 
         obs = self._compute_state()
@@ -486,6 +489,11 @@ class QubitRoutingEnv(gym.Env):
         self.step_count += 1
         self.total_swaps += 1
         self._last_action = int(action)
+
+        # Update action history: decay then mark current SWAP
+        self._action_history *= 0.8
+        self._action_history[p1, p2] = 1.0
+        self._action_history[p2, p1] = 1.0
 
         # --- Auto-execute routable gates ---
         gates_executed = self._auto_execute_gates()
@@ -609,7 +617,7 @@ class QubitRoutingEnv(gym.Env):
         Channel 1: Mapping permutation matrix
         Channel 2: Depth-decayed gate demand
         Channel 3: Front-layer distance map (1/distance for each front-layer gate)
-        Channel 4: Stagnation signal (uniform steps_since_last_gate / max_steps)
+        Channel 4: Action history (decayed map of recent SWAPs)
         """
         topo = self._current_topo
         state = np.zeros((5, self.N, self.N), dtype=np.float32)
@@ -649,12 +657,8 @@ class QubitRoutingEnv(gym.Env):
                     state[3, p_a, p_b] = max(state[3, p_a, p_b], val)
                     state[3, p_b, p_a] = max(state[3, p_b, p_a], val)
 
-            # Channel 4: Stagnation signal
-            if self._episode_max_steps > 0:
-                stagnation = min(
-                    self._no_progress_streak / self._episode_max_steps, 1.0
-                )
-                state[4, :, :] = stagnation
+            # Channel 4: Action history (recent SWAPs with decay)
+            state[4] = self._action_history
 
         return state
 

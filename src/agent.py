@@ -282,6 +282,9 @@ class PPOAgent:
                     "trace_improvement_pct",
                     "trace_alert_flag",
                     "trace_alert_streak",
+                    "unique_actions_ratio",
+                    "mean_action_entropy",
+                    "mean_episode_length",
                 ]
             )
 
@@ -345,6 +348,7 @@ class PPOAgent:
         }
         completed_episode_returns: List[float] = []
         completed_episode_lengths: List[int] = []
+        rollout_entropies: List[float] = []
         prev_action_for_policy = int(self._policy_prev_action)
 
         for _ in range(self.cfg.rollout_steps):
@@ -363,6 +367,7 @@ class PPOAgent:
                 )
                 action = dist.sample()
                 logprob = dist.log_prob(action)
+                rollout_entropies.append(float(dist.entropy().item()))
 
             next_obs, reward, terminated, truncated, _ = self.env.step(int(action.item()))
             done = bool(terminated or truncated)
@@ -393,7 +398,19 @@ class PPOAgent:
 
         self._policy_prev_action = int(prev_action_for_policy)
         rollout = {k: np.asarray(v) for k, v in data.items()}
-        return rollout, obs, completed_episode_returns, completed_episode_lengths
+
+        # Compute rollout diagnostics
+        actions_arr = rollout["actions"]
+        unique_ratio = len(set(actions_arr.tolist())) / max(len(actions_arr), 1)
+        mean_action_entropy = float(np.mean(rollout_entropies)) if rollout_entropies else 0.0
+        mean_ep_len = float(np.mean(completed_episode_lengths)) if completed_episode_lengths else float("nan")
+        rollout_diag = {
+            "unique_actions_ratio": unique_ratio,
+            "mean_action_entropy": mean_action_entropy,
+            "mean_episode_length": mean_ep_len,
+        }
+
+        return rollout, obs, completed_episode_returns, completed_episode_lengths, rollout_diag
 
     def _compute_gae(
         self,
@@ -520,6 +537,7 @@ class PPOAgent:
         trace_alert_flag: bool,
         trace_alert_streak: int,
         distance_reward_coeff: float,
+        rollout_diag: Dict[str, float] | None = None,
     ) -> None:
         if self.metrics_path is None:
             return
@@ -597,6 +615,9 @@ class PPOAgent:
                     trace_improvement_pct,
                     trace_alert_flag_i,
                     trace_alert_streak_i,
+                    rollout_diag.get("unique_actions_ratio", float("nan")) if rollout_diag else float("nan"),
+                    rollout_diag.get("mean_action_entropy", float("nan")) if rollout_diag else float("nan"),
+                    rollout_diag.get("mean_episode_length", float("nan")) if rollout_diag else float("nan"),
                 ]
             )
 
@@ -1151,7 +1172,7 @@ class PPOAgent:
             current_dist_coeff = self._distance_reward_coeff(global_step)
             self._unwrap_env().distance_reward_coeff = current_dist_coeff
 
-            rollout, obs, ep_returns, _ = self._collect_rollout(obs)
+            rollout, obs, ep_returns, _, rollout_diag = self._collect_rollout(obs)
 
             # Bootstrap from the final state of the rollout.
             edge_index, action_mask = self._current_edges_and_mask()
@@ -1242,6 +1263,7 @@ class PPOAgent:
                 trace_alert_flag=trace_alert_flag,
                 trace_alert_streak=self.trace_alert_streak,
                 distance_reward_coeff=current_dist_coeff,
+                rollout_diag=rollout_diag,
             )
 
             if ep_returns and mean_episode_return > self.best_train_mean_episode_return:
