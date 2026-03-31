@@ -1,0 +1,10 @@
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.9, "mean_sabre_swaps": 2.2, "mean_swap_ratio": 1.325, "median_swap_ratio": 1.1666666666666665, "mean_reward": 6.1899999999999995, "episode": 199}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 3.8, "mean_sabre_swaps": 2.3, "mean_swap_ratio": 1.7166666666666668, "median_swap_ratio": 1.5833333333333335, "mean_reward": 5.57, "episode": 399}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.1, "mean_sabre_swaps": 1.9, "mean_swap_ratio": 1.074074074074074, "median_swap_ratio": 1.0, "mean_reward": 5.39, "episode": 599}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.0, "mean_sabre_swaps": 2.1, "mean_swap_ratio": 0.9722222222222222, "median_swap_ratio": 1.0, "mean_reward": 6.859999999999999, "episode": 799}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.6, "mean_sabre_swaps": 1.8, "mean_swap_ratio": 1.2916666666666665, "median_swap_ratio": 1.1666666666666665, "mean_reward": 4.74, "episode": 999}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 3.0, "mean_sabre_swaps": 2.5, "mean_swap_ratio": 1.2645833333333334, "median_swap_ratio": 1.1, "mean_reward": 5.78, "episode": 1199}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 1.8, "mean_sabre_swaps": 2.2, "mean_swap_ratio": 0.8333333333333334, "median_swap_ratio": 1.0, "mean_reward": 6.62, "episode": 1399}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 1.1, "mean_sabre_swaps": 1.5, "mean_swap_ratio": 0.6749999999999999, "median_swap_ratio": 0.775, "mean_reward": 4.28, "episode": 1599}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.5, "mean_sabre_swaps": 2.9, "mean_swap_ratio": 0.7666666666666666, "median_swap_ratio": 0.75, "mean_reward": 6.890000000000001, "episode": 1799}
+{"total_episodes": 10, "completion_rate": 1.0, "mean_agent_swaps": 2.8, "mean_sabre_swaps": 2.8, "mean_swap_ratio": 1.0083333333333333, "median_swap_ratio": 1.0, "mean_reward": 7.610000000000001, "episode": 1999}

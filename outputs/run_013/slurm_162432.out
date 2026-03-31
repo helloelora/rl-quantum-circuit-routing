@@ -1,0 +1,1561 @@
+============================================================
+QUANTUM CIRCUIT ROUTING EXPERIMENT
+Preset:     run2_heavy_hex_highLR.json
+Job ID:     162432
+Node:       sh21
+Extra args: 
+Start time: Fri Mar 27 04:52:39 PM CET 2026
+============================================================
+Using existing environment.
+
+========== PHASE 1: TRAINING (run2_heavy_hex_highLR.json) ==========
+
+Using config file: configs/run2_heavy_hex_highLR.json
+Run directory: outputs/run_011
+Creating environment...
+Environment OK.
+Creating agent...
+Device: cuda
+Parameters: 11,988,277
+Actions: 20 | Topologies: ['heavy_hex_19']
+
+Starting training: episodes 0 → 30000
+============================================================
+Ep 25/30000 (31s) | R: -402.9 | SWAPs: 400 | Gates: 13% | Done: 0% | Loss: 0.007 | Q: -1.1 | ε: 0.997 | Steps: 10000 | ep_time: 1.4s
+Ep 50/30000 (64s) | R: -401.7 | SWAPs: 400 | Gates: 14% | Done: 0% | Loss: 0.007 | Q: -1.1 | ε: 0.994 | Steps: 20000 | ep_time: 1.2s
+Ep 75/30000 (95s) | R: -403.1 | SWAPs: 400 | Gates: 13% | Done: 0% | Loss: 0.009 | Q: -1.2 | ε: 0.991 | Steps: 30000 | ep_time: 1.2s
+Ep 100/30000 (128s) | R: -402.2 | SWAPs: 400 | Gates: 14% | Done: 0% | Loss: 0.007 | Q: -1.2 | ε: 0.988 | Steps: 40000 | ep_time: 1.3s
+Ep 125/30000 (162s) | R: -403.4 | SWAPs: 400 | Gates: 13% | Done: 0% | Loss: 0.006 | Q: -1.2 | ε: 0.985 | Steps: 50000 | ep_time: 1.3s
+Ep 150/30000 (196s) | R: -400.9 | SWAPs: 400 | Gates: 14% | Done: 0% | Loss: 0.007 | Q: -1.2 | ε: 0.982 | Steps: 60000 | ep_time: 1.3s
+Ep 175/30000 (229s) | R: -401.7 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.007 | Q: -1.2 | ε: 0.979 | Steps: 70000 | ep_time: 1.4s
+Ep 200/30000 (263s) | R: -400.6 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.007 | Q: -1.2 | ε: 0.976 | Steps: 80000 | ep_time: 1.3s
+Ep 225/30000 (296s) | R: -401.7 | SWAPs: 400 | Gates: 14% | Done: 0% | Loss: 0.007 | Q: -1.3 | ε: 0.973 | Steps: 90000 | ep_time: 1.4s
+Ep 250/30000 (330s) | R: -402.0 | SWAPs: 400 | Gates: 14% | Done: 0% | Loss: 0.007 | Q: -1.3 | ε: 0.970 | Steps: 100000 | ep_time: 1.4s
+Ep 275/30000 (364s) | R: -400.8 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.005 | Q: -1.3 | ε: 0.967 | Steps: 110000 | ep_time: 1.4s
+Ep 300/30000 (398s) | R: -399.9 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.006 | Q: -1.3 | ε: 0.964 | Steps: 120000 | ep_time: 1.3s
+Ep 325/30000 (431s) | R: -400.0 | SWAPs: 400 | Gates: 16% | Done: 0% | Loss: 0.005 | Q: -1.3 | ε: 0.961 | Steps: 130000 | ep_time: 1.4s
+Ep 350/30000 (465s) | R: -399.9 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.007 | Q: -1.3 | ε: 0.958 | Steps: 140000 | ep_time: 1.3s
+Ep 375/30000 (499s) | R: -398.0 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.007 | Q: -1.4 | ε: 0.955 | Steps: 150000 | ep_time: 1.4s
+Ep 400/30000 (533s) | R: -397.4 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.006 | Q: -1.4 | ε: 0.952 | Steps: 160000 | ep_time: 1.4s
+Ep 425/30000 (567s) | R: -400.2 | SWAPs: 400 | Gates: 15% | Done: 0% | Loss: 0.006 | Q: -1.4 | ε: 0.949 | Steps: 170000 | ep_time: 1.3s
+Ep 450/30000 (601s) | R: -397.6 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.007 | Q: -1.4 | ε: 0.946 | Steps: 180000 | ep_time: 1.3s
+Ep 475/30000 (635s) | R: -396.2 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.007 | Q: -1.5 | ε: 0.943 | Steps: 190000 | ep_time: 1.3s
+Ep 500/30000 (667s) | R: -397.1 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.006 | Q: -1.5 | ε: 0.940 | Steps: 200000 | ep_time: 1.3s
+
+--- Evaluation at episode 500 ---
+  EVAL | Agent: 400.0 SABRE: 185.7 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep500.png
+Ep 525/30000 (730s) | R: -399.1 | SWAPs: 400 | Gates: 16% | Done: 0% | Loss: 0.006 | Q: -1.5 | ε: 0.937 | Steps: 210000 | ep_time: 1.4s
+Ep 550/30000 (764s) | R: -397.3 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.008 | Q: -1.5 | ε: 0.934 | Steps: 220000 | ep_time: 1.3s
+Ep 575/30000 (798s) | R: -397.0 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.006 | Q: -1.5 | ε: 0.931 | Steps: 230000 | ep_time: 1.3s
+Ep 600/30000 (832s) | R: -399.3 | SWAPs: 400 | Gates: 16% | Done: 0% | Loss: 0.007 | Q: -1.6 | ε: 0.928 | Steps: 240000 | ep_time: 1.4s
+Ep 625/30000 (866s) | R: -395.7 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.008 | Q: -1.6 | ε: 0.925 | Steps: 250000 | ep_time: 1.4s
+Ep 650/30000 (900s) | R: -396.3 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.008 | Q: -1.6 | ε: 0.922 | Steps: 260000 | ep_time: 1.4s
+Ep 675/30000 (933s) | R: -396.7 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.006 | Q: -1.7 | ε: 0.919 | Steps: 270000 | ep_time: 1.3s
+Ep 700/30000 (967s) | R: -395.3 | SWAPs: 400 | Gates: 19% | Done: 0% | Loss: 0.006 | Q: -1.7 | ε: 0.916 | Steps: 280000 | ep_time: 1.4s
+Ep 725/30000 (1001s) | R: -396.1 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.006 | Q: -1.7 | ε: 0.913 | Steps: 290000 | ep_time: 1.3s
+Ep 750/30000 (1035s) | R: -394.8 | SWAPs: 400 | Gates: 19% | Done: 0% | Loss: 0.007 | Q: -1.7 | ε: 0.910 | Steps: 300000 | ep_time: 1.4s
+Ep 775/30000 (1069s) | R: -394.8 | SWAPs: 400 | Gates: 20% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.907 | Steps: 310000 | ep_time: 1.4s
+Ep 800/30000 (1103s) | R: -396.6 | SWAPs: 400 | Gates: 18% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.904 | Steps: 320000 | ep_time: 1.4s
+Ep 825/30000 (1137s) | R: -397.6 | SWAPs: 400 | Gates: 17% | Done: 0% | Loss: 0.005 | Q: -1.8 | ε: 0.901 | Steps: 330000 | ep_time: 1.4s
+Ep 850/30000 (1171s) | R: -395.8 | SWAPs: 400 | Gates: 19% | Done: 0% | Loss: 0.007 | Q: -1.8 | ε: 0.898 | Steps: 340000 | ep_time: 1.4s
+Ep 875/30000 (1206s) | R: -396.6 | SWAPs: 400 | Gates: 19% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.895 | Steps: 350000 | ep_time: 1.4s
+Ep 900/30000 (1239s) | R: -392.0 | SWAPs: 400 | Gates: 22% | Done: 0% | Loss: 0.007 | Q: -1.9 | ε: 0.892 | Steps: 360000 | ep_time: 1.3s
+Ep 925/30000 (1272s) | R: -394.3 | SWAPs: 400 | Gates: 20% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.889 | Steps: 370000 | ep_time: 1.4s
+Ep 950/30000 (1306s) | R: -392.6 | SWAPs: 400 | Gates: 21% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.886 | Steps: 380000 | ep_time: 1.3s
+Ep 975/30000 (1340s) | R: -391.3 | SWAPs: 400 | Gates: 22% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.883 | Steps: 390000 | ep_time: 1.4s
+Ep 1000/30000 (1375s) | R: -394.2 | SWAPs: 400 | Gates: 20% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.880 | Steps: 400000 | ep_time: 1.4s
+
+--- Evaluation at episode 1000 ---
+  EVAL | Agent: 400.0 SABRE: 188.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep1000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep1000.pt
+Ep 1025/30000 (1438s) | R: -392.6 | SWAPs: 400 | Gates: 21% | Done: 0% | Loss: 0.007 | Q: -1.9 | ε: 0.877 | Steps: 410000 | ep_time: 1.3s
+Ep 1050/30000 (1473s) | R: -394.2 | SWAPs: 400 | Gates: 20% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.874 | Steps: 420000 | ep_time: 1.4s
+Ep 1075/30000 (1507s) | R: -395.0 | SWAPs: 400 | Gates: 20% | Done: 0% | Loss: 0.007 | Q: -1.8 | ε: 0.871 | Steps: 430000 | ep_time: 1.4s
+Ep 1100/30000 (1540s) | R: -393.8 | SWAPs: 400 | Gates: 21% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.868 | Steps: 440000 | ep_time: 1.3s
+Ep 1125/30000 (1573s) | R: -392.6 | SWAPs: 400 | Gates: 21% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.865 | Steps: 450000 | ep_time: 1.4s
+Ep 1150/30000 (1607s) | R: -389.9 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.862 | Steps: 460000 | ep_time: 1.3s
+Ep 1175/30000 (1641s) | R: -388.7 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.005 | Q: -1.8 | ε: 0.859 | Steps: 470000 | ep_time: 1.4s
+Ep 1200/30000 (1676s) | R: -390.2 | SWAPs: 400 | Gates: 22% | Done: 0% | Loss: 0.006 | Q: -1.8 | ε: 0.856 | Steps: 480000 | ep_time: 1.4s
+Ep 1225/30000 (1710s) | R: -392.0 | SWAPs: 400 | Gates: 22% | Done: 0% | Loss: 0.006 | Q: -1.9 | ε: 0.853 | Steps: 490000 | ep_time: 1.4s
+Ep 1250/30000 (1744s) | R: -388.4 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.005 | Q: -1.9 | ε: 0.850 | Steps: 500000 | ep_time: 1.4s
+Ep 1275/30000 (1778s) | R: -389.3 | SWAPs: 400 | Gates: 23% | Done: 0% | Loss: 0.005 | Q: -2.0 | ε: 0.847 | Steps: 510000 | ep_time: 1.4s
+Ep 1300/30000 (1812s) | R: -388.0 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.004 | Q: -2.1 | ε: 0.844 | Steps: 520000 | ep_time: 1.4s
+Ep 1325/30000 (1847s) | R: -388.1 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.005 | Q: -2.1 | ε: 0.841 | Steps: 530000 | ep_time: 1.4s
+Ep 1350/30000 (1881s) | R: -388.8 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.005 | Q: -2.1 | ε: 0.838 | Steps: 540000 | ep_time: 1.4s
+Ep 1375/30000 (1915s) | R: -385.0 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.005 | Q: -2.2 | ε: 0.835 | Steps: 550000 | ep_time: 1.4s
+Ep 1400/30000 (1948s) | R: -387.3 | SWAPs: 400 | Gates: 25% | Done: 0% | Loss: 0.005 | Q: -2.3 | ε: 0.832 | Steps: 560000 | ep_time: 1.4s
+Ep 1425/30000 (1983s) | R: -387.9 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.006 | Q: -2.3 | ε: 0.829 | Steps: 570000 | ep_time: 1.3s
+Ep 1450/30000 (2017s) | R: -386.7 | SWAPs: 400 | Gates: 26% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.826 | Steps: 580000 | ep_time: 1.4s
+Ep 1475/30000 (2051s) | R: -386.5 | SWAPs: 400 | Gates: 25% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.823 | Steps: 590000 | ep_time: 1.3s
+Ep 1500/30000 (2085s) | R: -384.9 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.006 | Q: -2.4 | ε: 0.820 | Steps: 600000 | ep_time: 1.4s
+
+--- Evaluation at episode 1500 ---
+  EVAL | Agent: 400.0 SABRE: 188.3 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep1500.png
+Ep 1525/30000 (2148s) | R: -385.1 | SWAPs: 400 | Gates: 26% | Done: 0% | Loss: 0.006 | Q: -2.4 | ε: 0.817 | Steps: 610000 | ep_time: 1.4s
+Ep 1550/30000 (2182s) | R: -385.9 | SWAPs: 400 | Gates: 26% | Done: 0% | Loss: 0.006 | Q: -2.5 | ε: 0.814 | Steps: 620000 | ep_time: 1.4s
+Ep 1575/30000 (2217s) | R: -387.4 | SWAPs: 400 | Gates: 26% | Done: 0% | Loss: 0.005 | Q: -2.5 | ε: 0.811 | Steps: 630000 | ep_time: 1.4s
+Ep 1600/30000 (2250s) | R: -384.7 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.006 | Q: -2.5 | ε: 0.808 | Steps: 640000 | ep_time: 1.4s
+Ep 1625/30000 (2284s) | R: -385.6 | SWAPs: 400 | Gates: 26% | Done: 0% | Loss: 0.006 | Q: -2.5 | ε: 0.805 | Steps: 650000 | ep_time: 1.4s
+Ep 1650/30000 (2319s) | R: -384.4 | SWAPs: 400 | Gates: 29% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.802 | Steps: 660000 | ep_time: 1.3s
+Ep 1675/30000 (2353s) | R: -383.8 | SWAPs: 400 | Gates: 28% | Done: 0% | Loss: 0.005 | Q: -2.5 | ε: 0.799 | Steps: 670000 | ep_time: 1.4s
+Ep 1700/30000 (2387s) | R: -385.1 | SWAPs: 400 | Gates: 28% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.796 | Steps: 680000 | ep_time: 1.3s
+Ep 1725/30000 (2421s) | R: -382.9 | SWAPs: 400 | Gates: 29% | Done: 0% | Loss: 0.006 | Q: -2.4 | ε: 0.793 | Steps: 690000 | ep_time: 1.4s
+Ep 1750/30000 (2456s) | R: -382.5 | SWAPs: 400 | Gates: 29% | Done: 0% | Loss: 0.006 | Q: -2.4 | ε: 0.790 | Steps: 700000 | ep_time: 1.4s
+Ep 1775/30000 (2490s) | R: -388.3 | SWAPs: 400 | Gates: 24% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.787 | Steps: 710000 | ep_time: 1.4s
+Ep 1800/30000 (2525s) | R: -382.8 | SWAPs: 400 | Gates: 29% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.784 | Steps: 720000 | ep_time: 1.4s
+Ep 1825/30000 (2559s) | R: -389.1 | SWAPs: 400 | Gates: 25% | Done: 0% | Loss: 0.004 | Q: -2.4 | ε: 0.781 | Steps: 730000 | ep_time: 1.3s
+Ep 1850/30000 (2593s) | R: -381.0 | SWAPs: 400 | Gates: 30% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.778 | Steps: 740000 | ep_time: 1.4s
+Ep 1875/30000 (2628s) | R: -385.7 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.005 | Q: -2.3 | ε: 0.775 | Steps: 750000 | ep_time: 1.4s
+Ep 1900/30000 (2662s) | R: -385.4 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.004 | Q: -2.3 | ε: 0.772 | Steps: 760000 | ep_time: 1.4s
+Ep 1925/30000 (2696s) | R: -384.3 | SWAPs: 400 | Gates: 28% | Done: 0% | Loss: 0.005 | Q: -2.3 | ε: 0.769 | Steps: 770000 | ep_time: 1.4s
+Ep 1950/30000 (2731s) | R: -381.6 | SWAPs: 400 | Gates: 31% | Done: 0% | Loss: 0.005 | Q: -2.3 | ε: 0.766 | Steps: 780000 | ep_time: 1.4s
+Ep 1975/30000 (2765s) | R: -385.8 | SWAPs: 400 | Gates: 27% | Done: 0% | Loss: 0.005 | Q: -2.3 | ε: 0.763 | Steps: 790000 | ep_time: 1.2s
+Ep 2000/30000 (2797s) | R: -380.6 | SWAPs: 400 | Gates: 30% | Done: 0% | Loss: 0.004 | Q: -2.3 | ε: 0.760 | Steps: 800000 | ep_time: 1.3s
+
+--- Evaluation at episode 2000 ---
+  EVAL | Agent: 400.0 SABRE: 188.5 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep2000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep2000.pt
+Ep 2025/30000 (2860s) | R: -381.3 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.757 | Steps: 810000 | ep_time: 1.4s
+Ep 2050/30000 (2894s) | R: -378.1 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.004 | Q: -2.3 | ε: 0.754 | Steps: 820000 | ep_time: 1.4s
+Ep 2075/30000 (2929s) | R: -381.6 | SWAPs: 400 | Gates: 30% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.751 | Steps: 830000 | ep_time: 1.4s
+Ep 2100/30000 (2964s) | R: -381.2 | SWAPs: 400 | Gates: 30% | Done: 0% | Loss: 0.005 | Q: -2.4 | ε: 0.748 | Steps: 840000 | ep_time: 1.4s
+Ep 2125/30000 (2998s) | R: -378.3 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.004 | Q: -2.4 | ε: 0.745 | Steps: 850000 | ep_time: 1.4s
+Ep 2150/30000 (3033s) | R: -380.6 | SWAPs: 400 | Gates: 31% | Done: 0% | Loss: 0.004 | Q: -2.4 | ε: 0.742 | Steps: 860000 | ep_time: 1.4s
+Ep 2175/30000 (3067s) | R: -378.1 | SWAPs: 400 | Gates: 33% | Done: 0% | Loss: 0.004 | Q: -2.5 | ε: 0.739 | Steps: 870000 | ep_time: 1.3s
+Ep 2200/30000 (3101s) | R: -382.6 | SWAPs: 400 | Gates: 30% | Done: 0% | Loss: 0.004 | Q: -2.5 | ε: 0.736 | Steps: 880000 | ep_time: 1.4s
+Ep 2225/30000 (3136s) | R: -378.6 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.004 | Q: -2.5 | ε: 0.733 | Steps: 890000 | ep_time: 1.4s
+Ep 2250/30000 (3169s) | R: -379.9 | SWAPs: 400 | Gates: 31% | Done: 0% | Loss: 0.005 | Q: -2.5 | ε: 0.730 | Steps: 900000 | ep_time: 1.3s
+Ep 2275/30000 (3201s) | R: -378.7 | SWAPs: 400 | Gates: 33% | Done: 0% | Loss: 0.004 | Q: -2.5 | ε: 0.727 | Steps: 910000 | ep_time: 1.3s
+Ep 2300/30000 (3234s) | R: -379.5 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.004 | Q: -2.6 | ε: 0.724 | Steps: 920000 | ep_time: 1.4s
+Ep 2325/30000 (3269s) | R: -379.0 | SWAPs: 400 | Gates: 31% | Done: 0% | Loss: 0.003 | Q: -2.6 | ε: 0.721 | Steps: 930000 | ep_time: 1.4s
+Ep 2350/30000 (3303s) | R: -377.4 | SWAPs: 400 | Gates: 35% | Done: 0% | Loss: 0.004 | Q: -2.6 | ε: 0.718 | Steps: 940000 | ep_time: 1.4s
+Ep 2375/30000 (3338s) | R: -380.8 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.004 | Q: -2.6 | ε: 0.715 | Steps: 950000 | ep_time: 1.4s
+Ep 2400/30000 (3373s) | R: -379.1 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.005 | Q: -2.6 | ε: 0.712 | Steps: 960000 | ep_time: 1.4s
+Ep 2425/30000 (3407s) | R: -377.4 | SWAPs: 400 | Gates: 34% | Done: 0% | Loss: 0.004 | Q: -2.6 | ε: 0.709 | Steps: 970000 | ep_time: 1.4s
+Ep 2450/30000 (3442s) | R: -380.2 | SWAPs: 400 | Gates: 32% | Done: 0% | Loss: 0.005 | Q: -2.7 | ε: 0.706 | Steps: 980000 | ep_time: 1.4s
+Ep 2475/30000 (3477s) | R: -377.5 | SWAPs: 400 | Gates: 34% | Done: 0% | Loss: 0.004 | Q: -2.7 | ε: 0.703 | Steps: 990000 | ep_time: 1.4s
+Ep 2500/30000 (3511s) | R: -375.8 | SWAPs: 400 | Gates: 35% | Done: 0% | Loss: 0.005 | Q: -2.7 | ε: 0.700 | Steps: 1000000 | ep_time: 1.4s
+
+--- Evaluation at episode 2500 ---
+  EVAL | Agent: 400.0 SABRE: 187.4 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep2500.png
+Ep 2525/30000 (3574s) | R: -373.4 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.005 | Q: -2.7 | ε: 0.697 | Steps: 1010000 | ep_time: 1.4s
+Ep 2550/30000 (3609s) | R: -373.1 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.004 | Q: -2.7 | ε: 0.694 | Steps: 1020000 | ep_time: 1.4s
+Ep 2575/30000 (3644s) | R: -376.8 | SWAPs: 400 | Gates: 35% | Done: 0% | Loss: 0.004 | Q: -2.8 | ε: 0.691 | Steps: 1030000 | ep_time: 1.4s
+Ep 2600/30000 (3678s) | R: -379.0 | SWAPs: 400 | Gates: 33% | Done: 0% | Loss: 0.005 | Q: -2.8 | ε: 0.688 | Steps: 1040000 | ep_time: 1.4s
+Ep 2625/30000 (3713s) | R: -378.7 | SWAPs: 400 | Gates: 33% | Done: 0% | Loss: 0.004 | Q: -2.8 | ε: 0.685 | Steps: 1050000 | ep_time: 1.4s
+Ep 2650/30000 (3748s) | R: -378.6 | SWAPs: 400 | Gates: 33% | Done: 0% | Loss: 0.005 | Q: -2.8 | ε: 0.682 | Steps: 1060000 | ep_time: 1.4s
+Ep 2675/30000 (3782s) | R: -378.3 | SWAPs: 400 | Gates: 34% | Done: 0% | Loss: 0.005 | Q: -2.8 | ε: 0.679 | Steps: 1070000 | ep_time: 1.2s
+Ep 2700/30000 (3816s) | R: -376.8 | SWAPs: 400 | Gates: 34% | Done: 0% | Loss: 0.004 | Q: -2.8 | ε: 0.676 | Steps: 1080000 | ep_time: 1.4s
+Ep 2725/30000 (3851s) | R: -375.3 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.004 | Q: -2.9 | ε: 0.673 | Steps: 1090000 | ep_time: 1.4s
+Ep 2750/30000 (3886s) | R: -374.9 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.004 | Q: -2.9 | ε: 0.670 | Steps: 1100000 | ep_time: 1.4s
+Ep 2775/30000 (3920s) | R: -375.3 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.005 | Q: -2.9 | ε: 0.667 | Steps: 1110000 | ep_time: 1.4s
+Ep 2800/30000 (3955s) | R: -376.4 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.004 | Q: -2.9 | ε: 0.664 | Steps: 1120000 | ep_time: 1.4s
+Ep 2825/30000 (3990s) | R: -377.4 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.004 | Q: -2.9 | ε: 0.661 | Steps: 1130000 | ep_time: 1.4s
+Ep 2850/30000 (4024s) | R: -377.5 | SWAPs: 400 | Gates: 35% | Done: 0% | Loss: 0.005 | Q: -3.0 | ε: 0.658 | Steps: 1140000 | ep_time: 1.4s
+Ep 2875/30000 (4058s) | R: -377.1 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.004 | Q: -3.0 | ε: 0.655 | Steps: 1150000 | ep_time: 1.4s
+Ep 2900/30000 (4093s) | R: -375.2 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.005 | Q: -3.0 | ε: 0.652 | Steps: 1160000 | ep_time: 1.4s
+Ep 2925/30000 (4127s) | R: -374.8 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.004 | Q: -3.0 | ε: 0.649 | Steps: 1170000 | ep_time: 1.4s
+Ep 2950/30000 (4163s) | R: -376.5 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.005 | Q: -3.0 | ε: 0.646 | Steps: 1180000 | ep_time: 1.4s
+Ep 2975/30000 (4197s) | R: -371.7 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.004 | Q: -3.0 | ε: 0.643 | Steps: 1190000 | ep_time: 1.3s
+Ep 3000/30000 (4231s) | R: -372.7 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.004 | Q: -3.1 | ε: 0.640 | Steps: 1200000 | ep_time: 1.4s
+
+--- Evaluation at episode 3000 ---
+  EVAL | Agent: 400.0 SABRE: 185.4 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep3000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep3000.pt
+Ep 3025/30000 (4295s) | R: -374.2 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.004 | Q: -3.1 | ε: 0.637 | Steps: 1210000 | ep_time: 1.4s
+Ep 3050/30000 (4330s) | R: -375.1 | SWAPs: 400 | Gates: 36% | Done: 0% | Loss: 0.005 | Q: -3.1 | ε: 0.634 | Steps: 1220000 | ep_time: 1.4s
+Ep 3075/30000 (4365s) | R: -374.9 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.004 | Q: -3.1 | ε: 0.631 | Steps: 1230000 | ep_time: 1.4s
+Ep 3100/30000 (4399s) | R: -374.4 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.004 | Q: -3.2 | ε: 0.628 | Steps: 1240000 | ep_time: 1.4s
+Ep 3125/30000 (4434s) | R: -376.4 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.005 | Q: -3.2 | ε: 0.625 | Steps: 1250000 | ep_time: 1.4s
+Ep 3150/30000 (4469s) | R: -369.3 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.2 | ε: 0.622 | Steps: 1260000 | ep_time: 1.4s
+Ep 3175/30000 (4504s) | R: -369.0 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.2 | ε: 0.619 | Steps: 1270000 | ep_time: 1.4s
+Ep 3200/30000 (4539s) | R: -374.7 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.004 | Q: -3.2 | ε: 0.616 | Steps: 1280000 | ep_time: 1.4s
+Ep 3225/30000 (4574s) | R: -373.2 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.004 | Q: -3.2 | ε: 0.613 | Steps: 1290000 | ep_time: 1.4s
+Ep 3250/30000 (4609s) | R: -373.3 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.005 | Q: -3.3 | ε: 0.610 | Steps: 1300000 | ep_time: 1.4s
+Ep 3275/30000 (4644s) | R: -372.2 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.005 | Q: -3.3 | ε: 0.607 | Steps: 1310000 | ep_time: 1.4s
+Ep 3300/30000 (4679s) | R: -375.4 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.004 | Q: -3.3 | ε: 0.604 | Steps: 1320000 | ep_time: 1.4s
+Ep 3325/30000 (4714s) | R: -374.8 | SWAPs: 400 | Gates: 37% | Done: 0% | Loss: 0.004 | Q: -3.3 | ε: 0.601 | Steps: 1330000 | ep_time: 1.4s
+Ep 3350/30000 (4749s) | R: -373.8 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.005 | Q: -3.4 | ε: 0.598 | Steps: 1340000 | ep_time: 1.4s
+Ep 3375/30000 (4784s) | R: -374.4 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.005 | Q: -3.4 | ε: 0.595 | Steps: 1350000 | ep_time: 1.4s
+Ep 3400/30000 (4819s) | R: -374.8 | SWAPs: 400 | Gates: 38% | Done: 0% | Loss: 0.006 | Q: -3.4 | ε: 0.592 | Steps: 1360000 | ep_time: 1.4s
+Ep 3425/30000 (4854s) | R: -371.7 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.005 | Q: -3.4 | ε: 0.589 | Steps: 1370000 | ep_time: 1.4s
+Ep 3450/30000 (4889s) | R: -373.1 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.005 | Q: -3.4 | ε: 0.586 | Steps: 1380000 | ep_time: 1.4s
+Ep 3475/30000 (4924s) | R: -371.3 | SWAPs: 400 | Gates: 41% | Done: 0% | Loss: 0.005 | Q: -3.5 | ε: 0.583 | Steps: 1390000 | ep_time: 1.4s
+Ep 3500/30000 (4959s) | R: -368.6 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.005 | Q: -3.4 | ε: 0.580 | Steps: 1400000 | ep_time: 1.4s
+
+--- Evaluation at episode 3500 ---
+  EVAL | Agent: 400.0 SABRE: 189.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep3500.png
+Ep 3525/30000 (5022s) | R: -373.9 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.004 | Q: -3.5 | ε: 0.577 | Steps: 1410000 | ep_time: 1.4s
+Ep 3550/30000 (5057s) | R: -373.8 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.005 | Q: -3.5 | ε: 0.574 | Steps: 1420000 | ep_time: 1.4s
+Ep 3575/30000 (5092s) | R: -372.6 | SWAPs: 400 | Gates: 41% | Done: 0% | Loss: 0.006 | Q: -3.5 | ε: 0.571 | Steps: 1430000 | ep_time: 1.4s
+Ep 3600/30000 (5128s) | R: -374.6 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.006 | Q: -3.5 | ε: 0.568 | Steps: 1440000 | ep_time: 1.4s
+Ep 3625/30000 (5163s) | R: -375.5 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.005 | Q: -3.6 | ε: 0.565 | Steps: 1450000 | ep_time: 1.4s
+Ep 3650/30000 (5198s) | R: -375.4 | SWAPs: 400 | Gates: 39% | Done: 0% | Loss: 0.006 | Q: -3.6 | ε: 0.562 | Steps: 1460000 | ep_time: 1.4s
+Ep 3675/30000 (5233s) | R: -373.6 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.007 | Q: -3.6 | ε: 0.559 | Steps: 1470000 | ep_time: 1.4s
+Ep 3700/30000 (5268s) | R: -374.3 | SWAPs: 400 | Gates: 41% | Done: 0% | Loss: 0.005 | Q: -3.6 | ε: 0.556 | Steps: 1480000 | ep_time: 1.4s
+Ep 3725/30000 (5303s) | R: -372.6 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.6 | ε: 0.553 | Steps: 1490000 | ep_time: 1.4s
+Ep 3750/30000 (5339s) | R: -368.9 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.004 | Q: -3.6 | ε: 0.550 | Steps: 1500000 | ep_time: 1.4s
+Ep 3775/30000 (5374s) | R: -368.9 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.005 | Q: -3.6 | ε: 0.547 | Steps: 1510000 | ep_time: 1.4s
+Ep 3800/30000 (5409s) | R: -370.1 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -3.7 | ε: 0.544 | Steps: 1520000 | ep_time: 1.4s
+Ep 3825/30000 (5444s) | R: -373.2 | SWAPs: 400 | Gates: 41% | Done: 0% | Loss: 0.006 | Q: -3.7 | ε: 0.541 | Steps: 1530000 | ep_time: 1.4s
+Ep 3850/30000 (5479s) | R: -370.2 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.7 | ε: 0.538 | Steps: 1540000 | ep_time: 1.4s
+Ep 3875/30000 (5514s) | R: -371.7 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.006 | Q: -3.7 | ε: 0.535 | Steps: 1550000 | ep_time: 1.4s
+Ep 3900/30000 (5550s) | R: -371.9 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.8 | ε: 0.532 | Steps: 1560000 | ep_time: 1.4s
+Ep 3925/30000 (5585s) | R: -371.8 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -3.8 | ε: 0.529 | Steps: 1570000 | ep_time: 1.4s
+Ep 3950/30000 (5619s) | R: -372.0 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.005 | Q: -3.8 | ε: 0.526 | Steps: 1580000 | ep_time: 1.4s
+Ep 3975/30000 (5655s) | R: -368.5 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.005 | Q: -3.8 | ε: 0.523 | Steps: 1590000 | ep_time: 1.4s
+Ep 4000/30000 (5690s) | R: -366.6 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -3.8 | ε: 0.520 | Steps: 1600000 | ep_time: 1.4s
+
+--- Evaluation at episode 4000 ---
+  EVAL | Agent: 400.0 SABRE: 189.6 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep4000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep4000.pt
+Ep 4025/30000 (5754s) | R: -373.2 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.006 | Q: -3.8 | ε: 0.517 | Steps: 1610000 | ep_time: 1.4s
+Ep 4050/30000 (5789s) | R: -374.2 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -3.9 | ε: 0.514 | Steps: 1620000 | ep_time: 1.4s
+Ep 4075/30000 (5824s) | R: -367.6 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.006 | Q: -3.9 | ε: 0.511 | Steps: 1630000 | ep_time: 1.4s
+Ep 4100/30000 (5860s) | R: -369.1 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -3.9 | ε: 0.508 | Steps: 1640000 | ep_time: 1.4s
+Ep 4125/30000 (5892s) | R: -370.3 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.005 | Q: -3.9 | ε: 0.505 | Steps: 1650000 | ep_time: 1.3s
+Ep 4150/30000 (5928s) | R: -369.2 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -3.9 | ε: 0.502 | Steps: 1660000 | ep_time: 1.4s
+Ep 4175/30000 (5963s) | R: -372.7 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -4.0 | ε: 0.499 | Steps: 1670000 | ep_time: 1.4s
+Ep 4200/30000 (5999s) | R: -373.9 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -3.9 | ε: 0.496 | Steps: 1680000 | ep_time: 1.4s
+Ep 4225/30000 (6034s) | R: -375.8 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.005 | Q: -4.0 | ε: 0.493 | Steps: 1690000 | ep_time: 1.4s
+Ep 4250/30000 (6069s) | R: -373.9 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.006 | Q: -4.0 | ε: 0.490 | Steps: 1700000 | ep_time: 1.4s
+Ep 4275/30000 (6105s) | R: -376.0 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.005 | Q: -4.0 | ε: 0.487 | Steps: 1710000 | ep_time: 1.4s
+Ep 4300/30000 (6141s) | R: -370.5 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -4.1 | ε: 0.484 | Steps: 1720000 | ep_time: 1.4s
+Ep 4325/30000 (6176s) | R: -369.7 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -4.1 | ε: 0.481 | Steps: 1730000 | ep_time: 1.4s
+Ep 4350/30000 (6212s) | R: -372.7 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -4.1 | ε: 0.478 | Steps: 1740000 | ep_time: 1.4s
+Ep 4375/30000 (6247s) | R: -374.6 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -4.1 | ε: 0.475 | Steps: 1750000 | ep_time: 1.4s
+Ep 4400/30000 (6283s) | R: -378.7 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.006 | Q: -4.2 | ε: 0.472 | Steps: 1760000 | ep_time: 1.4s
+Ep 4425/30000 (6318s) | R: -375.7 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -4.2 | ε: 0.469 | Steps: 1770000 | ep_time: 1.4s
+Ep 4450/30000 (6354s) | R: -371.9 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.005 | Q: -4.2 | ε: 0.466 | Steps: 1780000 | ep_time: 1.4s
+Ep 4475/30000 (6389s) | R: -377.4 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.004 | Q: -4.2 | ε: 0.463 | Steps: 1790000 | ep_time: 1.4s
+Ep 4500/30000 (6425s) | R: -372.4 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.006 | Q: -4.2 | ε: 0.460 | Steps: 1800000 | ep_time: 1.4s
+
+--- Evaluation at episode 4500 ---
+  EVAL | Agent: 400.0 SABRE: 189.3 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep4500.png
+Ep 4525/30000 (6488s) | R: -375.5 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.006 | Q: -4.3 | ε: 0.457 | Steps: 1810000 | ep_time: 1.4s
+Ep 4550/30000 (6524s) | R: -377.8 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.005 | Q: -4.3 | ε: 0.454 | Steps: 1820000 | ep_time: 1.4s
+Ep 4575/30000 (6559s) | R: -373.5 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.006 | Q: -4.3 | ε: 0.451 | Steps: 1830000 | ep_time: 1.4s
+Ep 4600/30000 (6595s) | R: -376.5 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -4.3 | ε: 0.448 | Steps: 1840000 | ep_time: 1.4s
+Ep 4625/30000 (6631s) | R: -371.9 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -4.3 | ε: 0.445 | Steps: 1850000 | ep_time: 1.4s
+Ep 4650/30000 (6666s) | R: -377.8 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.006 | Q: -4.4 | ε: 0.442 | Steps: 1860000 | ep_time: 1.5s
+Ep 4675/30000 (6702s) | R: -371.9 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.007 | Q: -4.4 | ε: 0.439 | Steps: 1870000 | ep_time: 1.4s
+Ep 4700/30000 (6737s) | R: -371.4 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.007 | Q: -4.4 | ε: 0.436 | Steps: 1880000 | ep_time: 1.4s
+Ep 4725/30000 (6773s) | R: -377.1 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -4.4 | ε: 0.433 | Steps: 1890000 | ep_time: 1.5s
+Ep 4750/30000 (6809s) | R: -374.2 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -4.4 | ε: 0.430 | Steps: 1900000 | ep_time: 1.4s
+Ep 4775/30000 (6844s) | R: -380.5 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.006 | Q: -4.4 | ε: 0.427 | Steps: 1910000 | ep_time: 1.3s
+Ep 4800/30000 (6879s) | R: -382.8 | SWAPs: 400 | Gates: 41% | Done: 0% | Loss: 0.007 | Q: -4.5 | ε: 0.424 | Steps: 1920000 | ep_time: 1.4s
+Ep 4825/30000 (6915s) | R: -378.8 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.008 | Q: -4.5 | ε: 0.421 | Steps: 1930000 | ep_time: 1.4s
+Ep 4850/30000 (6950s) | R: -375.5 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.006 | Q: -4.5 | ε: 0.418 | Steps: 1940000 | ep_time: 1.4s
+Ep 4875/30000 (6986s) | R: -381.6 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.008 | Q: -4.6 | ε: 0.415 | Steps: 1950000 | ep_time: 1.4s
+Ep 4900/30000 (7022s) | R: -376.0 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -4.6 | ε: 0.412 | Steps: 1960000 | ep_time: 1.4s
+Ep 4925/30000 (7058s) | R: -380.9 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -4.6 | ε: 0.409 | Steps: 1970000 | ep_time: 1.4s
+Ep 4950/30000 (7093s) | R: -381.0 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -4.6 | ε: 0.406 | Steps: 1980000 | ep_time: 1.4s
+Ep 4975/30000 (7129s) | R: -384.3 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.007 | Q: -4.6 | ε: 0.403 | Steps: 1990000 | ep_time: 1.4s
+Ep 5000/30000 (7165s) | R: -389.7 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.008 | Q: -4.7 | ε: 0.400 | Steps: 2000000 | ep_time: 1.4s
+
+--- Evaluation at episode 5000 ---
+  EVAL | Agent: 400.0 SABRE: 184.6 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep5000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep5000.pt
+Ep 5025/30000 (7230s) | R: -383.1 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -4.7 | ε: 0.397 | Steps: 2010000 | ep_time: 1.4s
+Ep 5050/30000 (7264s) | R: -380.1 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.008 | Q: -4.7 | ε: 0.394 | Steps: 2020000 | ep_time: 1.4s
+Ep 5075/30000 (7300s) | R: -375.6 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.005 | Q: -4.7 | ε: 0.391 | Steps: 2030000 | ep_time: 1.4s
+Ep 5100/30000 (7333s) | R: -382.0 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -4.8 | ε: 0.388 | Steps: 2040000 | ep_time: 1.3s
+Ep 5125/30000 (7368s) | R: -380.6 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -4.8 | ε: 0.385 | Steps: 2050000 | ep_time: 1.4s
+Ep 5150/30000 (7404s) | R: -383.5 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -4.8 | ε: 0.382 | Steps: 2060000 | ep_time: 1.4s
+Ep 5175/30000 (7440s) | R: -379.8 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.007 | Q: -4.8 | ε: 0.379 | Steps: 2070000 | ep_time: 1.5s
+Ep 5200/30000 (7476s) | R: -379.0 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.006 | Q: -4.9 | ε: 0.376 | Steps: 2080000 | ep_time: 1.4s
+Ep 5225/30000 (7512s) | R: -384.4 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -4.9 | ε: 0.373 | Steps: 2090000 | ep_time: 1.5s
+Ep 5250/30000 (7547s) | R: -379.8 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.007 | Q: -4.9 | ε: 0.370 | Steps: 2100000 | ep_time: 1.4s
+Ep 5275/30000 (7583s) | R: -381.8 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -4.9 | ε: 0.367 | Steps: 2110000 | ep_time: 1.4s
+Ep 5300/30000 (7619s) | R: -385.3 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -4.9 | ε: 0.364 | Steps: 2120000 | ep_time: 1.4s
+Ep 5325/30000 (7655s) | R: -379.4 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -4.9 | ε: 0.361 | Steps: 2130000 | ep_time: 1.4s
+Ep 5350/30000 (7690s) | R: -387.5 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -5.0 | ε: 0.358 | Steps: 2140000 | ep_time: 1.3s
+Ep 5375/30000 (7724s) | R: -383.7 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -5.0 | ε: 0.355 | Steps: 2150000 | ep_time: 1.3s
+Ep 5400/30000 (7758s) | R: -379.5 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.008 | Q: -5.1 | ε: 0.352 | Steps: 2160000 | ep_time: 1.3s
+Ep 5425/30000 (7791s) | R: -386.8 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.006 | Q: -5.1 | ε: 0.349 | Steps: 2170000 | ep_time: 1.3s
+Ep 5450/30000 (7826s) | R: -392.5 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.1 | ε: 0.346 | Steps: 2180000 | ep_time: 1.3s
+Ep 5475/30000 (7861s) | R: -384.6 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -5.1 | ε: 0.343 | Steps: 2190000 | ep_time: 1.4s
+Ep 5500/30000 (7897s) | R: -388.6 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -5.2 | ε: 0.340 | Steps: 2200000 | ep_time: 1.5s
+
+--- Evaluation at episode 5500 ---
+  EVAL | Agent: 400.0 SABRE: 185.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep5500.png
+Ep 5525/30000 (7961s) | R: -383.7 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.008 | Q: -5.2 | ε: 0.337 | Steps: 2210000 | ep_time: 1.4s
+Ep 5550/30000 (7997s) | R: -385.8 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -5.1 | ε: 0.334 | Steps: 2220000 | ep_time: 1.4s
+Ep 5575/30000 (8033s) | R: -386.4 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.007 | Q: -5.2 | ε: 0.331 | Steps: 2230000 | ep_time: 1.4s
+Ep 5600/30000 (8069s) | R: -392.7 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -5.2 | ε: 0.328 | Steps: 2240000 | ep_time: 1.5s
+Ep 5625/30000 (8105s) | R: -385.1 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.007 | Q: -5.2 | ε: 0.325 | Steps: 2250000 | ep_time: 1.4s
+Ep 5650/30000 (8141s) | R: -392.5 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.009 | Q: -5.3 | ε: 0.322 | Steps: 2260000 | ep_time: 1.4s
+Ep 5675/30000 (8177s) | R: -390.2 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -5.3 | ε: 0.319 | Steps: 2270000 | ep_time: 1.4s
+Ep 5700/30000 (8214s) | R: -391.5 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -5.3 | ε: 0.316 | Steps: 2280000 | ep_time: 1.4s
+Ep 5725/30000 (8247s) | R: -393.9 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.007 | Q: -5.3 | ε: 0.313 | Steps: 2290000 | ep_time: 1.4s
+Ep 5750/30000 (8281s) | R: -397.6 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.007 | Q: -5.4 | ε: 0.310 | Steps: 2300000 | ep_time: 1.3s
+Ep 5775/30000 (8317s) | R: -386.6 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -5.4 | ε: 0.307 | Steps: 2310000 | ep_time: 1.4s
+Ep 5800/30000 (8353s) | R: -396.2 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -5.5 | ε: 0.304 | Steps: 2320000 | ep_time: 1.5s
+Ep 5825/30000 (8389s) | R: -395.0 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.008 | Q: -5.5 | ε: 0.301 | Steps: 2330000 | ep_time: 1.4s
+Ep 5850/30000 (8426s) | R: -398.0 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.5 | ε: 0.298 | Steps: 2340000 | ep_time: 1.5s
+Ep 5875/30000 (8462s) | R: -396.0 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.5 | ε: 0.295 | Steps: 2350000 | ep_time: 1.5s
+Ep 5900/30000 (8498s) | R: -407.5 | SWAPs: 400 | Gates: 40% | Done: 0% | Loss: 0.009 | Q: -5.6 | ε: 0.292 | Steps: 2360000 | ep_time: 1.5s
+Ep 5925/30000 (8535s) | R: -398.7 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.5 | ε: 0.289 | Steps: 2370000 | ep_time: 1.4s
+Ep 5950/30000 (8571s) | R: -398.5 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.009 | Q: -5.6 | ε: 0.286 | Steps: 2380000 | ep_time: 1.5s
+Ep 5975/30000 (8608s) | R: -391.3 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -5.6 | ε: 0.283 | Steps: 2390000 | ep_time: 1.5s
+Ep 6000/30000 (8644s) | R: -394.8 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.007 | Q: -5.6 | ε: 0.280 | Steps: 2400000 | ep_time: 1.5s
+
+--- Evaluation at episode 6000 ---
+  EVAL | Agent: 400.0 SABRE: 187.2 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep6000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep6000.pt
+Ep 6025/30000 (8710s) | R: -399.8 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.010 | Q: -5.7 | ε: 0.277 | Steps: 2410000 | ep_time: 1.5s
+Ep 6050/30000 (8747s) | R: -404.9 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.008 | Q: -5.7 | ε: 0.274 | Steps: 2420000 | ep_time: 1.5s
+Ep 6075/30000 (8783s) | R: -401.4 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.006 | Q: -5.7 | ε: 0.271 | Steps: 2430000 | ep_time: 1.4s
+Ep 6100/30000 (8819s) | R: -395.2 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.008 | Q: -5.7 | ε: 0.268 | Steps: 2440000 | ep_time: 1.4s
+Ep 6125/30000 (8855s) | R: -391.6 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.008 | Q: -5.7 | ε: 0.265 | Steps: 2450000 | ep_time: 1.4s
+Ep 6150/30000 (8892s) | R: -403.1 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.8 | ε: 0.262 | Steps: 2460000 | ep_time: 1.5s
+Ep 6175/30000 (8929s) | R: -405.2 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.007 | Q: -5.8 | ε: 0.259 | Steps: 2470000 | ep_time: 1.5s
+Ep 6200/30000 (8965s) | R: -395.2 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.010 | Q: -5.8 | ε: 0.256 | Steps: 2480000 | ep_time: 1.5s
+Ep 6225/30000 (9001s) | R: -399.9 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.009 | Q: -5.9 | ε: 0.253 | Steps: 2490000 | ep_time: 1.5s
+Ep 6250/30000 (9037s) | R: -405.0 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -5.9 | ε: 0.250 | Steps: 2500000 | ep_time: 1.5s
+Ep 6275/30000 (9074s) | R: -399.3 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.008 | Q: -5.9 | ε: 0.247 | Steps: 2510000 | ep_time: 1.5s
+Ep 6300/30000 (9110s) | R: -405.7 | SWAPs: 400 | Gates: 44% | Done: 0% | Loss: 0.009 | Q: -5.9 | ε: 0.244 | Steps: 2520000 | ep_time: 1.5s
+Ep 6325/30000 (9147s) | R: -400.5 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.008 | Q: -6.0 | ε: 0.241 | Steps: 2530000 | ep_time: 1.4s
+Ep 6350/30000 (9183s) | R: -402.6 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -6.0 | ε: 0.238 | Steps: 2540000 | ep_time: 1.4s
+Ep 6375/30000 (9220s) | R: -412.2 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.010 | Q: -6.1 | ε: 0.235 | Steps: 2550000 | ep_time: 1.4s
+Ep 6400/30000 (9257s) | R: -407.2 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.008 | Q: -6.1 | ε: 0.232 | Steps: 2560000 | ep_time: 1.4s
+Ep 6425/30000 (9293s) | R: -398.6 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.010 | Q: -6.1 | ε: 0.229 | Steps: 2570000 | ep_time: 1.4s
+Ep 6450/30000 (9330s) | R: -411.9 | SWAPs: 400 | Gates: 42% | Done: 0% | Loss: 0.009 | Q: -6.1 | ε: 0.226 | Steps: 2580000 | ep_time: 1.4s
+Ep 6475/30000 (9366s) | R: -406.8 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.007 | Q: -6.1 | ε: 0.223 | Steps: 2590000 | ep_time: 1.5s
+Ep 6500/30000 (9403s) | R: -393.3 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.008 | Q: -6.1 | ε: 0.220 | Steps: 2600000 | ep_time: 1.5s
+
+--- Evaluation at episode 6500 ---
+  EVAL | Agent: 400.0 SABRE: 188.6 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep6500.png
+Ep 6525/30000 (9468s) | R: -407.5 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -6.2 | ε: 0.217 | Steps: 2610000 | ep_time: 1.4s
+Ep 6550/30000 (9504s) | R: -399.7 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.009 | Q: -6.1 | ε: 0.214 | Steps: 2620000 | ep_time: 1.4s
+Ep 6575/30000 (9541s) | R: -397.6 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.007 | Q: -6.2 | ε: 0.211 | Steps: 2630000 | ep_time: 1.4s
+Ep 6600/30000 (9577s) | R: -401.0 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.007 | Q: -6.2 | ε: 0.208 | Steps: 2640000 | ep_time: 1.4s
+Ep 6625/30000 (9614s) | R: -400.6 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.010 | Q: -6.3 | ε: 0.205 | Steps: 2650000 | ep_time: 1.4s
+Ep 6650/30000 (9650s) | R: -398.7 | SWAPs: 400 | Gates: 49% | Done: 0% | Loss: 0.008 | Q: -6.3 | ε: 0.202 | Steps: 2660000 | ep_time: 1.4s
+Ep 6675/30000 (9687s) | R: -413.9 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.007 | Q: -6.3 | ε: 0.199 | Steps: 2670000 | ep_time: 1.5s
+Ep 6700/30000 (9723s) | R: -412.4 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.009 | Q: -6.4 | ε: 0.196 | Steps: 2680000 | ep_time: 1.5s
+Ep 6725/30000 (9760s) | R: -415.5 | SWAPs: 400 | Gates: 43% | Done: 0% | Loss: 0.010 | Q: -6.4 | ε: 0.193 | Steps: 2690000 | ep_time: 1.4s
+Ep 6750/30000 (9797s) | R: -402.5 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.008 | Q: -6.4 | ε: 0.190 | Steps: 2700000 | ep_time: 1.4s
+Ep 6775/30000 (9834s) | R: -405.7 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.008 | Q: -6.4 | ε: 0.187 | Steps: 2710000 | ep_time: 1.5s
+Ep 6800/30000 (9871s) | R: -408.6 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.008 | Q: -6.4 | ε: 0.184 | Steps: 2720000 | ep_time: 1.5s
+Ep 6825/30000 (9908s) | R: -414.9 | SWAPs: 400 | Gates: 45% | Done: 0% | Loss: 0.009 | Q: -6.4 | ε: 0.181 | Steps: 2730000 | ep_time: 1.4s
+Ep 6850/30000 (9944s) | R: -403.1 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.009 | Q: -6.4 | ε: 0.178 | Steps: 2740000 | ep_time: 1.5s
+Ep 6875/30000 (9980s) | R: -409.5 | SWAPs: 400 | Gates: 49% | Done: 0% | Loss: 0.009 | Q: -6.5 | ε: 0.175 | Steps: 2750000 | ep_time: 1.4s
+Ep 6900/30000 (10014s) | R: -417.9 | SWAPs: 400 | Gates: 46% | Done: 0% | Loss: 0.009 | Q: -6.5 | ε: 0.172 | Steps: 2760000 | ep_time: 1.5s
+Ep 6925/30000 (10051s) | R: -411.4 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.009 | Q: -6.6 | ε: 0.169 | Steps: 2770000 | ep_time: 1.5s
+Ep 6950/30000 (10088s) | R: -411.7 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.009 | Q: -6.6 | ε: 0.166 | Steps: 2780000 | ep_time: 1.4s
+Ep 6975/30000 (10124s) | R: -402.2 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.008 | Q: -6.6 | ε: 0.163 | Steps: 2790000 | ep_time: 1.5s
+Ep 7000/30000 (10161s) | R: -403.6 | SWAPs: 400 | Gates: 52% | Done: 0% | Loss: 0.009 | Q: -6.6 | ε: 0.160 | Steps: 2800000 | ep_time: 1.5s
+
+--- Evaluation at episode 7000 ---
+  EVAL | Agent: 400.0 SABRE: 187.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep7000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep7000.pt
+Ep 7025/30000 (10227s) | R: -410.0 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.010 | Q: -6.7 | ε: 0.157 | Steps: 2810000 | ep_time: 1.4s
+Ep 7050/30000 (10264s) | R: -417.2 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.008 | Q: -6.7 | ε: 0.154 | Steps: 2820000 | ep_time: 1.5s
+Ep 7075/30000 (10301s) | R: -417.5 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.008 | Q: -6.8 | ε: 0.151 | Steps: 2830000 | ep_time: 1.4s
+Ep 7100/30000 (10338s) | R: -417.1 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -6.8 | ε: 0.148 | Steps: 2840000 | ep_time: 1.5s
+Ep 7125/30000 (10374s) | R: -409.2 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.008 | Q: -6.8 | ε: 0.145 | Steps: 2850000 | ep_time: 1.5s
+Ep 7150/30000 (10411s) | R: -418.8 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.008 | Q: -6.8 | ε: 0.142 | Steps: 2860000 | ep_time: 1.5s
+Ep 7175/30000 (10447s) | R: -406.7 | SWAPs: 400 | Gates: 54% | Done: 0% | Loss: 0.007 | Q: -6.9 | ε: 0.139 | Steps: 2870000 | ep_time: 1.3s
+Ep 7200/30000 (10483s) | R: -407.4 | SWAPs: 400 | Gates: 52% | Done: 0% | Loss: 0.009 | Q: -6.9 | ε: 0.136 | Steps: 2880000 | ep_time: 1.5s
+Ep 7225/30000 (10517s) | R: -411.4 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.008 | Q: -6.9 | ε: 0.133 | Steps: 2890000 | ep_time: 1.5s
+Ep 7250/30000 (10555s) | R: -418.0 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.007 | Q: -6.9 | ε: 0.130 | Steps: 2900000 | ep_time: 1.5s
+Ep 7275/30000 (10591s) | R: -410.5 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.008 | Q: -6.9 | ε: 0.127 | Steps: 2910000 | ep_time: 1.5s
+Ep 7300/30000 (10628s) | R: -419.2 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.010 | Q: -6.9 | ε: 0.124 | Steps: 2920000 | ep_time: 1.4s
+Ep 7325/30000 (10663s) | R: -417.3 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.009 | Q: -7.0 | ε: 0.121 | Steps: 2930000 | ep_time: 1.3s
+Ep 7350/30000 (10698s) | R: -413.5 | SWAPs: 400 | Gates: 52% | Done: 0% | Loss: 0.009 | Q: -7.0 | ε: 0.118 | Steps: 2940000 | ep_time: 1.4s
+Ep 7375/30000 (10732s) | R: -421.9 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.010 | Q: -7.0 | ε: 0.115 | Steps: 2950000 | ep_time: 1.4s
+Ep 7400/30000 (10767s) | R: -423.2 | SWAPs: 400 | Gates: 48% | Done: 0% | Loss: 0.008 | Q: -7.1 | ε: 0.112 | Steps: 2960000 | ep_time: 1.5s
+Ep 7425/30000 (10804s) | R: -418.7 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.008 | Q: -7.1 | ε: 0.109 | Steps: 2970000 | ep_time: 1.5s
+Ep 7450/30000 (10841s) | R: -408.9 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.011 | Q: -7.1 | ε: 0.106 | Steps: 2980000 | ep_time: 1.5s
+Ep 7475/30000 (10878s) | R: -411.7 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.009 | Q: -7.1 | ε: 0.103 | Steps: 2990000 | ep_time: 1.5s
+Ep 7500/30000 (10915s) | R: -419.4 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.010 | Q: -7.2 | ε: 0.100 | Steps: 3000000 | ep_time: 1.5s
+
+--- Evaluation at episode 7500 ---
+  EVAL | Agent: 400.0 SABRE: 186.7 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep7500.png
+Ep 7525/30000 (10979s) | R: -424.1 | SWAPs: 400 | Gates: 50% | Done: 0% | Loss: 0.009 | Q: -7.2 | ε: 0.100 | Steps: 3010000 | ep_time: 1.5s
+Ep 7550/30000 (11016s) | R: -430.3 | SWAPs: 400 | Gates: 47% | Done: 0% | Loss: 0.009 | Q: -7.3 | ε: 0.100 | Steps: 3020000 | ep_time: 1.5s
+Ep 7575/30000 (11053s) | R: -412.3 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.008 | Q: -7.2 | ε: 0.100 | Steps: 3030000 | ep_time: 1.5s
+Ep 7600/30000 (11090s) | R: -423.9 | SWAPs: 400 | Gates: 49% | Done: 0% | Loss: 0.009 | Q: -7.3 | ε: 0.100 | Steps: 3040000 | ep_time: 1.5s
+Ep 7625/30000 (11127s) | R: -415.3 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.010 | Q: -7.3 | ε: 0.100 | Steps: 3050000 | ep_time: 1.5s
+Ep 7650/30000 (11164s) | R: -413.7 | SWAPs: 400 | Gates: 53% | Done: 0% | Loss: 0.008 | Q: -7.3 | ε: 0.100 | Steps: 3060000 | ep_time: 1.4s
+Ep 7675/30000 (11201s) | R: -414.9 | SWAPs: 400 | Gates: 54% | Done: 0% | Loss: 0.009 | Q: -7.4 | ε: 0.100 | Steps: 3070000 | ep_time: 1.5s
+Ep 7700/30000 (11237s) | R: -405.5 | SWAPs: 400 | Gates: 57% | Done: 0% | Loss: 0.008 | Q: -7.4 | ε: 0.100 | Steps: 3080000 | ep_time: 1.4s
+Ep 7725/30000 (11274s) | R: -401.2 | SWAPs: 400 | Gates: 58% | Done: 0% | Loss: 0.008 | Q: -7.4 | ε: 0.100 | Steps: 3090000 | ep_time: 1.4s
+Ep 7750/30000 (11309s) | R: -417.3 | SWAPs: 400 | Gates: 51% | Done: 0% | Loss: 0.011 | Q: -7.4 | ε: 0.100 | Steps: 3100000 | ep_time: 1.5s
+Ep 7775/30000 (11346s) | R: -405.0 | SWAPs: 400 | Gates: 56% | Done: 0% | Loss: 0.009 | Q: -7.4 | ε: 0.100 | Steps: 3110000 | ep_time: 1.5s
+Ep 7800/30000 (11383s) | R: -388.0 | SWAPs: 400 | Gates: 63% | Done: 0% | Loss: 0.009 | Q: -7.5 | ε: 0.100 | Steps: 3120000 | ep_time: 1.5s
+Ep 7825/30000 (11420s) | R: -416.6 | SWAPs: 400 | Gates: 54% | Done: 0% | Loss: 0.008 | Q: -7.5 | ε: 0.100 | Steps: 3130000 | ep_time: 1.5s
+Ep 7850/30000 (11454s) | R: -401.1 | SWAPs: 400 | Gates: 59% | Done: 0% | Loss: 0.008 | Q: -7.5 | ε: 0.100 | Steps: 3140000 | ep_time: 1.4s
+Ep 7875/30000 (11488s) | R: -398.8 | SWAPs: 400 | Gates: 61% | Done: 0% | Loss: 0.009 | Q: -7.5 | ε: 0.100 | Steps: 3150000 | ep_time: 1.3s
+Ep 7900/30000 (11523s) | R: -393.3 | SWAPs: 400 | Gates: 61% | Done: 0% | Loss: 0.006 | Q: -7.5 | ε: 0.100 | Steps: 3160000 | ep_time: 1.4s
+Ep 7925/30000 (11559s) | R: -403.5 | SWAPs: 400 | Gates: 57% | Done: 0% | Loss: 0.009 | Q: -7.5 | ε: 0.100 | Steps: 3170000 | ep_time: 1.4s
+Ep 7950/30000 (11594s) | R: -393.0 | SWAPs: 400 | Gates: 60% | Done: 0% | Loss: 0.007 | Q: -7.6 | ε: 0.100 | Steps: 3180000 | ep_time: 1.5s
+Ep 7975/30000 (11631s) | R: -387.3 | SWAPs: 400 | Gates: 63% | Done: 0% | Loss: 0.009 | Q: -7.5 | ε: 0.100 | Steps: 3190000 | ep_time: 1.5s
+Ep 8000/30000 (11667s) | R: -385.9 | SWAPs: 400 | Gates: 64% | Done: 0% | Loss: 0.008 | Q: -7.6 | ε: 0.100 | Steps: 3200000 | ep_time: 1.5s
+
+--- Evaluation at episode 8000 ---
+  EVAL | Agent: 400.0 SABRE: 188.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep8000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep8000.pt
+Ep 8025/30000 (11732s) | R: -382.3 | SWAPs: 400 | Gates: 65% | Done: 0% | Loss: 0.011 | Q: -7.5 | ε: 0.100 | Steps: 3210000 | ep_time: 1.5s
+Ep 8050/30000 (11768s) | R: -398.6 | SWAPs: 400 | Gates: 59% | Done: 0% | Loss: 0.008 | Q: -7.6 | ε: 0.100 | Steps: 3220000 | ep_time: 1.5s
+Ep 8075/30000 (11805s) | R: -395.7 | SWAPs: 400 | Gates: 61% | Done: 0% | Loss: 0.009 | Q: -7.7 | ε: 0.100 | Steps: 3230000 | ep_time: 1.5s
+Ep 8100/30000 (11842s) | R: -400.9 | SWAPs: 400 | Gates: 59% | Done: 0% | Loss: 0.008 | Q: -7.6 | ε: 0.100 | Steps: 3240000 | ep_time: 1.5s
+Ep 8125/30000 (11879s) | R: -398.8 | SWAPs: 400 | Gates: 59% | Done: 0% | Loss: 0.008 | Q: -7.7 | ε: 0.100 | Steps: 3250000 | ep_time: 1.5s
+Ep 8150/30000 (11915s) | R: -373.6 | SWAPs: 400 | Gates: 69% | Done: 4% | Loss: 0.010 | Q: -7.7 | ε: 0.100 | Steps: 3259993 | ep_time: 1.5s
+Ep 8175/30000 (11952s) | R: -384.9 | SWAPs: 400 | Gates: 66% | Done: 0% | Loss: 0.007 | Q: -7.7 | ε: 0.100 | Steps: 3269993 | ep_time: 1.5s
+Ep 8200/30000 (11988s) | R: -381.0 | SWAPs: 400 | Gates: 66% | Done: 0% | Loss: 0.008 | Q: -7.7 | ε: 0.100 | Steps: 3279993 | ep_time: 1.4s
+Ep 8225/30000 (12025s) | R: -382.9 | SWAPs: 400 | Gates: 66% | Done: 4% | Loss: 0.009 | Q: -7.7 | ε: 0.100 | Steps: 3289982 | ep_time: 1.4s
+Ep 8250/30000 (12061s) | R: -372.1 | SWAPs: 400 | Gates: 70% | Done: 4% | Loss: 0.007 | Q: -7.8 | ε: 0.100 | Steps: 3299978 | ep_time: 1.4s
+Ep 8275/30000 (12098s) | R: -385.1 | SWAPs: 400 | Gates: 64% | Done: 0% | Loss: 0.009 | Q: -7.7 | ε: 0.100 | Steps: 3309978 | ep_time: 1.5s
+Ep 8300/30000 (12134s) | R: -363.1 | SWAPs: 397 | Gates: 71% | Done: 4% | Loss: 0.010 | Q: -7.7 | ε: 0.100 | Steps: 3319907 | ep_time: 1.4s
+Ep 8325/30000 (12170s) | R: -378.1 | SWAPs: 400 | Gates: 67% | Done: 0% | Loss: 0.009 | Q: -7.8 | ε: 0.100 | Steps: 3329907 | ep_time: 1.4s
+Ep 8350/30000 (12206s) | R: -365.6 | SWAPs: 400 | Gates: 74% | Done: 4% | Loss: 0.009 | Q: -7.8 | ε: 0.100 | Steps: 3339896 | ep_time: 1.5s
+Ep 8375/30000 (12242s) | R: -371.4 | SWAPs: 400 | Gates: 72% | Done: 0% | Loss: 0.009 | Q: -7.8 | ε: 0.100 | Steps: 3349896 | ep_time: 1.4s
+Ep 8400/30000 (12278s) | R: -365.8 | SWAPs: 400 | Gates: 73% | Done: 0% | Loss: 0.011 | Q: -7.8 | ε: 0.100 | Steps: 3359896 | ep_time: 1.4s
+Ep 8425/30000 (12314s) | R: -364.4 | SWAPs: 400 | Gates: 72% | Done: 0% | Loss: 0.011 | Q: -7.8 | ε: 0.100 | Steps: 3369896 | ep_time: 1.4s
+Ep 8450/30000 (12350s) | R: -368.3 | SWAPs: 400 | Gates: 71% | Done: 0% | Loss: 0.013 | Q: -7.8 | ε: 0.100 | Steps: 3379896 | ep_time: 1.4s
+Ep 8475/30000 (12387s) | R: -355.4 | SWAPs: 397 | Gates: 74% | Done: 4% | Loss: 0.010 | Q: -7.8 | ε: 0.100 | Steps: 3389829 | ep_time: 1.2s
+Ep 8500/30000 (12420s) | R: -367.7 | SWAPs: 400 | Gates: 71% | Done: 0% | Loss: 0.009 | Q: -7.8 | ε: 0.100 | Steps: 3399829 | ep_time: 1.4s
+
+--- Evaluation at episode 8500 ---
+  EVAL | Agent: 400.0 SABRE: 185.0 | Ratio: nan | Done: 0%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep8500.png
+Ep 8525/30000 (12483s) | R: -368.3 | SWAPs: 400 | Gates: 71% | Done: 0% | Loss: 0.009 | Q: -7.9 | ε: 0.100 | Steps: 3409829 | ep_time: 1.4s
+Ep 8550/30000 (12519s) | R: -364.2 | SWAPs: 400 | Gates: 73% | Done: 0% | Loss: 0.010 | Q: -7.9 | ε: 0.100 | Steps: 3419829 | ep_time: 1.4s
+Ep 8575/30000 (12556s) | R: -370.9 | SWAPs: 400 | Gates: 69% | Done: 0% | Loss: 0.011 | Q: -7.9 | ε: 0.100 | Steps: 3429829 | ep_time: 1.4s
+Ep 8600/30000 (12592s) | R: -376.5 | SWAPs: 400 | Gates: 68% | Done: 0% | Loss: 0.010 | Q: -7.9 | ε: 0.100 | Steps: 3439829 | ep_time: 1.4s
+Ep 8625/30000 (12628s) | R: -362.7 | SWAPs: 399 | Gates: 72% | Done: 8% | Loss: 0.011 | Q: -7.9 | ε: 0.100 | Steps: 3449812 | ep_time: 1.4s
+Ep 8650/30000 (12664s) | R: -359.6 | SWAPs: 400 | Gates: 74% | Done: 0% | Loss: 0.010 | Q: -7.9 | ε: 0.100 | Steps: 3459812 | ep_time: 1.4s
+Ep 8675/30000 (12700s) | R: -355.0 | SWAPs: 400 | Gates: 77% | Done: 0% | Loss: 0.009 | Q: -7.9 | ε: 0.100 | Steps: 3469812 | ep_time: 1.3s
+Ep 8700/30000 (12733s) | R: -375.8 | SWAPs: 400 | Gates: 68% | Done: 0% | Loss: 0.010 | Q: -8.0 | ε: 0.100 | Steps: 3479812 | ep_time: 1.3s
+Ep 8725/30000 (12767s) | R: -355.5 | SWAPs: 398 | Gates: 75% | Done: 12% | Loss: 0.010 | Q: -8.0 | ε: 0.100 | Steps: 3489753 | ep_time: 1.4s
+Ep 8750/30000 (12801s) | R: -345.8 | SWAPs: 400 | Gates: 80% | Done: 0% | Loss: 0.010 | Q: -8.0 | ε: 0.100 | Steps: 3499753 | ep_time: 1.3s
+Ep 8775/30000 (12834s) | R: -348.6 | SWAPs: 399 | Gates: 80% | Done: 4% | Loss: 0.009 | Q: -8.0 | ε: 0.100 | Steps: 3509728 | ep_time: 1.3s
+Ep 8800/30000 (12867s) | R: -343.3 | SWAPs: 397 | Gates: 80% | Done: 8% | Loss: 0.010 | Q: -8.0 | ε: 0.100 | Steps: 3519647 | ep_time: 1.3s
+Ep 8825/30000 (12901s) | R: -361.9 | SWAPs: 399 | Gates: 74% | Done: 8% | Loss: 0.009 | Q: -8.0 | ε: 0.100 | Steps: 3529615 | ep_time: 1.4s
+Ep 8850/30000 (12934s) | R: -322.4 | SWAPs: 395 | Gates: 87% | Done: 20% | Loss: 0.011 | Q: -8.0 | ε: 0.100 | Steps: 3539500 | ep_time: 1.2s
+Ep 8875/30000 (12968s) | R: -355.9 | SWAPs: 400 | Gates: 76% | Done: 0% | Loss: 0.009 | Q: -8.0 | ε: 0.100 | Steps: 3549500 | ep_time: 1.3s
+Ep 8900/30000 (13001s) | R: -350.8 | SWAPs: 398 | Gates: 79% | Done: 4% | Loss: 0.011 | Q: -8.1 | ε: 0.100 | Steps: 3559441 | ep_time: 1.3s
+Ep 8925/30000 (13035s) | R: -348.8 | SWAPs: 399 | Gates: 80% | Done: 8% | Loss: 0.010 | Q: -8.1 | ε: 0.100 | Steps: 3569408 | ep_time: 1.3s
+Ep 8950/30000 (13069s) | R: -333.0 | SWAPs: 395 | Gates: 84% | Done: 20% | Loss: 0.010 | Q: -8.1 | ε: 0.100 | Steps: 3579285 | ep_time: 1.4s
+Ep 8975/30000 (13105s) | R: -358.0 | SWAPs: 400 | Gates: 77% | Done: 0% | Loss: 0.011 | Q: -8.1 | ε: 0.100 | Steps: 3589285 | ep_time: 1.4s
+Ep 9000/30000 (13139s) | R: -338.7 | SWAPs: 400 | Gates: 86% | Done: 0% | Loss: 0.009 | Q: -8.1 | ε: 0.100 | Steps: 3599285 | ep_time: 1.3s
+
+--- Evaluation at episode 9000 ---
+  EVAL | Agent: 393.8 SABRE: 187.1 | Ratio: 1.91 | Done: 12%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep9000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep9000.pt
+Ep 9025/30000 (13200s) | R: -334.5 | SWAPs: 392 | Gates: 81% | Done: 20% | Loss: 0.009 | Q: -8.1 | ε: 0.100 | Steps: 3609090 | ep_time: 1.2s
+Ep 9050/30000 (13236s) | R: -336.5 | SWAPs: 395 | Gates: 81% | Done: 16% | Loss: 0.009 | Q: -8.1 | ε: 0.100 | Steps: 3618958 | ep_time: 1.4s
+Ep 9075/30000 (13272s) | R: -350.7 | SWAPs: 400 | Gates: 78% | Done: 0% | Loss: 0.009 | Q: -8.0 | ε: 0.100 | Steps: 3628958 | ep_time: 1.4s
+Ep 9100/30000 (13308s) | R: -349.3 | SWAPs: 398 | Gates: 80% | Done: 8% | Loss: 0.012 | Q: -8.2 | ε: 0.100 | Steps: 3638910 | ep_time: 1.5s
+Ep 9125/30000 (13344s) | R: -339.9 | SWAPs: 396 | Gates: 82% | Done: 12% | Loss: 0.010 | Q: -8.1 | ε: 0.100 | Steps: 3648820 | ep_time: 1.5s
+Ep 9150/30000 (13379s) | R: -329.7 | SWAPs: 399 | Gates: 86% | Done: 12% | Loss: 0.009 | Q: -8.2 | ε: 0.100 | Steps: 3658792 | ep_time: 1.4s
+Ep 9175/30000 (13414s) | R: -327.0 | SWAPs: 395 | Gates: 87% | Done: 12% | Loss: 0.010 | Q: -8.1 | ε: 0.100 | Steps: 3668667 | ep_time: 1.4s
+Ep 9200/30000 (13450s) | R: -339.8 | SWAPs: 398 | Gates: 82% | Done: 12% | Loss: 0.011 | Q: -8.2 | ε: 0.100 | Steps: 3678623 | ep_time: 1.4s
+Ep 9225/30000 (13485s) | R: -322.0 | SWAPs: 392 | Gates: 85% | Done: 28% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3688433 | ep_time: 1.4s
+Ep 9250/30000 (13521s) | R: -349.5 | SWAPs: 398 | Gates: 80% | Done: 4% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3698379 | ep_time: 1.4s
+Ep 9275/30000 (13556s) | R: -310.1 | SWAPs: 394 | Gates: 91% | Done: 20% | Loss: 0.010 | Q: -8.1 | ε: 0.100 | Steps: 3708231 | ep_time: 1.5s
+Ep 9300/30000 (13592s) | R: -329.3 | SWAPs: 398 | Gates: 85% | Done: 4% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3718190 | ep_time: 1.4s
+Ep 9325/30000 (13626s) | R: -329.2 | SWAPs: 397 | Gates: 85% | Done: 12% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3728109 | ep_time: 1.3s
+Ep 9350/30000 (13658s) | R: -318.6 | SWAPs: 395 | Gates: 90% | Done: 16% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3737989 | ep_time: 1.3s
+Ep 9375/30000 (13693s) | R: -331.7 | SWAPs: 399 | Gates: 85% | Done: 4% | Loss: 0.009 | Q: -8.2 | ε: 0.100 | Steps: 3747955 | ep_time: 1.4s
+Ep 9400/30000 (13728s) | R: -320.3 | SWAPs: 394 | Gates: 89% | Done: 16% | Loss: 0.011 | Q: -8.3 | ε: 0.100 | Steps: 3757802 | ep_time: 1.4s
+Ep 9425/30000 (13763s) | R: -319.4 | SWAPs: 392 | Gates: 88% | Done: 16% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3767602 | ep_time: 1.4s
+Ep 9450/30000 (13799s) | R: -314.3 | SWAPs: 396 | Gates: 91% | Done: 20% | Loss: 0.011 | Q: -8.2 | ε: 0.100 | Steps: 3777509 | ep_time: 1.4s
+Ep 9475/30000 (13833s) | R: -307.3 | SWAPs: 393 | Gates: 92% | Done: 32% | Loss: 0.010 | Q: -8.3 | ε: 0.100 | Steps: 3787328 | ep_time: 1.2s
+Ep 9500/30000 (13869s) | R: -316.7 | SWAPs: 398 | Gates: 88% | Done: 20% | Loss: 0.012 | Q: -8.2 | ε: 0.100 | Steps: 3797266 | ep_time: 1.4s
+
+--- Evaluation at episode 9500 ---
+  EVAL | Agent: 385.1 SABRE: 188.6 | Ratio: 1.86 | Done: 26%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep9500.png
+Ep 9525/30000 (13929s) | R: -312.0 | SWAPs: 395 | Gates: 88% | Done: 24% | Loss: 0.010 | Q: -8.3 | ε: 0.100 | Steps: 3807140 | ep_time: 1.5s
+Ep 9550/30000 (13964s) | R: -306.8 | SWAPs: 394 | Gates: 91% | Done: 24% | Loss: 0.011 | Q: -8.2 | ε: 0.100 | Steps: 3816985 | ep_time: 1.4s
+Ep 9575/30000 (14000s) | R: -312.9 | SWAPs: 399 | Gates: 92% | Done: 12% | Loss: 0.010 | Q: -8.2 | ε: 0.100 | Steps: 3826958 | ep_time: 1.4s
+Ep 9600/30000 (14035s) | R: -324.0 | SWAPs: 396 | Gates: 87% | Done: 12% | Loss: 0.010 | Q: -8.3 | ε: 0.100 | Steps: 3836852 | ep_time: 1.4s
+Ep 9625/30000 (14071s) | R: -333.7 | SWAPs: 397 | Gates: 84% | Done: 12% | Loss: 0.014 | Q: -8.3 | ε: 0.100 | Steps: 3846781 | ep_time: 1.4s
+Ep 9650/30000 (14106s) | R: -316.2 | SWAPs: 396 | Gates: 89% | Done: 20% | Loss: 0.011 | Q: -8.3 | ε: 0.100 | Steps: 3856676 | ep_time: 1.3s
+Ep 9675/30000 (14141s) | R: -314.0 | SWAPs: 393 | Gates: 89% | Done: 24% | Loss: 0.012 | Q: -8.3 | ε: 0.100 | Steps: 3866505 | ep_time: 1.4s
+Ep 9700/30000 (14177s) | R: -333.2 | SWAPs: 396 | Gates: 84% | Done: 12% | Loss: 0.012 | Q: -8.4 | ε: 0.100 | Steps: 3876399 | ep_time: 1.4s
+Ep 9725/30000 (14212s) | R: -334.4 | SWAPs: 398 | Gates: 86% | Done: 20% | Loss: 0.010 | Q: -8.4 | ε: 0.100 | Steps: 3886346 | ep_time: 1.5s
+Ep 9750/30000 (14247s) | R: -313.6 | SWAPs: 391 | Gates: 89% | Done: 24% | Loss: 0.010 | Q: -8.3 | ε: 0.100 | Steps: 3896115 | ep_time: 1.3s
+Ep 9775/30000 (14283s) | R: -322.8 | SWAPs: 394 | Gates: 86% | Done: 12% | Loss: 0.010 | Q: -8.4 | ε: 0.100 | Steps: 3905977 | ep_time: 1.4s
+Ep 9800/30000 (14318s) | R: -323.9 | SWAPs: 399 | Gates: 88% | Done: 8% | Loss: 0.012 | Q: -8.4 | ε: 0.100 | Steps: 3915959 | ep_time: 1.4s
+Ep 9825/30000 (14353s) | R: -306.0 | SWAPs: 392 | Gates: 92% | Done: 28% | Loss: 0.013 | Q: -8.4 | ε: 0.100 | Steps: 3925751 | ep_time: 1.4s
+Ep 9850/30000 (14388s) | R: -299.5 | SWAPs: 387 | Gates: 91% | Done: 32% | Loss: 0.012 | Q: -8.5 | ε: 0.100 | Steps: 3935431 | ep_time: 1.4s
+Ep 9875/30000 (14423s) | R: -310.8 | SWAPs: 392 | Gates: 91% | Done: 24% | Loss: 0.010 | Q: -8.4 | ε: 0.100 | Steps: 3945229 | ep_time: 1.3s
+Ep 9900/30000 (14458s) | R: -308.5 | SWAPs: 395 | Gates: 91% | Done: 24% | Loss: 0.011 | Q: -8.4 | ε: 0.100 | Steps: 3955100 | ep_time: 1.4s
+Ep 9925/30000 (14492s) | R: -294.0 | SWAPs: 387 | Gates: 94% | Done: 44% | Loss: 0.011 | Q: -8.4 | ε: 0.100 | Steps: 3964767 | ep_time: 1.3s
+Ep 9950/30000 (14527s) | R: -301.3 | SWAPs: 391 | Gates: 92% | Done: 40% | Loss: 0.014 | Q: -8.4 | ε: 0.100 | Steps: 3974554 | ep_time: 1.4s
+Ep 9975/30000 (14562s) | R: -307.2 | SWAPs: 394 | Gates: 91% | Done: 24% | Loss: 0.013 | Q: -8.5 | ε: 0.100 | Steps: 3984397 | ep_time: 1.4s
+Ep 10000/30000 (14597s) | R: -310.4 | SWAPs: 393 | Gates: 90% | Done: 24% | Loss: 0.011 | Q: -8.5 | ε: 0.100 | Steps: 3994212 | ep_time: 1.4s
+
+--- Evaluation at episode 10000 ---
+  EVAL | Agent: 378.0 SABRE: 187.0 | Ratio: 1.81 | Done: 32%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep10000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep10000.pt
+Ep 10025/30000 (14656s) | R: -305.2 | SWAPs: 392 | Gates: 92% | Done: 28% | Loss: 0.012 | Q: -8.4 | ε: 0.100 | Steps: 4004018 | ep_time: 1.4s
+Ep 10050/30000 (14690s) | R: -306.5 | SWAPs: 391 | Gates: 92% | Done: 28% | Loss: 0.012 | Q: -8.5 | ε: 0.100 | Steps: 4013783 | ep_time: 1.4s
+Ep 10075/30000 (14724s) | R: -311.9 | SWAPs: 398 | Gates: 92% | Done: 20% | Loss: 0.014 | Q: -8.5 | ε: 0.100 | Steps: 4023734 | ep_time: 1.6s
+Ep 10100/30000 (14759s) | R: -304.5 | SWAPs: 389 | Gates: 90% | Done: 24% | Loss: 0.012 | Q: -8.6 | ε: 0.100 | Steps: 4033459 | ep_time: 1.4s
+Ep 10125/30000 (14794s) | R: -306.3 | SWAPs: 394 | Gates: 93% | Done: 32% | Loss: 0.011 | Q: -8.5 | ε: 0.100 | Steps: 4043312 | ep_time: 1.4s
+Ep 10150/30000 (14830s) | R: -323.2 | SWAPs: 394 | Gates: 87% | Done: 28% | Loss: 0.011 | Q: -8.5 | ε: 0.100 | Steps: 4053174 | ep_time: 1.4s
+Ep 10175/30000 (14865s) | R: -322.5 | SWAPs: 394 | Gates: 89% | Done: 16% | Loss: 0.010 | Q: -8.5 | ε: 0.100 | Steps: 4063031 | ep_time: 1.4s
+Ep 10200/30000 (14900s) | R: -301.9 | SWAPs: 392 | Gates: 93% | Done: 28% | Loss: 0.013 | Q: -8.6 | ε: 0.100 | Steps: 4072838 | ep_time: 1.4s
+Ep 10225/30000 (14932s) | R: -291.7 | SWAPs: 389 | Gates: 95% | Done: 32% | Loss: 0.012 | Q: -8.6 | ε: 0.100 | Steps: 4082566 | ep_time: 1.3s
+Ep 10250/30000 (14965s) | R: -315.6 | SWAPs: 395 | Gates: 90% | Done: 20% | Loss: 0.013 | Q: -8.6 | ε: 0.100 | Steps: 4092445 | ep_time: 1.3s
+Ep 10275/30000 (14998s) | R: -297.8 | SWAPs: 385 | Gates: 90% | Done: 48% | Loss: 0.012 | Q: -8.6 | ε: 0.100 | Steps: 4102079 | ep_time: 1.3s
+Ep 10300/30000 (15030s) | R: -292.7 | SWAPs: 390 | Gates: 94% | Done: 36% | Loss: 0.014 | Q: -8.7 | ε: 0.100 | Steps: 4111835 | ep_time: 1.4s
+Ep 10325/30000 (15062s) | R: -301.0 | SWAPs: 385 | Gates: 90% | Done: 44% | Loss: 0.012 | Q: -8.6 | ε: 0.100 | Steps: 4121472 | ep_time: 1.3s
+Ep 10350/30000 (15094s) | R: -309.5 | SWAPs: 386 | Gates: 87% | Done: 28% | Loss: 0.013 | Q: -8.7 | ε: 0.100 | Steps: 4131119 | ep_time: 1.3s
+Ep 10375/30000 (15128s) | R: -297.3 | SWAPs: 388 | Gates: 91% | Done: 44% | Loss: 0.013 | Q: -8.6 | ε: 0.100 | Steps: 4140823 | ep_time: 1.4s
+Ep 10400/30000 (15162s) | R: -289.3 | SWAPs: 382 | Gates: 93% | Done: 44% | Loss: 0.014 | Q: -8.7 | ε: 0.100 | Steps: 4150381 | ep_time: 1.3s
+Ep 10425/30000 (15197s) | R: -308.1 | SWAPs: 391 | Gates: 90% | Done: 36% | Loss: 0.011 | Q: -8.7 | ε: 0.100 | Steps: 4160153 | ep_time: 1.4s
+Ep 10450/30000 (15232s) | R: -300.7 | SWAPs: 388 | Gates: 93% | Done: 32% | Loss: 0.011 | Q: -8.7 | ε: 0.100 | Steps: 4169861 | ep_time: 1.4s
+Ep 10475/30000 (15266s) | R: -285.5 | SWAPs: 383 | Gates: 96% | Done: 40% | Loss: 0.012 | Q: -8.7 | ε: 0.100 | Steps: 4179435 | ep_time: 1.2s
+Ep 10500/30000 (15301s) | R: -301.4 | SWAPs: 390 | Gates: 94% | Done: 24% | Loss: 0.012 | Q: -8.7 | ε: 0.100 | Steps: 4189197 | ep_time: 1.4s
+
+--- Evaluation at episode 10500 ---
+  EVAL | Agent: 375.2 SABRE: 185.2 | Ratio: 1.87 | Done: 40%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep10500.png
+Ep 10525/30000 (15358s) | R: -291.6 | SWAPs: 389 | Gates: 95% | Done: 48% | Loss: 0.014 | Q: -8.8 | ε: 0.100 | Steps: 4198932 | ep_time: 1.4s
+Ep 10550/30000 (15394s) | R: -309.7 | SWAPs: 396 | Gates: 90% | Done: 28% | Loss: 0.013 | Q: -8.8 | ε: 0.100 | Steps: 4208820 | ep_time: 1.4s
+Ep 10575/30000 (15429s) | R: -315.4 | SWAPs: 396 | Gates: 91% | Done: 16% | Loss: 0.014 | Q: -8.8 | ε: 0.100 | Steps: 4218717 | ep_time: 1.4s
+Ep 10600/30000 (15464s) | R: -305.2 | SWAPs: 391 | Gates: 92% | Done: 28% | Loss: 0.014 | Q: -8.8 | ε: 0.100 | Steps: 4228499 | ep_time: 1.3s
+Ep 10625/30000 (15499s) | R: -302.8 | SWAPs: 393 | Gates: 93% | Done: 36% | Loss: 0.013 | Q: -8.8 | ε: 0.100 | Steps: 4238320 | ep_time: 1.4s
+Ep 10650/30000 (15534s) | R: -302.5 | SWAPs: 388 | Gates: 92% | Done: 32% | Loss: 0.011 | Q: -8.8 | ε: 0.100 | Steps: 4248010 | ep_time: 1.4s
+Ep 10675/30000 (15568s) | R: -292.8 | SWAPs: 389 | Gates: 94% | Done: 40% | Loss: 0.014 | Q: -8.8 | ε: 0.100 | Steps: 4257746 | ep_time: 1.4s
+Ep 10700/30000 (15603s) | R: -293.7 | SWAPs: 387 | Gates: 94% | Done: 48% | Loss: 0.014 | Q: -8.9 | ε: 0.100 | Steps: 4267427 | ep_time: 1.4s
+Ep 10725/30000 (15637s) | R: -291.0 | SWAPs: 388 | Gates: 96% | Done: 40% | Loss: 0.013 | Q: -8.8 | ε: 0.100 | Steps: 4277117 | ep_time: 1.4s
+Ep 10750/30000 (15671s) | R: -279.1 | SWAPs: 379 | Gates: 96% | Done: 56% | Loss: 0.011 | Q: -8.9 | ε: 0.100 | Steps: 4286598 | ep_time: 1.2s
+Ep 10775/30000 (15705s) | R: -290.9 | SWAPs: 388 | Gates: 96% | Done: 36% | Loss: 0.013 | Q: -8.9 | ε: 0.100 | Steps: 4296292 | ep_time: 1.3s
+Ep 10800/30000 (15740s) | R: -310.4 | SWAPs: 392 | Gates: 90% | Done: 28% | Loss: 0.013 | Q: -8.9 | ε: 0.100 | Steps: 4306097 | ep_time: 1.4s
+Ep 10825/30000 (15774s) | R: -281.5 | SWAPs: 383 | Gates: 96% | Done: 40% | Loss: 0.011 | Q: -8.9 | ε: 0.100 | Steps: 4315672 | ep_time: 1.4s
+Ep 10850/30000 (15808s) | R: -292.2 | SWAPs: 388 | Gates: 95% | Done: 40% | Loss: 0.012 | Q: -8.9 | ε: 0.100 | Steps: 4325374 | ep_time: 1.3s
+Ep 10875/30000 (15841s) | R: -278.2 | SWAPs: 379 | Gates: 95% | Done: 56% | Loss: 0.013 | Q: -8.9 | ε: 0.100 | Steps: 4334844 | ep_time: 1.3s
+Ep 10900/30000 (15873s) | R: -292.7 | SWAPs: 389 | Gates: 95% | Done: 36% | Loss: 0.014 | Q: -8.9 | ε: 0.100 | Steps: 4344579 | ep_time: 1.3s
+Ep 10925/30000 (15907s) | R: -290.1 | SWAPs: 387 | Gates: 94% | Done: 52% | Loss: 0.011 | Q: -9.0 | ε: 0.100 | Steps: 4354265 | ep_time: 1.4s
+Ep 10950/30000 (15942s) | R: -298.7 | SWAPs: 387 | Gates: 91% | Done: 44% | Loss: 0.013 | Q: -8.9 | ε: 0.100 | Steps: 4363952 | ep_time: 1.4s
+Ep 10975/30000 (15976s) | R: -288.7 | SWAPs: 382 | Gates: 93% | Done: 44% | Loss: 0.011 | Q: -9.0 | ε: 0.100 | Steps: 4373509 | ep_time: 1.4s
+Ep 11000/30000 (16010s) | R: -298.7 | SWAPs: 391 | Gates: 94% | Done: 32% | Loss: 0.013 | Q: -9.0 | ε: 0.100 | Steps: 4383293 | ep_time: 1.1s
+
+--- Evaluation at episode 11000 ---
+  EVAL | Agent: 359.5 SABRE: 187.9 | Ratio: 1.81 | Done: 60%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep11000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep11000.pt
+Ep 11025/30000 (16067s) | R: -271.8 | SWAPs: 376 | Gates: 97% | Done: 68% | Loss: 0.012 | Q: -9.0 | ε: 0.100 | Steps: 4392696 | ep_time: 1.4s
+Ep 11050/30000 (16101s) | R: -279.7 | SWAPs: 379 | Gates: 95% | Done: 44% | Loss: 0.015 | Q: -9.0 | ε: 0.100 | Steps: 4402182 | ep_time: 1.4s
+Ep 11075/30000 (16135s) | R: -286.6 | SWAPs: 385 | Gates: 96% | Done: 36% | Loss: 0.013 | Q: -9.0 | ε: 0.100 | Steps: 4411816 | ep_time: 1.1s
+Ep 11100/30000 (16169s) | R: -266.3 | SWAPs: 377 | Gates: 97% | Done: 72% | Loss: 0.013 | Q: -9.0 | ε: 0.100 | Steps: 4421252 | ep_time: 1.4s
+Ep 11125/30000 (16203s) | R: -295.7 | SWAPs: 384 | Gates: 92% | Done: 44% | Loss: 0.012 | Q: -9.0 | ε: 0.100 | Steps: 4430861 | ep_time: 1.4s
+Ep 11150/30000 (16238s) | R: -297.4 | SWAPs: 391 | Gates: 93% | Done: 36% | Loss: 0.011 | Q: -9.0 | ε: 0.100 | Steps: 4440638 | ep_time: 1.3s
+Ep 11175/30000 (16273s) | R: -303.0 | SWAPs: 395 | Gates: 94% | Done: 32% | Loss: 0.013 | Q: -9.1 | ε: 0.100 | Steps: 4450509 | ep_time: 1.4s
+Ep 11200/30000 (16307s) | R: -278.0 | SWAPs: 383 | Gates: 97% | Done: 40% | Loss: 0.011 | Q: -9.1 | ε: 0.100 | Steps: 4460085 | ep_time: 1.4s
+Ep 11225/30000 (16340s) | R: -280.8 | SWAPs: 377 | Gates: 95% | Done: 48% | Loss: 0.012 | Q: -9.0 | ε: 0.100 | Steps: 4469505 | ep_time: 1.1s
+Ep 11250/30000 (16374s) | R: -286.4 | SWAPs: 379 | Gates: 93% | Done: 40% | Loss: 0.012 | Q: -9.1 | ε: 0.100 | Steps: 4478990 | ep_time: 1.4s
+Ep 11275/30000 (16407s) | R: -276.8 | SWAPs: 375 | Gates: 97% | Done: 48% | Loss: 0.012 | Q: -9.1 | ε: 0.100 | Steps: 4488369 | ep_time: 1.3s
+Ep 11300/30000 (16441s) | R: -285.7 | SWAPs: 387 | Gates: 97% | Done: 52% | Loss: 0.014 | Q: -9.1 | ε: 0.100 | Steps: 4498039 | ep_time: 1.4s
+Ep 11325/30000 (16475s) | R: -283.0 | SWAPs: 382 | Gates: 96% | Done: 44% | Loss: 0.014 | Q: -9.1 | ε: 0.100 | Steps: 4507577 | ep_time: 1.5s
+Ep 11350/30000 (16509s) | R: -290.4 | SWAPs: 390 | Gates: 97% | Done: 36% | Loss: 0.015 | Q: -9.1 | ε: 0.100 | Steps: 4517320 | ep_time: 1.4s
+Ep 11375/30000 (16543s) | R: -281.3 | SWAPs: 383 | Gates: 97% | Done: 56% | Loss: 0.015 | Q: -9.1 | ε: 0.100 | Steps: 4526902 | ep_time: 1.3s
+Ep 11400/30000 (16577s) | R: -279.0 | SWAPs: 382 | Gates: 96% | Done: 56% | Loss: 0.014 | Q: -9.2 | ε: 0.100 | Steps: 4536445 | ep_time: 1.3s
+Ep 11425/30000 (16611s) | R: -281.6 | SWAPs: 384 | Gates: 96% | Done: 44% | Loss: 0.013 | Q: -9.2 | ε: 0.100 | Steps: 4546044 | ep_time: 1.4s
+Ep 11450/30000 (16645s) | R: -273.3 | SWAPs: 377 | Gates: 97% | Done: 60% | Loss: 0.011 | Q: -9.2 | ε: 0.100 | Steps: 4555481 | ep_time: 1.2s
+Ep 11475/30000 (16678s) | R: -274.1 | SWAPs: 376 | Gates: 96% | Done: 56% | Loss: 0.012 | Q: -9.2 | ε: 0.100 | Steps: 4564887 | ep_time: 1.2s
+Ep 11500/30000 (16712s) | R: -274.8 | SWAPs: 379 | Gates: 97% | Done: 52% | Loss: 0.011 | Q: -9.1 | ε: 0.100 | Steps: 4574368 | ep_time: 1.3s
+
+--- Evaluation at episode 11500 ---
+  EVAL | Agent: 345.3 SABRE: 187.8 | Ratio: 1.72 | Done: 72%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep11500.png
+Ep 11525/30000 (16768s) | R: -295.0 | SWAPs: 391 | Gates: 95% | Done: 36% | Loss: 0.015 | Q: -9.2 | ε: 0.100 | Steps: 4584142 | ep_time: 1.3s
+Ep 11550/30000 (16801s) | R: -260.4 | SWAPs: 373 | Gates: 98% | Done: 76% | Loss: 0.011 | Q: -9.2 | ε: 0.100 | Steps: 4593460 | ep_time: 1.5s
+Ep 11575/30000 (16835s) | R: -289.3 | SWAPs: 385 | Gates: 95% | Done: 48% | Loss: 0.013 | Q: -9.2 | ε: 0.100 | Steps: 4603097 | ep_time: 1.3s
+Ep 11600/30000 (16869s) | R: -272.3 | SWAPs: 378 | Gates: 98% | Done: 56% | Loss: 0.015 | Q: -9.2 | ε: 0.100 | Steps: 4612548 | ep_time: 1.4s
+Ep 11625/30000 (16903s) | R: -311.9 | SWAPs: 397 | Gates: 92% | Done: 20% | Loss: 0.012 | Q: -9.3 | ε: 0.100 | Steps: 4622479 | ep_time: 1.3s
+Ep 11650/30000 (16934s) | R: -272.0 | SWAPs: 377 | Gates: 96% | Done: 68% | Loss: 0.010 | Q: -9.2 | ε: 0.100 | Steps: 4631892 | ep_time: 1.1s
+Ep 11675/30000 (16965s) | R: -274.6 | SWAPs: 376 | Gates: 96% | Done: 48% | Loss: 0.013 | Q: -9.3 | ε: 0.100 | Steps: 4641281 | ep_time: 1.3s
+Ep 11700/30000 (16998s) | R: -275.5 | SWAPs: 379 | Gates: 97% | Done: 52% | Loss: 0.014 | Q: -9.3 | ε: 0.100 | Steps: 4650768 | ep_time: 1.2s
+Ep 11725/30000 (17032s) | R: -290.2 | SWAPs: 385 | Gates: 94% | Done: 40% | Loss: 0.013 | Q: -9.3 | ε: 0.100 | Steps: 4660381 | ep_time: 1.4s
+Ep 11750/30000 (17067s) | R: -278.7 | SWAPs: 386 | Gates: 97% | Done: 60% | Loss: 0.012 | Q: -9.3 | ε: 0.100 | Steps: 4670031 | ep_time: 1.4s
+Ep 11775/30000 (17099s) | R: -274.3 | SWAPs: 383 | Gates: 98% | Done: 56% | Loss: 0.013 | Q: -9.3 | ε: 0.100 | Steps: 4679596 | ep_time: 1.3s
+Ep 11800/30000 (17130s) | R: -267.2 | SWAPs: 372 | Gates: 96% | Done: 64% | Loss: 0.014 | Q: -9.3 | ε: 0.100 | Steps: 4688887 | ep_time: 1.1s
+Ep 11825/30000 (17163s) | R: -270.4 | SWAPs: 376 | Gates: 97% | Done: 64% | Loss: 0.012 | Q: -9.3 | ε: 0.100 | Steps: 4698299 | ep_time: 1.2s
+Ep 11850/30000 (17196s) | R: -270.6 | SWAPs: 378 | Gates: 97% | Done: 64% | Loss: 0.012 | Q: -9.3 | ε: 0.100 | Steps: 4707748 | ep_time: 1.3s
+Ep 11875/30000 (17230s) | R: -264.6 | SWAPs: 376 | Gates: 98% | Done: 60% | Loss: 0.015 | Q: -9.4 | ε: 0.100 | Steps: 4717141 | ep_time: 1.1s
+Ep 11900/30000 (17262s) | R: -264.3 | SWAPs: 371 | Gates: 98% | Done: 64% | Loss: 0.015 | Q: -9.4 | ε: 0.100 | Steps: 4726408 | ep_time: 1.2s
+Ep 11925/30000 (17295s) | R: -281.4 | SWAPs: 384 | Gates: 97% | Done: 60% | Loss: 0.014 | Q: -9.4 | ε: 0.100 | Steps: 4735997 | ep_time: 1.3s
+Ep 11950/30000 (17329s) | R: -277.3 | SWAPs: 384 | Gates: 98% | Done: 60% | Loss: 0.014 | Q: -9.4 | ε: 0.100 | Steps: 4745585 | ep_time: 1.4s
+Ep 11975/30000 (17363s) | R: -280.3 | SWAPs: 383 | Gates: 96% | Done: 60% | Loss: 0.011 | Q: -9.4 | ε: 0.100 | Steps: 4755172 | ep_time: 1.4s
+Ep 12000/30000 (17397s) | R: -279.0 | SWAPs: 383 | Gates: 97% | Done: 52% | Loss: 0.015 | Q: -9.4 | ε: 0.100 | Steps: 4764754 | ep_time: 1.4s
+
+--- Evaluation at episode 12000 ---
+  EVAL | Agent: 362.2 SABRE: 187.3 | Ratio: 1.80 | Done: 58%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep12000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep12000.pt
+Ep 12025/30000 (17451s) | R: -244.0 | SWAPs: 362 | Gates: 99% | Done: 84% | Loss: 0.014 | Q: -9.4 | ε: 0.100 | Steps: 4773812 | ep_time: 1.1s
+Ep 12050/30000 (17484s) | R: -263.0 | SWAPs: 372 | Gates: 98% | Done: 64% | Loss: 0.016 | Q: -9.4 | ε: 0.100 | Steps: 4783103 | ep_time: 1.4s
+Ep 12075/30000 (17517s) | R: -281.6 | SWAPs: 380 | Gates: 95% | Done: 56% | Loss: 0.015 | Q: -9.4 | ε: 0.100 | Steps: 4792607 | ep_time: 1.4s
+Ep 12100/30000 (17551s) | R: -286.5 | SWAPs: 383 | Gates: 94% | Done: 40% | Loss: 0.014 | Q: -9.5 | ε: 0.100 | Steps: 4802187 | ep_time: 1.3s
+Ep 12125/30000 (17586s) | R: -292.1 | SWAPs: 385 | Gates: 95% | Done: 40% | Loss: 0.016 | Q: -9.5 | ε: 0.100 | Steps: 4811809 | ep_time: 1.2s
+Ep 12150/30000 (17619s) | R: -281.3 | SWAPs: 384 | Gates: 97% | Done: 60% | Loss: 0.012 | Q: -9.5 | ε: 0.100 | Steps: 4821399 | ep_time: 1.4s
+Ep 12175/30000 (17654s) | R: -285.4 | SWAPs: 385 | Gates: 96% | Done: 52% | Loss: 0.016 | Q: -9.5 | ε: 0.100 | Steps: 4831034 | ep_time: 1.2s
+Ep 12200/30000 (17686s) | R: -263.2 | SWAPs: 377 | Gates: 99% | Done: 64% | Loss: 0.012 | Q: -9.5 | ε: 0.100 | Steps: 4840451 | ep_time: 1.4s
+Ep 12225/30000 (17719s) | R: -264.8 | SWAPs: 373 | Gates: 99% | Done: 64% | Loss: 0.013 | Q: -9.5 | ε: 0.100 | Steps: 4849788 | ep_time: 1.2s
+Ep 12250/30000 (17752s) | R: -268.1 | SWAPs: 373 | Gates: 97% | Done: 52% | Loss: 0.013 | Q: -9.5 | ε: 0.100 | Steps: 4859123 | ep_time: 1.3s
+Ep 12275/30000 (17786s) | R: -282.3 | SWAPs: 385 | Gates: 96% | Done: 52% | Loss: 0.013 | Q: -9.6 | ε: 0.100 | Steps: 4868753 | ep_time: 1.4s
+Ep 12300/30000 (17820s) | R: -273.5 | SWAPs: 378 | Gates: 96% | Done: 60% | Loss: 0.011 | Q: -9.5 | ε: 0.100 | Steps: 4878209 | ep_time: 1.4s
+Ep 12325/30000 (17854s) | R: -279.5 | SWAPs: 384 | Gates: 96% | Done: 52% | Loss: 0.013 | Q: -9.6 | ε: 0.100 | Steps: 4887804 | ep_time: 1.2s
+Ep 12350/30000 (17888s) | R: -272.0 | SWAPs: 376 | Gates: 97% | Done: 48% | Loss: 0.013 | Q: -9.6 | ε: 0.100 | Steps: 4897205 | ep_time: 1.5s
+Ep 12375/30000 (17922s) | R: -273.2 | SWAPs: 378 | Gates: 98% | Done: 64% | Loss: 0.012 | Q: -9.6 | ε: 0.100 | Steps: 4906663 | ep_time: 1.1s
+Ep 12400/30000 (17956s) | R: -281.3 | SWAPs: 384 | Gates: 97% | Done: 52% | Loss: 0.014 | Q: -9.6 | ε: 0.100 | Steps: 4916267 | ep_time: 1.4s
+Ep 12425/30000 (17990s) | R: -273.8 | SWAPs: 378 | Gates: 96% | Done: 64% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 4925719 | ep_time: 1.5s
+Ep 12450/30000 (18022s) | R: -246.3 | SWAPs: 363 | Gates: 99% | Done: 84% | Loss: 0.012 | Q: -9.6 | ε: 0.100 | Steps: 4934790 | ep_time: 1.2s
+Ep 12475/30000 (18055s) | R: -255.3 | SWAPs: 366 | Gates: 97% | Done: 72% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 4943942 | ep_time: 1.3s
+Ep 12500/30000 (18088s) | R: -276.0 | SWAPs: 380 | Gates: 96% | Done: 60% | Loss: 0.013 | Q: -9.7 | ε: 0.100 | Steps: 4953442 | ep_time: 1.3s
+
+--- Evaluation at episode 12500 ---
+  EVAL | Agent: 344.5 SABRE: 185.2 | Ratio: 1.76 | Done: 72%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep12500.png
+Ep 12525/30000 (18144s) | R: -264.9 | SWAPs: 377 | Gates: 98% | Done: 68% | Loss: 0.015 | Q: -9.7 | ε: 0.100 | Steps: 4962861 | ep_time: 1.2s
+Ep 12550/30000 (18177s) | R: -267.9 | SWAPs: 377 | Gates: 98% | Done: 56% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 4972287 | ep_time: 1.4s
+Ep 12575/30000 (18210s) | R: -254.6 | SWAPs: 368 | Gates: 99% | Done: 80% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 4981476 | ep_time: 1.4s
+Ep 12600/30000 (18244s) | R: -268.2 | SWAPs: 377 | Gates: 98% | Done: 68% | Loss: 0.013 | Q: -9.7 | ε: 0.100 | Steps: 4990905 | ep_time: 1.3s
+Ep 12625/30000 (18276s) | R: -254.7 | SWAPs: 362 | Gates: 97% | Done: 68% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 4999963 | ep_time: 1.3s
+Ep 12650/30000 (18310s) | R: -268.3 | SWAPs: 376 | Gates: 98% | Done: 68% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 5009365 | ep_time: 1.4s
+Ep 12675/30000 (18342s) | R: -245.8 | SWAPs: 362 | Gates: 98% | Done: 84% | Loss: 0.014 | Q: -9.7 | ε: 0.100 | Steps: 5018411 | ep_time: 1.3s
+Ep 12700/30000 (18375s) | R: -270.1 | SWAPs: 376 | Gates: 96% | Done: 64% | Loss: 0.011 | Q: -9.8 | ε: 0.100 | Steps: 5027814 | ep_time: 1.2s
+Ep 12725/30000 (18408s) | R: -254.4 | SWAPs: 366 | Gates: 98% | Done: 80% | Loss: 0.010 | Q: -9.7 | ε: 0.100 | Steps: 5036973 | ep_time: 1.2s
+Ep 12750/30000 (18441s) | R: -263.5 | SWAPs: 375 | Gates: 98% | Done: 64% | Loss: 0.013 | Q: -9.8 | ε: 0.100 | Steps: 5046351 | ep_time: 1.3s
+Ep 12775/30000 (18474s) | R: -264.7 | SWAPs: 374 | Gates: 98% | Done: 64% | Loss: 0.013 | Q: -9.8 | ε: 0.100 | Steps: 5055705 | ep_time: 1.5s
+Ep 12800/30000 (18507s) | R: -258.8 | SWAPs: 369 | Gates: 98% | Done: 68% | Loss: 0.013 | Q: -9.8 | ε: 0.100 | Steps: 5064930 | ep_time: 1.2s
+Ep 12825/30000 (18540s) | R: -260.9 | SWAPs: 372 | Gates: 98% | Done: 72% | Loss: 0.011 | Q: -9.8 | ε: 0.100 | Steps: 5074233 | ep_time: 1.2s
+Ep 12850/30000 (18573s) | R: -261.5 | SWAPs: 373 | Gates: 98% | Done: 68% | Loss: 0.015 | Q: -9.8 | ε: 0.100 | Steps: 5083567 | ep_time: 1.4s
+Ep 12875/30000 (18606s) | R: -260.6 | SWAPs: 367 | Gates: 97% | Done: 68% | Loss: 0.012 | Q: -9.9 | ε: 0.100 | Steps: 5092745 | ep_time: 1.0s
+Ep 12900/30000 (18638s) | R: -248.9 | SWAPs: 364 | Gates: 99% | Done: 80% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 5101837 | ep_time: 1.1s
+Ep 12925/30000 (18671s) | R: -256.0 | SWAPs: 368 | Gates: 98% | Done: 64% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 5111039 | ep_time: 1.2s
+Ep 12950/30000 (18704s) | R: -265.0 | SWAPs: 371 | Gates: 97% | Done: 64% | Loss: 0.015 | Q: -9.9 | ε: 0.100 | Steps: 5120316 | ep_time: 1.4s
+Ep 12975/30000 (18736s) | R: -254.6 | SWAPs: 368 | Gates: 98% | Done: 76% | Loss: 0.012 | Q: -9.8 | ε: 0.100 | Steps: 5129522 | ep_time: 1.3s
+Ep 13000/30000 (18769s) | R: -248.2 | SWAPs: 361 | Gates: 98% | Done: 76% | Loss: 0.012 | Q: -9.8 | ε: 0.100 | Steps: 5138536 | ep_time: 1.2s
+
+--- Evaluation at episode 13000 ---
+  EVAL | Agent: 340.0 SABRE: 187.8 | Ratio: 1.72 | Done: 76%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep13000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep13000.pt
+Ep 13025/30000 (18823s) | R: -241.6 | SWAPs: 356 | Gates: 98% | Done: 80% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 5147442 | ep_time: 1.1s
+Ep 13050/30000 (18855s) | R: -240.1 | SWAPs: 356 | Gates: 98% | Done: 84% | Loss: 0.013 | Q: -9.9 | ε: 0.100 | Steps: 5156354 | ep_time: 1.5s
+Ep 13075/30000 (18887s) | R: -244.8 | SWAPs: 362 | Gates: 99% | Done: 76% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 5165399 | ep_time: 1.3s
+Ep 13100/30000 (18919s) | R: -249.8 | SWAPs: 365 | Gates: 99% | Done: 76% | Loss: 0.014 | Q: -9.8 | ε: 0.100 | Steps: 5174525 | ep_time: 1.2s
+Ep 13125/30000 (18953s) | R: -283.2 | SWAPs: 381 | Gates: 95% | Done: 60% | Loss: 0.014 | Q: -9.9 | ε: 0.100 | Steps: 5184055 | ep_time: 1.4s
+Ep 13150/30000 (18986s) | R: -263.2 | SWAPs: 370 | Gates: 97% | Done: 60% | Loss: 0.012 | Q: -9.9 | ε: 0.100 | Steps: 5193309 | ep_time: 1.4s
+Ep 13175/30000 (19018s) | R: -252.3 | SWAPs: 366 | Gates: 99% | Done: 84% | Loss: 0.014 | Q: -9.9 | ε: 0.100 | Steps: 5202464 | ep_time: 1.3s
+Ep 13200/30000 (19052s) | R: -272.0 | SWAPs: 380 | Gates: 98% | Done: 68% | Loss: 0.015 | Q: -9.8 | ε: 0.100 | Steps: 5211961 | ep_time: 1.2s
+Ep 13225/30000 (19086s) | R: -271.7 | SWAPs: 378 | Gates: 98% | Done: 52% | Loss: 0.014 | Q: -10.0 | ε: 0.100 | Steps: 5221411 | ep_time: 1.4s
+Ep 13250/30000 (19119s) | R: -250.2 | SWAPs: 367 | Gates: 99% | Done: 80% | Loss: 0.018 | Q: -10.0 | ε: 0.100 | Steps: 5230581 | ep_time: 1.5s
+Ep 13275/30000 (19150s) | R: -240.0 | SWAPs: 359 | Gates: 99% | Done: 88% | Loss: 0.012 | Q: -9.9 | ε: 0.100 | Steps: 5239549 | ep_time: 1.4s
+Ep 13300/30000 (19183s) | R: -247.5 | SWAPs: 363 | Gates: 99% | Done: 76% | Loss: 0.015 | Q: -10.0 | ε: 0.100 | Steps: 5248614 | ep_time: 1.3s
+Ep 13325/30000 (19213s) | R: -252.6 | SWAPs: 365 | Gates: 99% | Done: 72% | Loss: 0.013 | Q: -10.0 | ε: 0.100 | Steps: 5257733 | ep_time: 1.2s
+Ep 13350/30000 (19244s) | R: -246.8 | SWAPs: 364 | Gates: 99% | Done: 84% | Loss: 0.015 | Q: -10.0 | ε: 0.100 | Steps: 5266833 | ep_time: 1.2s
+Ep 13375/30000 (19276s) | R: -252.2 | SWAPs: 364 | Gates: 98% | Done: 80% | Loss: 0.014 | Q: -10.0 | ε: 0.100 | Steps: 5275944 | ep_time: 1.2s
+Ep 13400/30000 (19310s) | R: -265.1 | SWAPs: 374 | Gates: 98% | Done: 60% | Loss: 0.015 | Q: -10.0 | ε: 0.100 | Steps: 5285287 | ep_time: 1.4s
+Ep 13425/30000 (19343s) | R: -275.4 | SWAPs: 379 | Gates: 95% | Done: 52% | Loss: 0.015 | Q: -10.1 | ε: 0.100 | Steps: 5294760 | ep_time: 1.3s
+Ep 13450/30000 (19376s) | R: -253.7 | SWAPs: 367 | Gates: 98% | Done: 72% | Loss: 0.014 | Q: -10.0 | ε: 0.100 | Steps: 5303933 | ep_time: 1.2s
+Ep 13475/30000 (19406s) | R: -242.9 | SWAPs: 362 | Gates: 99% | Done: 84% | Loss: 0.013 | Q: -10.0 | ε: 0.100 | Steps: 5312995 | ep_time: 1.2s
+Ep 13500/30000 (19438s) | R: -244.7 | SWAPs: 363 | Gates: 99% | Done: 84% | Loss: 0.014 | Q: -10.0 | ε: 0.100 | Steps: 5322072 | ep_time: 1.3s
+
+--- Evaluation at episode 13500 ---
+  EVAL | Agent: 314.0 SABRE: 189.8 | Ratio: 1.60 | Done: 88%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep13500.png
+Ep 13525/30000 (19491s) | R: -251.8 | SWAPs: 366 | Gates: 99% | Done: 72% | Loss: 0.012 | Q: -10.1 | ε: 0.100 | Steps: 5331228 | ep_time: 1.0s
+Ep 13550/30000 (19524s) | R: -245.4 | SWAPs: 363 | Gates: 100% | Done: 80% | Loss: 0.015 | Q: -10.1 | ε: 0.100 | Steps: 5340297 | ep_time: 1.2s
+Ep 13575/30000 (19557s) | R: -250.1 | SWAPs: 365 | Gates: 98% | Done: 80% | Loss: 0.014 | Q: -10.1 | ε: 0.100 | Steps: 5349432 | ep_time: 1.1s
+Ep 13600/30000 (19589s) | R: -237.3 | SWAPs: 359 | Gates: 100% | Done: 88% | Loss: 0.012 | Q: -10.1 | ε: 0.100 | Steps: 5358407 | ep_time: 1.4s
+Ep 13625/30000 (19622s) | R: -258.9 | SWAPs: 370 | Gates: 98% | Done: 68% | Loss: 0.014 | Q: -10.1 | ε: 0.100 | Steps: 5367669 | ep_time: 1.3s
+Ep 13650/30000 (19654s) | R: -252.5 | SWAPs: 367 | Gates: 99% | Done: 84% | Loss: 0.012 | Q: -10.1 | ε: 0.100 | Steps: 5376845 | ep_time: 1.4s
+Ep 13675/30000 (19686s) | R: -233.5 | SWAPs: 356 | Gates: 100% | Done: 80% | Loss: 0.014 | Q: -10.2 | ε: 0.100 | Steps: 5385747 | ep_time: 1.5s
+Ep 13700/30000 (19719s) | R: -256.1 | SWAPs: 371 | Gates: 98% | Done: 80% | Loss: 0.011 | Q: -10.2 | ε: 0.100 | Steps: 5395010 | ep_time: 1.4s
+Ep 13725/30000 (19751s) | R: -244.8 | SWAPs: 364 | Gates: 100% | Done: 88% | Loss: 0.015 | Q: -10.1 | ε: 0.100 | Steps: 5404118 | ep_time: 1.4s
+Ep 13750/30000 (19784s) | R: -246.9 | SWAPs: 363 | Gates: 99% | Done: 84% | Loss: 0.012 | Q: -10.1 | ε: 0.100 | Steps: 5413199 | ep_time: 1.2s
+Ep 13775/30000 (19816s) | R: -241.7 | SWAPs: 359 | Gates: 99% | Done: 84% | Loss: 0.012 | Q: -10.2 | ε: 0.100 | Steps: 5422172 | ep_time: 1.2s
+Ep 13800/30000 (19848s) | R: -240.4 | SWAPs: 361 | Gates: 99% | Done: 92% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5431199 | ep_time: 1.2s
+Ep 13825/30000 (19880s) | R: -242.8 | SWAPs: 361 | Gates: 100% | Done: 84% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5440218 | ep_time: 1.3s
+Ep 13850/30000 (19911s) | R: -229.8 | SWAPs: 353 | Gates: 100% | Done: 92% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5449032 | ep_time: 1.1s
+Ep 13875/30000 (19940s) | R: -234.1 | SWAPs: 352 | Gates: 99% | Done: 84% | Loss: 0.014 | Q: -10.2 | ε: 0.100 | Steps: 5457844 | ep_time: 1.3s
+Ep 13900/30000 (19971s) | R: -249.3 | SWAPs: 366 | Gates: 99% | Done: 84% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5466991 | ep_time: 1.2s
+Ep 13925/30000 (20000s) | R: -236.1 | SWAPs: 358 | Gates: 100% | Done: 92% | Loss: 0.011 | Q: -10.1 | ε: 0.100 | Steps: 5475946 | ep_time: 1.3s
+Ep 13950/30000 (20031s) | R: -225.7 | SWAPs: 350 | Gates: 99% | Done: 92% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5484691 | ep_time: 1.1s
+Ep 13975/30000 (20061s) | R: -232.2 | SWAPs: 354 | Gates: 99% | Done: 88% | Loss: 0.012 | Q: -10.2 | ε: 0.100 | Steps: 5493546 | ep_time: 1.1s
+Ep 14000/30000 (20090s) | R: -240.0 | SWAPs: 357 | Gates: 99% | Done: 84% | Loss: 0.014 | Q: -10.2 | ε: 0.100 | Steps: 5502476 | ep_time: 1.1s
+
+--- Evaluation at episode 14000 ---
+  EVAL | Agent: 322.1 SABRE: 187.9 | Ratio: 1.66 | Done: 88%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep14000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep14000.pt
+Ep 14025/30000 (20143s) | R: -233.7 | SWAPs: 355 | Gates: 99% | Done: 84% | Loss: 0.015 | Q: -10.1 | ε: 0.100 | Steps: 5511339 | ep_time: 1.3s
+Ep 14050/30000 (20172s) | R: -225.5 | SWAPs: 348 | Gates: 100% | Done: 92% | Loss: 0.012 | Q: -10.3 | ε: 0.100 | Steps: 5520047 | ep_time: 1.4s
+Ep 14075/30000 (20203s) | R: -224.1 | SWAPs: 347 | Gates: 99% | Done: 88% | Loss: 0.010 | Q: -10.2 | ε: 0.100 | Steps: 5528729 | ep_time: 1.2s
+Ep 14100/30000 (20233s) | R: -220.4 | SWAPs: 341 | Gates: 99% | Done: 88% | Loss: 0.015 | Q: -10.2 | ε: 0.100 | Steps: 5537242 | ep_time: 1.1s
+Ep 14125/30000 (20264s) | R: -232.1 | SWAPs: 353 | Gates: 100% | Done: 88% | Loss: 0.017 | Q: -10.2 | ε: 0.100 | Steps: 5546057 | ep_time: 1.0s
+Ep 14150/30000 (20296s) | R: -234.4 | SWAPs: 356 | Gates: 99% | Done: 92% | Loss: 0.012 | Q: -10.3 | ε: 0.100 | Steps: 5554963 | ep_time: 1.4s
+Ep 14175/30000 (20327s) | R: -234.3 | SWAPs: 353 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.2 | ε: 0.100 | Steps: 5563794 | ep_time: 1.3s
+Ep 14200/30000 (20358s) | R: -231.6 | SWAPs: 354 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.2 | ε: 0.100 | Steps: 5572642 | ep_time: 1.2s
+Ep 14225/30000 (20390s) | R: -240.7 | SWAPs: 356 | Gates: 99% | Done: 80% | Loss: 0.013 | Q: -10.2 | ε: 0.100 | Steps: 5581540 | ep_time: 1.0s
+Ep 14250/30000 (20421s) | R: -238.8 | SWAPs: 358 | Gates: 99% | Done: 84% | Loss: 0.013 | Q: -10.3 | ε: 0.100 | Steps: 5590492 | ep_time: 1.0s
+Ep 14275/30000 (20450s) | R: -234.9 | SWAPs: 355 | Gates: 100% | Done: 88% | Loss: 0.012 | Q: -10.3 | ε: 0.100 | Steps: 5599364 | ep_time: 1.0s
+Ep 14300/30000 (20481s) | R: -231.4 | SWAPs: 351 | Gates: 99% | Done: 88% | Loss: 0.013 | Q: -10.3 | ε: 0.100 | Steps: 5608136 | ep_time: 1.3s
+Ep 14325/30000 (20513s) | R: -240.8 | SWAPs: 359 | Gates: 99% | Done: 88% | Loss: 0.014 | Q: -10.3 | ε: 0.100 | Steps: 5617112 | ep_time: 1.2s
+Ep 14350/30000 (20545s) | R: -251.3 | SWAPs: 366 | Gates: 99% | Done: 76% | Loss: 0.013 | Q: -10.3 | ε: 0.100 | Steps: 5626266 | ep_time: 1.4s
+Ep 14375/30000 (20576s) | R: -230.1 | SWAPs: 352 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.3 | ε: 0.100 | Steps: 5635058 | ep_time: 1.2s
+Ep 14400/30000 (20607s) | R: -229.4 | SWAPs: 350 | Gates: 99% | Done: 88% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5643806 | ep_time: 1.3s
+Ep 14425/30000 (20638s) | R: -226.9 | SWAPs: 345 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.3 | ε: 0.100 | Steps: 5652435 | ep_time: 1.4s
+Ep 14450/30000 (20669s) | R: -230.9 | SWAPs: 351 | Gates: 99% | Done: 88% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5661212 | ep_time: 1.2s
+Ep 14475/30000 (20698s) | R: -225.1 | SWAPs: 345 | Gates: 100% | Done: 92% | Loss: 0.015 | Q: -10.4 | ε: 0.100 | Steps: 5669847 | ep_time: 1.1s
+Ep 14500/30000 (20728s) | R: -225.6 | SWAPs: 349 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5678561 | ep_time: 1.0s
+
+--- Evaluation at episode 14500 ---
+  EVAL | Agent: 285.4 SABRE: 186.1 | Ratio: 1.52 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep14500.png
+Ep 14525/30000 (20778s) | R: -224.5 | SWAPs: 347 | Gates: 100% | Done: 88% | Loss: 0.014 | Q: -10.4 | ε: 0.100 | Steps: 5687226 | ep_time: 1.2s
+Ep 14550/30000 (20808s) | R: -210.9 | SWAPs: 337 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5695657 | ep_time: 1.3s
+Ep 14575/30000 (20838s) | R: -223.6 | SWAPs: 346 | Gates: 100% | Done: 96% | Loss: 0.010 | Q: -10.4 | ε: 0.100 | Steps: 5704307 | ep_time: 1.2s
+Ep 14600/30000 (20870s) | R: -233.1 | SWAPs: 353 | Gates: 99% | Done: 92% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5713127 | ep_time: 1.3s
+Ep 14625/30000 (20901s) | R: -224.0 | SWAPs: 348 | Gates: 99% | Done: 92% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5721821 | ep_time: 1.2s
+Ep 14650/30000 (20931s) | R: -221.9 | SWAPs: 341 | Gates: 99% | Done: 88% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5730348 | ep_time: 1.1s
+Ep 14675/30000 (20961s) | R: -212.4 | SWAPs: 335 | Gates: 100% | Done: 88% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 5738732 | ep_time: 1.1s
+Ep 14700/30000 (20992s) | R: -223.3 | SWAPs: 347 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.4 | ε: 0.100 | Steps: 5747419 | ep_time: 1.3s
+Ep 14725/30000 (21021s) | R: -226.9 | SWAPs: 347 | Gates: 100% | Done: 88% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5756100 | ep_time: 1.1s
+Ep 14750/30000 (21051s) | R: -223.4 | SWAPs: 344 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 5764696 | ep_time: 1.3s
+Ep 14775/30000 (21081s) | R: -213.9 | SWAPs: 341 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 5773233 | ep_time: 1.2s
+Ep 14800/30000 (21110s) | R: -197.2 | SWAPs: 322 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 5781289 | ep_time: 1.1s
+Ep 14825/30000 (21140s) | R: -212.1 | SWAPs: 339 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5789754 | ep_time: 1.1s
+Ep 14850/30000 (21170s) | R: -215.1 | SWAPs: 339 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -10.5 | ε: 0.100 | Steps: 5798220 | ep_time: 1.3s
+Ep 14875/30000 (21199s) | R: -203.7 | SWAPs: 331 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5806505 | ep_time: 1.3s
+Ep 14900/30000 (21230s) | R: -215.0 | SWAPs: 342 | Gates: 100% | Done: 92% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 5815058 | ep_time: 1.3s
+Ep 14925/30000 (21259s) | R: -201.3 | SWAPs: 330 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5823302 | ep_time: 1.1s
+Ep 14950/30000 (21289s) | R: -211.2 | SWAPs: 337 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.5 | ε: 0.100 | Steps: 5831727 | ep_time: 1.1s
+Ep 14975/30000 (21319s) | R: -202.1 | SWAPs: 333 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5840053 | ep_time: 1.1s
+Ep 15000/30000 (21350s) | R: -222.6 | SWAPs: 344 | Gates: 99% | Done: 88% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5848664 | ep_time: 1.1s
+
+--- Evaluation at episode 15000 ---
+  EVAL | Agent: 280.6 SABRE: 186.5 | Ratio: 1.48 | Done: 96%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep15000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep15000.pt
+Ep 15025/30000 (21400s) | R: -211.5 | SWAPs: 338 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5857116 | ep_time: 1.1s
+Ep 15050/30000 (21428s) | R: -189.5 | SWAPs: 316 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -10.5 | ε: 0.100 | Steps: 5865005 | ep_time: 1.3s
+Ep 15075/30000 (21457s) | R: -198.3 | SWAPs: 323 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.4 | ε: 0.100 | Steps: 5873092 | ep_time: 1.1s
+Ep 15100/30000 (21486s) | R: -209.5 | SWAPs: 336 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5881490 | ep_time: 1.1s
+Ep 15125/30000 (21515s) | R: -206.2 | SWAPs: 332 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5889787 | ep_time: 1.3s
+Ep 15150/30000 (21545s) | R: -210.4 | SWAPs: 337 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5898210 | ep_time: 1.2s
+Ep 15175/30000 (21574s) | R: -202.1 | SWAPs: 327 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 5906396 | ep_time: 1.0s
+Ep 15200/30000 (21604s) | R: -213.0 | SWAPs: 338 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 5914837 | ep_time: 1.4s
+Ep 15225/30000 (21634s) | R: -203.6 | SWAPs: 329 | Gates: 100% | Done: 96% | Loss: 0.010 | Q: -10.5 | ε: 0.100 | Steps: 5923054 | ep_time: 1.3s
+Ep 15250/30000 (21664s) | R: -214.2 | SWAPs: 337 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -10.5 | ε: 0.100 | Steps: 5931469 | ep_time: 1.2s
+Ep 15275/30000 (21693s) | R: -215.3 | SWAPs: 336 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 5939868 | ep_time: 1.3s
+Ep 15300/30000 (21722s) | R: -193.3 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.4 | ε: 0.100 | Steps: 5947856 | ep_time: 1.3s
+Ep 15325/30000 (21750s) | R: -203.1 | SWAPs: 328 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.4 | ε: 0.100 | Steps: 5956065 | ep_time: 1.2s
+Ep 15350/30000 (21777s) | R: -204.4 | SWAPs: 332 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.4 | ε: 0.100 | Steps: 5964362 | ep_time: 1.2s
+Ep 15375/30000 (21805s) | R: -220.9 | SWAPs: 343 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 5972926 | ep_time: 1.1s
+Ep 15400/30000 (21835s) | R: -208.3 | SWAPs: 339 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -10.5 | ε: 0.100 | Steps: 5981394 | ep_time: 1.1s
+Ep 15425/30000 (21863s) | R: -199.0 | SWAPs: 325 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5989523 | ep_time: 1.0s
+Ep 15450/30000 (21892s) | R: -210.6 | SWAPs: 335 | Gates: 100% | Done: 92% | Loss: 0.013 | Q: -10.4 | ε: 0.100 | Steps: 5997897 | ep_time: 1.3s
+Ep 15475/30000 (21922s) | R: -206.3 | SWAPs: 333 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 6006213 | ep_time: 1.1s
+Ep 15500/30000 (21952s) | R: -217.7 | SWAPs: 342 | Gates: 100% | Done: 88% | Loss: 0.012 | Q: -10.5 | ε: 0.100 | Steps: 6014751 | ep_time: 1.1s
+
+--- Evaluation at episode 15500 ---
+  EVAL | Agent: 283.6 SABRE: 187.4 | Ratio: 1.49 | Done: 94%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep15500.png
+Ep 15525/30000 (22001s) | R: -210.5 | SWAPs: 336 | Gates: 99% | Done: 96% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 6023153 | ep_time: 1.2s
+Ep 15550/30000 (22031s) | R: -206.0 | SWAPs: 332 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.5 | ε: 0.100 | Steps: 6031446 | ep_time: 1.1s
+Ep 15575/30000 (22061s) | R: -215.9 | SWAPs: 341 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 6039959 | ep_time: 1.2s
+Ep 15600/30000 (22090s) | R: -202.1 | SWAPs: 329 | Gates: 100% | Done: 96% | Loss: 0.016 | Q: -10.5 | ε: 0.100 | Steps: 6048174 | ep_time: 1.3s
+Ep 15625/30000 (22120s) | R: -210.8 | SWAPs: 338 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 6056614 | ep_time: 1.1s
+Ep 15650/30000 (22150s) | R: -219.3 | SWAPs: 340 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 6065118 | ep_time: 1.2s
+Ep 15675/30000 (22179s) | R: -201.0 | SWAPs: 327 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -10.6 | ε: 0.100 | Steps: 6073292 | ep_time: 1.2s
+Ep 15700/30000 (22208s) | R: -199.1 | SWAPs: 326 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.5 | ε: 0.100 | Steps: 6081435 | ep_time: 1.1s
+Ep 15725/30000 (22239s) | R: -222.2 | SWAPs: 344 | Gates: 99% | Done: 88% | Loss: 0.014 | Q: -10.6 | ε: 0.100 | Steps: 6090034 | ep_time: 1.4s
+Ep 15750/30000 (22269s) | R: -207.9 | SWAPs: 335 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.6 | ε: 0.100 | Steps: 6098398 | ep_time: 1.1s
+Ep 15775/30000 (22299s) | R: -210.3 | SWAPs: 335 | Gates: 100% | Done: 96% | Loss: 0.010 | Q: -10.6 | ε: 0.100 | Steps: 6106764 | ep_time: 1.3s
+Ep 15800/30000 (22329s) | R: -207.3 | SWAPs: 335 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.6 | ε: 0.100 | Steps: 6115127 | ep_time: 1.3s
+Ep 15825/30000 (22358s) | R: -202.5 | SWAPs: 328 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6123335 | ep_time: 1.2s
+Ep 15850/30000 (22388s) | R: -206.6 | SWAPs: 333 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.6 | ε: 0.100 | Steps: 6131665 | ep_time: 1.1s
+Ep 15875/30000 (22416s) | R: -187.2 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.6 | ε: 0.100 | Steps: 6139548 | ep_time: 1.1s
+Ep 15900/30000 (22443s) | R: -174.9 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.7 | ε: 0.100 | Steps: 6147176 | ep_time: 1.2s
+Ep 15925/30000 (22473s) | R: -209.1 | SWAPs: 336 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6155582 | ep_time: 1.3s
+Ep 15950/30000 (22503s) | R: -205.5 | SWAPs: 333 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.6 | ε: 0.100 | Steps: 6163897 | ep_time: 1.2s
+Ep 15975/30000 (22533s) | R: -215.9 | SWAPs: 339 | Gates: 100% | Done: 88% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6172373 | ep_time: 1.4s
+Ep 16000/30000 (22563s) | R: -205.5 | SWAPs: 333 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.6 | ε: 0.100 | Steps: 6180692 | ep_time: 1.2s
+
+--- Evaluation at episode 16000 ---
+  EVAL | Agent: 268.8 SABRE: 187.1 | Ratio: 1.43 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep16000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep16000.pt
+Ep 16025/30000 (22612s) | R: -209.6 | SWAPs: 337 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6189124 | ep_time: 1.2s
+Ep 16050/30000 (22642s) | R: -205.3 | SWAPs: 332 | Gates: 100% | Done: 96% | Loss: 0.015 | Q: -10.7 | ε: 0.100 | Steps: 6197418 | ep_time: 1.3s
+Ep 16075/30000 (22670s) | R: -186.6 | SWAPs: 318 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.7 | ε: 0.100 | Steps: 6205363 | ep_time: 1.3s
+Ep 16100/30000 (22699s) | R: -191.0 | SWAPs: 321 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -10.7 | ε: 0.100 | Steps: 6213377 | ep_time: 1.0s
+Ep 16125/30000 (22727s) | R: -187.9 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -10.6 | ε: 0.100 | Steps: 6221258 | ep_time: 1.1s
+Ep 16150/30000 (22755s) | R: -183.8 | SWAPs: 314 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -10.7 | ε: 0.100 | Steps: 6229117 | ep_time: 1.2s
+Ep 16175/30000 (22785s) | R: -206.4 | SWAPs: 330 | Gates: 99% | Done: 92% | Loss: 0.015 | Q: -10.7 | ε: 0.100 | Steps: 6237370 | ep_time: 1.0s
+Ep 16200/30000 (22814s) | R: -206.5 | SWAPs: 332 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.7 | ε: 0.100 | Steps: 6245673 | ep_time: 1.1s
+Ep 16225/30000 (22843s) | R: -201.6 | SWAPs: 327 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.6 | ε: 0.100 | Steps: 6253854 | ep_time: 1.4s
+Ep 16250/30000 (22873s) | R: -196.5 | SWAPs: 328 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6262045 | ep_time: 1.1s
+Ep 16275/30000 (22903s) | R: -211.6 | SWAPs: 338 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.7 | ε: 0.100 | Steps: 6270495 | ep_time: 1.1s
+Ep 16300/30000 (22932s) | R: -205.6 | SWAPs: 330 | Gates: 100% | Done: 96% | Loss: 0.010 | Q: -10.7 | ε: 0.100 | Steps: 6278748 | ep_time: 1.0s
+Ep 16325/30000 (22961s) | R: -202.1 | SWAPs: 325 | Gates: 99% | Done: 92% | Loss: 0.012 | Q: -10.7 | ε: 0.100 | Steps: 6286867 | ep_time: 1.0s
+Ep 16350/30000 (22990s) | R: -196.3 | SWAPs: 321 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6294881 | ep_time: 1.1s
+Ep 16375/30000 (23018s) | R: -199.2 | SWAPs: 324 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -10.7 | ε: 0.100 | Steps: 6302991 | ep_time: 1.1s
+Ep 16400/30000 (23048s) | R: -202.3 | SWAPs: 329 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.7 | ε: 0.100 | Steps: 6311221 | ep_time: 1.3s
+Ep 16425/30000 (23078s) | R: -211.6 | SWAPs: 337 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.7 | ε: 0.100 | Steps: 6319638 | ep_time: 1.1s
+Ep 16450/30000 (23106s) | R: -190.5 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6327608 | ep_time: 1.0s
+Ep 16475/30000 (23134s) | R: -192.3 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.8 | ε: 0.100 | Steps: 6335603 | ep_time: 1.2s
+Ep 16500/30000 (23163s) | R: -195.4 | SWAPs: 321 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6343637 | ep_time: 1.1s
+
+--- Evaluation at episode 16500 ---
+  EVAL | Agent: 259.2 SABRE: 187.4 | Ratio: 1.37 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep16500.png
+Ep 16525/30000 (23210s) | R: -191.7 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6351612 | ep_time: 1.1s
+Ep 16550/30000 (23238s) | R: -195.0 | SWAPs: 321 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.7 | ε: 0.100 | Steps: 6359643 | ep_time: 1.0s
+Ep 16575/30000 (23267s) | R: -203.5 | SWAPs: 330 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -10.8 | ε: 0.100 | Steps: 6367881 | ep_time: 1.0s
+Ep 16600/30000 (23295s) | R: -189.4 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6375758 | ep_time: 1.1s
+Ep 16625/30000 (23324s) | R: -199.2 | SWAPs: 324 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6383862 | ep_time: 0.9s
+Ep 16650/30000 (23351s) | R: -198.2 | SWAPs: 324 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6391971 | ep_time: 1.2s
+Ep 16675/30000 (23379s) | R: -202.1 | SWAPs: 326 | Gates: 100% | Done: 92% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6400126 | ep_time: 1.1s
+Ep 16700/30000 (23406s) | R: -190.5 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -10.9 | ε: 0.100 | Steps: 6408092 | ep_time: 1.2s
+Ep 16725/30000 (23433s) | R: -201.1 | SWAPs: 324 | Gates: 99% | Done: 96% | Loss: 0.012 | Q: -10.8 | ε: 0.100 | Steps: 6416194 | ep_time: 1.0s
+Ep 16750/30000 (23460s) | R: -194.5 | SWAPs: 323 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6424264 | ep_time: 1.0s
+Ep 16775/30000 (23489s) | R: -200.5 | SWAPs: 329 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.9 | ε: 0.100 | Steps: 6432498 | ep_time: 1.3s
+Ep 16800/30000 (23517s) | R: -199.1 | SWAPs: 325 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -10.9 | ε: 0.100 | Steps: 6440626 | ep_time: 1.2s
+Ep 16825/30000 (23547s) | R: -206.8 | SWAPs: 333 | Gates: 100% | Done: 92% | Loss: 0.011 | Q: -10.9 | ε: 0.100 | Steps: 6448946 | ep_time: 1.1s
+Ep 16850/30000 (23576s) | R: -197.9 | SWAPs: 326 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.9 | ε: 0.100 | Steps: 6457089 | ep_time: 1.2s
+Ep 16875/30000 (23606s) | R: -205.5 | SWAPs: 331 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -10.9 | ε: 0.100 | Steps: 6465370 | ep_time: 1.1s
+Ep 16900/30000 (23634s) | R: -207.8 | SWAPs: 330 | Gates: 100% | Done: 96% | Loss: 0.016 | Q: -10.9 | ε: 0.100 | Steps: 6473629 | ep_time: 1.3s
+Ep 16925/30000 (23662s) | R: -211.4 | SWAPs: 335 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -10.9 | ε: 0.100 | Steps: 6482012 | ep_time: 1.0s
+Ep 16950/30000 (23689s) | R: -203.9 | SWAPs: 328 | Gates: 100% | Done: 92% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6490221 | ep_time: 1.1s
+Ep 16975/30000 (23716s) | R: -199.9 | SWAPs: 330 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -10.9 | ε: 0.100 | Steps: 6498466 | ep_time: 1.0s
+Ep 17000/30000 (23742s) | R: -185.4 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -10.9 | ε: 0.100 | Steps: 6506294 | ep_time: 1.3s
+
+--- Evaluation at episode 17000 ---
+  EVAL | Agent: 281.2 SABRE: 186.1 | Ratio: 1.46 | Done: 92%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep17000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep17000.pt
+Ep 17025/30000 (23790s) | R: -204.6 | SWAPs: 331 | Gates: 100% | Done: 96% | Loss: 0.015 | Q: -11.0 | ε: 0.100 | Steps: 6514580 | ep_time: 1.0s
+Ep 17050/30000 (23817s) | R: -199.9 | SWAPs: 328 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.0 | ε: 0.100 | Steps: 6522772 | ep_time: 1.3s
+Ep 17075/30000 (23845s) | R: -188.2 | SWAPs: 318 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -10.9 | ε: 0.100 | Steps: 6530718 | ep_time: 1.2s
+Ep 17100/30000 (23873s) | R: -184.6 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.0 | ε: 0.100 | Steps: 6538553 | ep_time: 1.1s
+Ep 17125/30000 (23901s) | R: -187.3 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.1 | ε: 0.100 | Steps: 6546390 | ep_time: 1.2s
+Ep 17150/30000 (23929s) | R: -192.0 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.0 | ε: 0.100 | Steps: 6554392 | ep_time: 1.2s
+Ep 17175/30000 (23959s) | R: -206.2 | SWAPs: 333 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -10.9 | ε: 0.100 | Steps: 6562707 | ep_time: 1.1s
+Ep 17200/30000 (23988s) | R: -206.7 | SWAPs: 330 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -10.9 | ε: 0.100 | Steps: 6570955 | ep_time: 1.1s
+Ep 17225/30000 (24018s) | R: -205.4 | SWAPs: 332 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.1 | ε: 0.100 | Steps: 6579248 | ep_time: 1.2s
+Ep 17250/30000 (24048s) | R: -205.8 | SWAPs: 333 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.0 | ε: 0.100 | Steps: 6587573 | ep_time: 1.3s
+Ep 17275/30000 (24076s) | R: -201.6 | SWAPs: 327 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6595740 | ep_time: 0.9s
+Ep 17300/30000 (24106s) | R: -202.1 | SWAPs: 327 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -11.0 | ε: 0.100 | Steps: 6603911 | ep_time: 1.0s
+Ep 17325/30000 (24135s) | R: -200.7 | SWAPs: 327 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.1 | ε: 0.100 | Steps: 6612079 | ep_time: 1.1s
+Ep 17350/30000 (24164s) | R: -199.9 | SWAPs: 327 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.1 | ε: 0.100 | Steps: 6620264 | ep_time: 1.3s
+Ep 17375/30000 (24191s) | R: -182.4 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.1 | ε: 0.100 | Steps: 6628040 | ep_time: 1.1s
+Ep 17400/30000 (24220s) | R: -191.8 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.0 | ε: 0.100 | Steps: 6636026 | ep_time: 0.9s
+Ep 17425/30000 (24248s) | R: -188.0 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.0 | ε: 0.100 | Steps: 6643999 | ep_time: 1.1s
+Ep 17450/30000 (24275s) | R: -206.0 | SWAPs: 330 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.1 | ε: 0.100 | Steps: 6652254 | ep_time: 1.3s
+Ep 17475/30000 (24302s) | R: -195.2 | SWAPs: 322 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.0 | ε: 0.100 | Steps: 6660301 | ep_time: 0.9s
+Ep 17500/30000 (24329s) | R: -203.4 | SWAPs: 329 | Gates: 100% | Done: 92% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6668523 | ep_time: 1.2s
+
+--- Evaluation at episode 17500 ---
+  EVAL | Agent: 265.9 SABRE: 187.8 | Ratio: 1.42 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep17500.png
+Ep 17525/30000 (24376s) | R: -188.6 | SWAPs: 316 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6676425 | ep_time: 1.2s
+Ep 17550/30000 (24404s) | R: -195.2 | SWAPs: 321 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.1 | ε: 0.100 | Steps: 6684447 | ep_time: 1.2s
+Ep 17575/30000 (24432s) | R: -186.5 | SWAPs: 314 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6692301 | ep_time: 1.0s
+Ep 17600/30000 (24460s) | R: -186.4 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -11.1 | ε: 0.100 | Steps: 6700115 | ep_time: 1.3s
+Ep 17625/30000 (24486s) | R: -179.4 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.1 | ε: 0.100 | Steps: 6707739 | ep_time: 0.9s
+Ep 17650/30000 (24512s) | R: -184.9 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.1 | ε: 0.100 | Steps: 6715516 | ep_time: 1.0s
+Ep 17675/30000 (24539s) | R: -198.8 | SWAPs: 325 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.1 | ε: 0.100 | Steps: 6723644 | ep_time: 1.2s
+Ep 17700/30000 (24567s) | R: -191.5 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.0 | ε: 0.100 | Steps: 6731629 | ep_time: 1.2s
+Ep 17725/30000 (24594s) | R: -201.5 | SWAPs: 326 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.1 | ε: 0.100 | Steps: 6739781 | ep_time: 1.2s
+Ep 17750/30000 (24620s) | R: -176.5 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6747374 | ep_time: 1.1s
+Ep 17775/30000 (24647s) | R: -191.9 | SWAPs: 320 | Gates: 100% | Done: 96% | Loss: 0.010 | Q: -11.1 | ε: 0.100 | Steps: 6755363 | ep_time: 1.0s
+Ep 17800/30000 (24676s) | R: -198.3 | SWAPs: 325 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 6763484 | ep_time: 1.3s
+Ep 17825/30000 (24702s) | R: -193.0 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.1 | ε: 0.100 | Steps: 6771477 | ep_time: 1.0s
+Ep 17850/30000 (24729s) | R: -189.5 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 6779466 | ep_time: 0.9s
+Ep 17875/30000 (24755s) | R: -181.5 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.2 | ε: 0.100 | Steps: 6787207 | ep_time: 1.2s
+Ep 17900/30000 (24781s) | R: -195.9 | SWAPs: 322 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.2 | ε: 0.100 | Steps: 6795249 | ep_time: 1.0s
+Ep 17925/30000 (24807s) | R: -180.8 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.2 | ε: 0.100 | Steps: 6802975 | ep_time: 1.0s
+Ep 17950/30000 (24833s) | R: -194.5 | SWAPs: 318 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6810926 | ep_time: 1.1s
+Ep 17975/30000 (24860s) | R: -196.4 | SWAPs: 322 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.1 | ε: 0.100 | Steps: 6818972 | ep_time: 0.9s
+Ep 18000/30000 (24886s) | R: -179.8 | SWAPs: 308 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6826673 | ep_time: 1.0s
+
+--- Evaluation at episode 18000 ---
+  EVAL | Agent: 275.6 SABRE: 187.5 | Ratio: 1.43 | Done: 94%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep18000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep18000.pt
+Ep 18025/30000 (24933s) | R: -185.5 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.2 | ε: 0.100 | Steps: 6834497 | ep_time: 1.1s
+Ep 18050/30000 (24961s) | R: -188.6 | SWAPs: 314 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 6842346 | ep_time: 1.3s
+Ep 18075/30000 (24990s) | R: -192.3 | SWAPs: 318 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.1 | ε: 0.100 | Steps: 6850293 | ep_time: 1.2s
+Ep 18100/30000 (25018s) | R: -191.6 | SWAPs: 317 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.3 | ε: 0.100 | Steps: 6858209 | ep_time: 1.1s
+Ep 18125/30000 (25046s) | R: -194.3 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.3 | ε: 0.100 | Steps: 6866189 | ep_time: 1.1s
+Ep 18150/30000 (25074s) | R: -180.7 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.3 | ε: 0.100 | Steps: 6873972 | ep_time: 1.0s
+Ep 18175/30000 (25101s) | R: -179.3 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.1 | ε: 0.100 | Steps: 6881690 | ep_time: 1.3s
+Ep 18200/30000 (25129s) | R: -185.7 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.2 | ε: 0.100 | Steps: 6889516 | ep_time: 1.2s
+Ep 18225/30000 (25157s) | R: -195.3 | SWAPs: 322 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.2 | ε: 0.100 | Steps: 6897558 | ep_time: 1.1s
+Ep 18250/30000 (25183s) | R: -183.1 | SWAPs: 307 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.2 | ε: 0.100 | Steps: 6905233 | ep_time: 1.0s
+Ep 18275/30000 (25208s) | R: -181.7 | SWAPs: 310 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.3 | ε: 0.100 | Steps: 6912990 | ep_time: 1.1s
+Ep 18300/30000 (25236s) | R: -183.9 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.3 | ε: 0.100 | Steps: 6920738 | ep_time: 1.2s
+Ep 18325/30000 (25265s) | R: -206.8 | SWAPs: 329 | Gates: 100% | Done: 92% | Loss: 0.014 | Q: -11.2 | ε: 0.100 | Steps: 6928964 | ep_time: 1.2s
+Ep 18350/30000 (25294s) | R: -206.1 | SWAPs: 329 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.3 | ε: 0.100 | Steps: 6937182 | ep_time: 1.1s
+Ep 18375/30000 (25323s) | R: -190.6 | SWAPs: 317 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.3 | ε: 0.100 | Steps: 6945115 | ep_time: 1.0s
+Ep 18400/30000 (25352s) | R: -199.5 | SWAPs: 325 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 6953249 | ep_time: 1.0s
+Ep 18425/30000 (25381s) | R: -195.3 | SWAPs: 322 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.2 | ε: 0.100 | Steps: 6961309 | ep_time: 1.0s
+Ep 18450/30000 (25409s) | R: -191.6 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.3 | ε: 0.100 | Steps: 6969279 | ep_time: 1.0s
+Ep 18475/30000 (25438s) | R: -190.9 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.2 | ε: 0.100 | Steps: 6977252 | ep_time: 1.0s
+Ep 18500/30000 (25466s) | R: -194.9 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 6985234 | ep_time: 0.9s
+
+--- Evaluation at episode 18500 ---
+  EVAL | Agent: 258.6 SABRE: 191.0 | Ratio: 1.36 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep18500.png
+Ep 18525/30000 (25511s) | R: -193.4 | SWAPs: 318 | Gates: 99% | Done: 96% | Loss: 0.011 | Q: -11.4 | ε: 0.100 | Steps: 6993191 | ep_time: 0.9s
+Ep 18550/30000 (25540s) | R: -192.7 | SWAPs: 319 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.3 | ε: 0.100 | Steps: 7001171 | ep_time: 1.1s
+Ep 18575/30000 (25567s) | R: -191.3 | SWAPs: 316 | Gates: 100% | Done: 96% | Loss: 0.015 | Q: -11.3 | ε: 0.100 | Steps: 7009082 | ep_time: 1.0s
+Ep 18600/30000 (25594s) | R: -178.4 | SWAPs: 306 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 7016739 | ep_time: 1.1s
+Ep 18625/30000 (25622s) | R: -187.1 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7024619 | ep_time: 1.0s
+Ep 18650/30000 (25649s) | R: -174.1 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.2 | ε: 0.100 | Steps: 7032206 | ep_time: 1.0s
+Ep 18675/30000 (25676s) | R: -179.8 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.2 | ε: 0.100 | Steps: 7039888 | ep_time: 1.2s
+Ep 18700/30000 (25703s) | R: -174.2 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.3 | ε: 0.100 | Steps: 7047520 | ep_time: 1.0s
+Ep 18725/30000 (25730s) | R: -175.2 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.3 | ε: 0.100 | Steps: 7055100 | ep_time: 1.2s
+Ep 18750/30000 (25757s) | R: -191.7 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.4 | ε: 0.100 | Steps: 7063076 | ep_time: 1.1s
+Ep 18775/30000 (25784s) | R: -187.7 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7070895 | ep_time: 1.2s
+Ep 18800/30000 (25812s) | R: -186.2 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.4 | ε: 0.100 | Steps: 7078723 | ep_time: 1.0s
+Ep 18825/30000 (25839s) | R: -184.1 | SWAPs: 312 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7086513 | ep_time: 1.2s
+Ep 18850/30000 (25867s) | R: -181.7 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.4 | ε: 0.100 | Steps: 7094245 | ep_time: 1.1s
+Ep 18875/30000 (25894s) | R: -169.5 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.3 | ε: 0.100 | Steps: 7101716 | ep_time: 1.2s
+Ep 18900/30000 (25921s) | R: -178.0 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -11.3 | ε: 0.100 | Steps: 7109346 | ep_time: 1.1s
+Ep 18925/30000 (25949s) | R: -179.0 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.4 | ε: 0.100 | Steps: 7117022 | ep_time: 1.1s
+Ep 18950/30000 (25976s) | R: -182.9 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7124777 | ep_time: 1.1s
+Ep 18975/30000 (26005s) | R: -190.7 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.4 | ε: 0.100 | Steps: 7132753 | ep_time: 1.4s
+Ep 19000/30000 (26033s) | R: -191.9 | SWAPs: 317 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7140671 | ep_time: 1.4s
+
+--- Evaluation at episode 19000 ---
+  EVAL | Agent: 269.1 SABRE: 184.2 | Ratio: 1.39 | Done: 90%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep19000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep19000.pt
+Ep 19025/30000 (26081s) | R: -190.1 | SWAPs: 317 | Gates: 100% | Done: 96% | Loss: 0.015 | Q: -11.3 | ε: 0.100 | Steps: 7148604 | ep_time: 1.1s
+Ep 19050/30000 (26109s) | R: -193.6 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7156588 | ep_time: 1.1s
+Ep 19075/30000 (26138s) | R: -194.5 | SWAPs: 320 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.4 | ε: 0.100 | Steps: 7164589 | ep_time: 1.1s
+Ep 19100/30000 (26167s) | R: -198.4 | SWAPs: 323 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -11.4 | ε: 0.100 | Steps: 7172667 | ep_time: 1.2s
+Ep 19125/30000 (26195s) | R: -186.5 | SWAPs: 313 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.4 | ε: 0.100 | Steps: 7180499 | ep_time: 1.1s
+Ep 19150/30000 (26221s) | R: -181.6 | SWAPs: 308 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -11.5 | ε: 0.100 | Steps: 7188200 | ep_time: 1.1s
+Ep 19175/30000 (26250s) | R: -196.8 | SWAPs: 320 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.4 | ε: 0.100 | Steps: 7196208 | ep_time: 1.2s
+Ep 19200/30000 (26279s) | R: -188.8 | SWAPs: 319 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.4 | ε: 0.100 | Steps: 7204188 | ep_time: 1.1s
+Ep 19225/30000 (26307s) | R: -186.4 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.5 | ε: 0.100 | Steps: 7212003 | ep_time: 1.0s
+Ep 19250/30000 (26335s) | R: -186.5 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.5 | ε: 0.100 | Steps: 7219884 | ep_time: 1.3s
+Ep 19275/30000 (26363s) | R: -189.4 | SWAPs: 316 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -11.4 | ε: 0.100 | Steps: 7227777 | ep_time: 1.3s
+Ep 19300/30000 (26391s) | R: -176.8 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.5 | ε: 0.100 | Steps: 7235400 | ep_time: 1.1s
+Ep 19325/30000 (26419s) | R: -193.5 | SWAPs: 318 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.5 | ε: 0.100 | Steps: 7243355 | ep_time: 1.2s
+Ep 19350/30000 (26447s) | R: -186.7 | SWAPs: 316 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.5 | ε: 0.100 | Steps: 7251247 | ep_time: 1.1s
+Ep 19375/30000 (26475s) | R: -193.6 | SWAPs: 311 | Gates: 98% | Done: 96% | Loss: 0.014 | Q: -11.5 | ε: 0.100 | Steps: 7259017 | ep_time: 1.0s
+Ep 19400/30000 (26501s) | R: -175.4 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.6 | ε: 0.100 | Steps: 7266621 | ep_time: 1.1s
+Ep 19425/30000 (26526s) | R: -178.9 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.5 | ε: 0.100 | Steps: 7274306 | ep_time: 1.1s
+Ep 19450/30000 (26554s) | R: -185.0 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.4 | ε: 0.100 | Steps: 7282092 | ep_time: 1.2s
+Ep 19475/30000 (26582s) | R: -194.3 | SWAPs: 320 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -11.7 | ε: 0.100 | Steps: 7290089 | ep_time: 1.0s
+Ep 19500/30000 (26611s) | R: -194.0 | SWAPs: 319 | Gates: 100% | Done: 92% | Loss: 0.015 | Q: -11.5 | ε: 0.100 | Steps: 7298059 | ep_time: 1.2s
+
+--- Evaluation at episode 19500 ---
+  EVAL | Agent: 284.8 SABRE: 187.8 | Ratio: 1.43 | Done: 88%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep19500.png
+Ep 19525/30000 (26658s) | R: -189.8 | SWAPs: 317 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.6 | ε: 0.100 | Steps: 7305993 | ep_time: 1.0s
+Ep 19550/30000 (26686s) | R: -187.0 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.5 | ε: 0.100 | Steps: 7313876 | ep_time: 1.0s
+Ep 19575/30000 (26713s) | R: -175.9 | SWAPs: 306 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.7 | ε: 0.100 | Steps: 7321536 | ep_time: 1.2s
+Ep 19600/30000 (26741s) | R: -178.4 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.6 | ε: 0.100 | Steps: 7329216 | ep_time: 1.3s
+Ep 19625/30000 (26769s) | R: -178.6 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.6 | ε: 0.100 | Steps: 7336903 | ep_time: 1.0s
+Ep 19650/30000 (26797s) | R: -180.3 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.6 | ε: 0.100 | Steps: 7344639 | ep_time: 1.2s
+Ep 19675/30000 (26822s) | R: -179.6 | SWAPs: 309 | Gates: 100% | Done: 96% | Loss: 0.012 | Q: -11.6 | ε: 0.100 | Steps: 7352365 | ep_time: 0.9s
+Ep 19700/30000 (26848s) | R: -178.9 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.7 | ε: 0.100 | Steps: 7360032 | ep_time: 1.0s
+Ep 19725/30000 (26876s) | R: -184.6 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.6 | ε: 0.100 | Steps: 7367856 | ep_time: 1.2s
+Ep 19750/30000 (26904s) | R: -186.8 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.6 | ε: 0.100 | Steps: 7375677 | ep_time: 1.0s
+Ep 19775/30000 (26932s) | R: -175.1 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.7 | ε: 0.100 | Steps: 7383267 | ep_time: 1.0s
+Ep 19800/30000 (26959s) | R: -171.1 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -11.7 | ε: 0.100 | Steps: 7390748 | ep_time: 1.0s
+Ep 19825/30000 (26987s) | R: -191.4 | SWAPs: 318 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -11.7 | ε: 0.100 | Steps: 7398695 | ep_time: 1.0s
+Ep 19850/30000 (27014s) | R: -180.5 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.7 | ε: 0.100 | Steps: 7406479 | ep_time: 1.0s
+Ep 19875/30000 (27040s) | R: -190.8 | SWAPs: 316 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -11.7 | ε: 0.100 | Steps: 7414388 | ep_time: 1.1s
+Ep 19900/30000 (27068s) | R: -197.6 | SWAPs: 321 | Gates: 99% | Done: 92% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7422413 | ep_time: 1.1s
+Ep 19925/30000 (27094s) | R: -184.0 | SWAPs: 312 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7430214 | ep_time: 1.0s
+Ep 19950/30000 (27121s) | R: -172.0 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.6 | ε: 0.100 | Steps: 7437680 | ep_time: 1.1s
+Ep 19975/30000 (27148s) | R: -176.8 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.8 | ε: 0.100 | Steps: 7445317 | ep_time: 1.0s
+Ep 20000/30000 (27175s) | R: -176.3 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.7 | ε: 0.100 | Steps: 7452871 | ep_time: 1.0s
+
+--- Evaluation at episode 20000 ---
+  EVAL | Agent: 272.3 SABRE: 189.2 | Ratio: 1.38 | Done: 92%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep20000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep20000.pt
+Ep 20025/30000 (27221s) | R: -174.7 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.8 | ε: 0.100 | Steps: 7460445 | ep_time: 1.1s
+Ep 20050/30000 (27248s) | R: -184.3 | SWAPs: 305 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7468063 | ep_time: 1.3s
+Ep 20075/30000 (27276s) | R: -182.8 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7475804 | ep_time: 1.0s
+Ep 20100/30000 (27302s) | R: -184.0 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7483632 | ep_time: 1.1s
+Ep 20125/30000 (27329s) | R: -176.1 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.8 | ε: 0.100 | Steps: 7491246 | ep_time: 1.3s
+Ep 20150/30000 (27357s) | R: -182.4 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.7 | ε: 0.100 | Steps: 7498998 | ep_time: 1.2s
+Ep 20175/30000 (27386s) | R: -181.1 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.8 | ε: 0.100 | Steps: 7506732 | ep_time: 1.3s
+Ep 20200/30000 (27414s) | R: -187.2 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.8 | ε: 0.100 | Steps: 7514601 | ep_time: 1.1s
+Ep 20225/30000 (27443s) | R: -190.3 | SWAPs: 318 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7522562 | ep_time: 0.9s
+Ep 20250/30000 (27471s) | R: -188.4 | SWAPs: 315 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.7 | ε: 0.100 | Steps: 7530425 | ep_time: 1.2s
+Ep 20275/30000 (27498s) | R: -177.3 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.8 | ε: 0.100 | Steps: 7538032 | ep_time: 1.0s
+Ep 20300/30000 (27526s) | R: -183.0 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.7 | ε: 0.100 | Steps: 7545792 | ep_time: 1.0s
+Ep 20325/30000 (27553s) | R: -173.1 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.8 | ε: 0.100 | Steps: 7553299 | ep_time: 1.1s
+Ep 20350/30000 (27578s) | R: -175.9 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7560910 | ep_time: 0.8s
+Ep 20375/30000 (27603s) | R: -171.7 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.8 | ε: 0.100 | Steps: 7568396 | ep_time: 1.1s
+Ep 20400/30000 (27629s) | R: -177.4 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.7 | ε: 0.100 | Steps: 7576018 | ep_time: 1.1s
+Ep 20425/30000 (27655s) | R: -186.7 | SWAPs: 314 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -11.8 | ε: 0.100 | Steps: 7583861 | ep_time: 1.1s
+Ep 20450/30000 (27681s) | R: -187.7 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7591698 | ep_time: 1.1s
+Ep 20475/30000 (27709s) | R: -177.0 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.8 | ε: 0.100 | Steps: 7599372 | ep_time: 1.0s
+Ep 20500/30000 (27735s) | R: -175.8 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.9 | ε: 0.100 | Steps: 7606936 | ep_time: 1.2s
+
+--- Evaluation at episode 20500 ---
+  EVAL | Agent: 260.2 SABRE: 183.7 | Ratio: 1.42 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep20500.png
+Ep 20525/30000 (27780s) | R: -188.6 | SWAPs: 314 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.9 | ε: 0.100 | Steps: 7614776 | ep_time: 1.0s
+Ep 20550/30000 (27808s) | R: -189.1 | SWAPs: 315 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7622653 | ep_time: 1.3s
+Ep 20575/30000 (27835s) | R: -175.1 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.8 | ε: 0.100 | Steps: 7630276 | ep_time: 1.0s
+Ep 20600/30000 (27862s) | R: -180.7 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -11.9 | ε: 0.100 | Steps: 7637962 | ep_time: 1.1s
+Ep 20625/30000 (27889s) | R: -188.4 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.9 | ε: 0.100 | Steps: 7645788 | ep_time: 1.1s
+Ep 20650/30000 (27916s) | R: -179.2 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.8 | ε: 0.100 | Steps: 7653423 | ep_time: 1.0s
+Ep 20675/30000 (27944s) | R: -180.3 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -11.9 | ε: 0.100 | Steps: 7661097 | ep_time: 1.1s
+Ep 20700/30000 (27972s) | R: -188.0 | SWAPs: 314 | Gates: 100% | Done: 96% | Loss: 0.016 | Q: -12.0 | ε: 0.100 | Steps: 7668940 | ep_time: 1.1s
+Ep 20725/30000 (27999s) | R: -174.7 | SWAPs: 306 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -11.9 | ε: 0.100 | Steps: 7676595 | ep_time: 1.0s
+Ep 20750/30000 (28026s) | R: -174.0 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.8 | ε: 0.100 | Steps: 7684072 | ep_time: 1.1s
+Ep 20775/30000 (28053s) | R: -178.6 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.9 | ε: 0.100 | Steps: 7691690 | ep_time: 1.1s
+Ep 20800/30000 (28080s) | R: -178.9 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.0 | ε: 0.100 | Steps: 7699301 | ep_time: 1.2s
+Ep 20825/30000 (28107s) | R: -178.0 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.0 | ε: 0.100 | Steps: 7706969 | ep_time: 1.1s
+Ep 20850/30000 (28134s) | R: -180.6 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7714716 | ep_time: 1.1s
+Ep 20875/30000 (28161s) | R: -185.5 | SWAPs: 308 | Gates: 100% | Done: 96% | Loss: 0.017 | Q: -11.9 | ε: 0.100 | Steps: 7722415 | ep_time: 1.1s
+Ep 20900/30000 (28188s) | R: -186.1 | SWAPs: 313 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7730241 | ep_time: 1.1s
+Ep 20925/30000 (28215s) | R: -171.8 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.0 | ε: 0.100 | Steps: 7737734 | ep_time: 1.2s
+Ep 20950/30000 (28242s) | R: -171.9 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -11.8 | ε: 0.100 | Steps: 7745275 | ep_time: 1.1s
+Ep 20975/30000 (28269s) | R: -182.9 | SWAPs: 309 | Gates: 100% | Done: 96% | Loss: 0.015 | Q: -11.9 | ε: 0.100 | Steps: 7752996 | ep_time: 1.0s
+Ep 21000/30000 (28296s) | R: -172.1 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7760469 | ep_time: 1.1s
+
+--- Evaluation at episode 21000 ---
+  EVAL | Agent: 252.5 SABRE: 187.6 | Ratio: 1.35 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep21000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep21000.pt
+Ep 21025/30000 (28342s) | R: -189.2 | SWAPs: 314 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7768316 | ep_time: 1.1s
+Ep 21050/30000 (28370s) | R: -182.3 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.0 | ε: 0.100 | Steps: 7775993 | ep_time: 1.3s
+Ep 21075/30000 (28397s) | R: -171.6 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.0 | ε: 0.100 | Steps: 7783500 | ep_time: 0.9s
+Ep 21100/30000 (28422s) | R: -177.5 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7791103 | ep_time: 0.9s
+Ep 21125/30000 (28447s) | R: -171.4 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7798573 | ep_time: 1.0s
+Ep 21150/30000 (28472s) | R: -175.8 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7806150 | ep_time: 0.9s
+Ep 21175/30000 (28498s) | R: -177.0 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7813773 | ep_time: 0.9s
+Ep 21200/30000 (28522s) | R: -168.1 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.0 | ε: 0.100 | Steps: 7821158 | ep_time: 0.9s
+Ep 21225/30000 (28548s) | R: -180.9 | SWAPs: 306 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.0 | ε: 0.100 | Steps: 7828813 | ep_time: 1.0s
+Ep 21250/30000 (28573s) | R: -182.2 | SWAPs: 310 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.0 | ε: 0.100 | Steps: 7836567 | ep_time: 1.0s
+Ep 21275/30000 (28599s) | R: -175.1 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.0 | ε: 0.100 | Steps: 7844143 | ep_time: 0.9s
+Ep 21300/30000 (28625s) | R: -173.1 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.9 | ε: 0.100 | Steps: 7851632 | ep_time: 1.1s
+Ep 21325/30000 (28651s) | R: -172.4 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -11.9 | ε: 0.100 | Steps: 7859134 | ep_time: 1.0s
+Ep 21350/30000 (28677s) | R: -172.5 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.0 | ε: 0.100 | Steps: 7866641 | ep_time: 0.9s
+Ep 21375/30000 (28703s) | R: -183.4 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.0 | ε: 0.100 | Steps: 7874407 | ep_time: 1.1s
+Ep 21400/30000 (28730s) | R: -175.9 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 7882025 | ep_time: 0.9s
+Ep 21425/30000 (28758s) | R: -183.9 | SWAPs: 311 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -12.1 | ε: 0.100 | Steps: 7889795 | ep_time: 1.0s
+Ep 21450/30000 (28786s) | R: -180.9 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.0 | ε: 0.100 | Steps: 7897480 | ep_time: 1.1s
+Ep 21475/30000 (28813s) | R: -176.2 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 7905072 | ep_time: 1.0s
+Ep 21500/30000 (28838s) | R: -170.5 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.1 | ε: 0.100 | Steps: 7912508 | ep_time: 1.0s
+
+--- Evaluation at episode 21500 ---
+  EVAL | Agent: 256.1 SABRE: 188.1 | Ratio: 1.36 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep21500.png
+Ep 21525/30000 (28883s) | R: -180.5 | SWAPs: 311 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.1 | ε: 0.100 | Steps: 7920279 | ep_time: 1.3s
+Ep 21550/30000 (28910s) | R: -170.0 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.0 | ε: 0.100 | Steps: 7927712 | ep_time: 1.1s
+Ep 21575/30000 (28936s) | R: -164.9 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -11.9 | ε: 0.100 | Steps: 7935106 | ep_time: 1.0s
+Ep 21600/30000 (28964s) | R: -176.8 | SWAPs: 306 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.0 | ε: 0.100 | Steps: 7942754 | ep_time: 1.0s
+Ep 21625/30000 (28990s) | R: -166.1 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.1 | ε: 0.100 | Steps: 7950130 | ep_time: 1.0s
+Ep 21650/30000 (29016s) | R: -166.0 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.0 | ε: 0.100 | Steps: 7957449 | ep_time: 1.0s
+Ep 21675/30000 (29042s) | R: -167.7 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 7964851 | ep_time: 1.0s
+Ep 21700/30000 (29069s) | R: -173.7 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.1 | ε: 0.100 | Steps: 7972425 | ep_time: 1.1s
+Ep 21725/30000 (29096s) | R: -170.0 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.1 | ε: 0.100 | Steps: 7979887 | ep_time: 1.1s
+Ep 21750/30000 (29123s) | R: -178.7 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.1 | ε: 0.100 | Steps: 7987497 | ep_time: 1.1s
+Ep 21775/30000 (29150s) | R: -169.9 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.1 | ε: 0.100 | Steps: 7995016 | ep_time: 1.0s
+Ep 21800/30000 (29177s) | R: -169.3 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 8002444 | ep_time: 0.9s
+Ep 21825/30000 (29204s) | R: -171.8 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 8009962 | ep_time: 1.2s
+Ep 21850/30000 (29231s) | R: -173.5 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.1 | ε: 0.100 | Steps: 8017518 | ep_time: 1.0s
+Ep 21875/30000 (29258s) | R: -173.5 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.2 | ε: 0.100 | Steps: 8025041 | ep_time: 1.1s
+Ep 21900/30000 (29284s) | R: -168.2 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.2 | ε: 0.100 | Steps: 8032450 | ep_time: 0.9s
+Ep 21925/30000 (29312s) | R: -176.1 | SWAPs: 307 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.2 | ε: 0.100 | Steps: 8040113 | ep_time: 1.1s
+Ep 21950/30000 (29338s) | R: -167.7 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.2 | ε: 0.100 | Steps: 8047532 | ep_time: 1.0s
+Ep 21975/30000 (29365s) | R: -170.4 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.2 | ε: 0.100 | Steps: 8055017 | ep_time: 1.1s
+Ep 22000/30000 (29392s) | R: -179.2 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.2 | ε: 0.100 | Steps: 8062592 | ep_time: 1.0s
+
+--- Evaluation at episode 22000 ---
+  EVAL | Agent: 250.1 SABRE: 188.4 | Ratio: 1.32 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep22000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep22000.pt
+Ep 22025/30000 (29438s) | R: -179.6 | SWAPs: 308 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.2 | ε: 0.100 | Steps: 8070293 | ep_time: 1.1s
+Ep 22050/30000 (29464s) | R: -162.6 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.0 | ε: 0.100 | Steps: 8077582 | ep_time: 1.1s
+Ep 22075/30000 (29492s) | R: -177.2 | SWAPs: 309 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.2 | ε: 0.100 | Steps: 8085296 | ep_time: 1.1s
+Ep 22100/30000 (29519s) | R: -170.5 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.2 | ε: 0.100 | Steps: 8092715 | ep_time: 1.0s
+Ep 22125/30000 (29545s) | R: -180.0 | SWAPs: 299 | Gates: 99% | Done: 96% | Loss: 0.013 | Q: -12.1 | ε: 0.100 | Steps: 8100192 | ep_time: 1.0s
+Ep 22150/30000 (29570s) | R: -169.2 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.2 | ε: 0.100 | Steps: 8107655 | ep_time: 1.0s
+Ep 22175/30000 (29597s) | R: -175.1 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.2 | ε: 0.100 | Steps: 8115229 | ep_time: 1.0s
+Ep 22200/30000 (29624s) | R: -180.9 | SWAPs: 308 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.3 | ε: 0.100 | Steps: 8122924 | ep_time: 1.1s
+Ep 22225/30000 (29651s) | R: -171.2 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.2 | ε: 0.100 | Steps: 8130357 | ep_time: 1.0s
+Ep 22250/30000 (29678s) | R: -171.6 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.3 | ε: 0.100 | Steps: 8137859 | ep_time: 1.1s
+Ep 22275/30000 (29704s) | R: -175.5 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.2 | ε: 0.100 | Steps: 8145441 | ep_time: 1.1s
+Ep 22300/30000 (29732s) | R: -182.1 | SWAPs: 308 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -12.2 | ε: 0.100 | Steps: 8153143 | ep_time: 1.1s
+Ep 22325/30000 (29758s) | R: -167.8 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.3 | ε: 0.100 | Steps: 8160596 | ep_time: 1.0s
+Ep 22350/30000 (29785s) | R: -169.0 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.2 | ε: 0.100 | Steps: 8168074 | ep_time: 1.1s
+Ep 22375/30000 (29812s) | R: -168.8 | SWAPs: 296 | Gates: 100% | Done: 96% | Loss: 0.011 | Q: -12.3 | ε: 0.100 | Steps: 8175483 | ep_time: 1.1s
+Ep 22400/30000 (29839s) | R: -173.1 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.3 | ε: 0.100 | Steps: 8183040 | ep_time: 1.1s
+Ep 22425/30000 (29865s) | R: -174.5 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.4 | ε: 0.100 | Steps: 8190573 | ep_time: 0.9s
+Ep 22450/30000 (29892s) | R: -170.3 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.2 | ε: 0.100 | Steps: 8198018 | ep_time: 0.9s
+Ep 22475/30000 (29918s) | R: -167.6 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.4 | ε: 0.100 | Steps: 8205448 | ep_time: 1.0s
+Ep 22500/30000 (29945s) | R: -166.0 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.3 | ε: 0.100 | Steps: 8212853 | ep_time: 1.1s
+
+--- Evaluation at episode 22500 ---
+  EVAL | Agent: 248.5 SABRE: 188.1 | Ratio: 1.31 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep22500.png
+Ep 22525/30000 (29989s) | R: -169.4 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.4 | ε: 0.100 | Steps: 8220348 | ep_time: 1.1s
+Ep 22550/30000 (30016s) | R: -174.7 | SWAPs: 304 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.3 | ε: 0.100 | Steps: 8227955 | ep_time: 1.0s
+Ep 22575/30000 (30043s) | R: -167.5 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.3 | ε: 0.100 | Steps: 8235352 | ep_time: 1.0s
+Ep 22600/30000 (30069s) | R: -162.2 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.3 | ε: 0.100 | Steps: 8242647 | ep_time: 0.9s
+Ep 22625/30000 (30095s) | R: -166.7 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.4 | ε: 0.100 | Steps: 8250032 | ep_time: 0.9s
+Ep 22650/30000 (30121s) | R: -159.7 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.4 | ε: 0.100 | Steps: 8257295 | ep_time: 1.0s
+Ep 22675/30000 (30148s) | R: -172.3 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8264743 | ep_time: 1.0s
+Ep 22700/30000 (30175s) | R: -173.2 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.3 | ε: 0.100 | Steps: 8272302 | ep_time: 1.1s
+Ep 22725/30000 (30201s) | R: -166.2 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.4 | ε: 0.100 | Steps: 8279588 | ep_time: 1.0s
+Ep 22750/30000 (30227s) | R: -170.0 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.4 | ε: 0.100 | Steps: 8287045 | ep_time: 1.1s
+Ep 22775/30000 (30254s) | R: -174.8 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.3 | ε: 0.100 | Steps: 8294605 | ep_time: 1.1s
+Ep 22800/30000 (30281s) | R: -167.7 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.4 | ε: 0.100 | Steps: 8302041 | ep_time: 1.0s
+Ep 22825/30000 (30307s) | R: -166.9 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.4 | ε: 0.100 | Steps: 8309457 | ep_time: 1.1s
+Ep 22850/30000 (30335s) | R: -177.5 | SWAPs: 305 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.5 | ε: 0.100 | Steps: 8317089 | ep_time: 0.9s
+Ep 22875/30000 (30361s) | R: -166.2 | SWAPs: 294 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.4 | ε: 0.100 | Steps: 8324433 | ep_time: 1.0s
+Ep 22900/30000 (30387s) | R: -163.6 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8331800 | ep_time: 1.0s
+Ep 22925/30000 (30414s) | R: -170.7 | SWAPs: 297 | Gates: 100% | Done: 96% | Loss: 0.016 | Q: -12.4 | ε: 0.100 | Steps: 8339215 | ep_time: 1.0s
+Ep 22950/30000 (30440s) | R: -163.2 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.3 | ε: 0.100 | Steps: 8346472 | ep_time: 1.2s
+Ep 22975/30000 (30467s) | R: -172.2 | SWAPs: 298 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8353913 | ep_time: 1.1s
+Ep 23000/30000 (30494s) | R: -167.3 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.5 | ε: 0.100 | Steps: 8361340 | ep_time: 1.1s
+
+--- Evaluation at episode 23000 ---
+  EVAL | Agent: 238.8 SABRE: 184.0 | Ratio: 1.28 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep23000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep23000.pt
+Ep 23025/30000 (30538s) | R: -164.0 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.3 | ε: 0.100 | Steps: 8368640 | ep_time: 1.1s
+Ep 23050/30000 (30564s) | R: -165.1 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.3 | ε: 0.100 | Steps: 8376013 | ep_time: 1.0s
+Ep 23075/30000 (30591s) | R: -173.7 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.5 | ε: 0.100 | Steps: 8383539 | ep_time: 1.1s
+Ep 23100/30000 (30616s) | R: -161.4 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.4 | ε: 0.100 | Steps: 8390802 | ep_time: 1.1s
+Ep 23125/30000 (30643s) | R: -173.6 | SWAPs: 301 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8398339 | ep_time: 1.0s
+Ep 23150/30000 (30669s) | R: -157.7 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.4 | ε: 0.100 | Steps: 8405533 | ep_time: 1.2s
+Ep 23175/30000 (30695s) | R: -161.2 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.5 | ε: 0.100 | Steps: 8412789 | ep_time: 1.1s
+Ep 23200/30000 (30721s) | R: -156.2 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.4 | ε: 0.100 | Steps: 8419928 | ep_time: 1.0s
+Ep 23225/30000 (30746s) | R: -163.5 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8427257 | ep_time: 1.1s
+Ep 23250/30000 (30770s) | R: -162.2 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.4 | ε: 0.100 | Steps: 8434559 | ep_time: 1.0s
+Ep 23275/30000 (30794s) | R: -153.5 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.4 | ε: 0.100 | Steps: 8441656 | ep_time: 0.9s
+Ep 23300/30000 (30819s) | R: -159.1 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8448899 | ep_time: 1.1s
+Ep 23325/30000 (30847s) | R: -172.4 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.6 | ε: 0.100 | Steps: 8456448 | ep_time: 1.1s
+Ep 23350/30000 (30873s) | R: -169.4 | SWAPs: 298 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.6 | ε: 0.100 | Steps: 8463889 | ep_time: 1.0s
+Ep 23375/30000 (30900s) | R: -170.3 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8471305 | ep_time: 1.2s
+Ep 23400/30000 (30926s) | R: -158.9 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8478529 | ep_time: 1.0s
+Ep 23425/30000 (30952s) | R: -173.8 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.5 | ε: 0.100 | Steps: 8486070 | ep_time: 1.1s
+Ep 23450/30000 (30978s) | R: -158.2 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.6 | ε: 0.100 | Steps: 8493243 | ep_time: 0.9s
+Ep 23475/30000 (31004s) | R: -163.2 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.6 | ε: 0.100 | Steps: 8500486 | ep_time: 1.1s
+Ep 23500/30000 (31030s) | R: -160.1 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8507683 | ep_time: 1.0s
+
+--- Evaluation at episode 23500 ---
+  EVAL | Agent: 239.7 SABRE: 187.7 | Ratio: 1.28 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep23500.png
+Ep 23525/30000 (31073s) | R: -165.9 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8515047 | ep_time: 1.1s
+Ep 23550/30000 (31099s) | R: -157.7 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.5 | ε: 0.100 | Steps: 8522224 | ep_time: 1.1s
+Ep 23575/30000 (31125s) | R: -159.5 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.5 | ε: 0.100 | Steps: 8529468 | ep_time: 1.0s
+Ep 23600/30000 (31151s) | R: -161.4 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.6 | ε: 0.100 | Steps: 8536736 | ep_time: 1.1s
+Ep 23625/30000 (31176s) | R: -155.7 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8543852 | ep_time: 1.0s
+Ep 23650/30000 (31202s) | R: -157.8 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.6 | ε: 0.100 | Steps: 8551026 | ep_time: 1.1s
+Ep 23675/30000 (31228s) | R: -156.2 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.6 | ε: 0.100 | Steps: 8558167 | ep_time: 1.1s
+Ep 23700/30000 (31253s) | R: -154.2 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.6 | ε: 0.100 | Steps: 8565263 | ep_time: 1.1s
+Ep 23725/30000 (31279s) | R: -161.5 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.5 | ε: 0.100 | Steps: 8572529 | ep_time: 0.9s
+Ep 23750/30000 (31305s) | R: -157.5 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8579729 | ep_time: 1.0s
+Ep 23775/30000 (31330s) | R: -159.2 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.6 | ε: 0.100 | Steps: 8586906 | ep_time: 1.0s
+Ep 23800/30000 (31356s) | R: -167.9 | SWAPs: 295 | Gates: 100% | Done: 96% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8594282 | ep_time: 1.0s
+Ep 23825/30000 (31381s) | R: -167.3 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8601693 | ep_time: 1.2s
+Ep 23850/30000 (31408s) | R: -165.4 | SWAPs: 295 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.5 | ε: 0.100 | Steps: 8609064 | ep_time: 1.1s
+Ep 23875/30000 (31433s) | R: -167.0 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.6 | ε: 0.100 | Steps: 8616462 | ep_time: 1.0s
+Ep 23900/30000 (31458s) | R: -161.7 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8623730 | ep_time: 1.0s
+Ep 23925/30000 (31482s) | R: -154.2 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8630840 | ep_time: 1.0s
+Ep 23950/30000 (31507s) | R: -163.1 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8638164 | ep_time: 1.1s
+Ep 23975/30000 (31532s) | R: -162.4 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8645407 | ep_time: 1.2s
+Ep 24000/30000 (31558s) | R: -153.6 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8652497 | ep_time: 0.9s
+
+--- Evaluation at episode 24000 ---
+  EVAL | Agent: 244.6 SABRE: 186.1 | Ratio: 1.28 | Done: 96%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep24000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep24000.pt
+Ep 24025/30000 (31602s) | R: -169.1 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.6 | ε: 0.100 | Steps: 8659964 | ep_time: 1.0s
+Ep 24050/30000 (31629s) | R: -169.1 | SWAPs: 299 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.6 | ε: 0.100 | Steps: 8667432 | ep_time: 1.0s
+Ep 24075/30000 (31654s) | R: -157.6 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.5 | ε: 0.100 | Steps: 8674623 | ep_time: 0.9s
+Ep 24100/30000 (31681s) | R: -164.3 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8681958 | ep_time: 1.1s
+Ep 24125/30000 (31706s) | R: -155.1 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.7 | ε: 0.100 | Steps: 8689078 | ep_time: 0.9s
+Ep 24150/30000 (31732s) | R: -164.0 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.7 | ε: 0.100 | Steps: 8696361 | ep_time: 1.0s
+Ep 24175/30000 (31759s) | R: -167.3 | SWAPs: 296 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8703772 | ep_time: 0.9s
+Ep 24200/30000 (31786s) | R: -173.6 | SWAPs: 303 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.7 | ε: 0.100 | Steps: 8711347 | ep_time: 1.1s
+Ep 24225/30000 (31812s) | R: -162.5 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8718683 | ep_time: 0.9s
+Ep 24250/30000 (31838s) | R: -165.0 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 8726017 | ep_time: 1.2s
+Ep 24275/30000 (31865s) | R: -186.9 | SWAPs: 305 | Gates: 97% | Done: 96% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 8733653 | ep_time: 1.1s
+Ep 24300/30000 (31891s) | R: -157.1 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8740817 | ep_time: 1.0s
+Ep 24325/30000 (31917s) | R: -175.9 | SWAPs: 302 | Gates: 100% | Done: 100% | Loss: 0.018 | Q: -12.7 | ε: 0.100 | Steps: 8748372 | ep_time: 1.0s
+Ep 24350/30000 (31942s) | R: -171.6 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 8755868 | ep_time: 1.0s
+Ep 24375/30000 (31967s) | R: -159.2 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8763052 | ep_time: 0.9s
+Ep 24400/30000 (31990s) | R: -152.5 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8770062 | ep_time: 0.9s
+Ep 24425/30000 (32015s) | R: -164.9 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.7 | ε: 0.100 | Steps: 8777372 | ep_time: 0.9s
+Ep 24450/30000 (32041s) | R: -163.7 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8784680 | ep_time: 1.1s
+Ep 24475/30000 (32067s) | R: -172.5 | SWAPs: 300 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8792179 | ep_time: 1.1s
+Ep 24500/30000 (32092s) | R: -161.7 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.7 | ε: 0.100 | Steps: 8799432 | ep_time: 0.9s
+
+--- Evaluation at episode 24500 ---
+  EVAL | Agent: 241.7 SABRE: 189.2 | Ratio: 1.26 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep24500.png
+Ep 24525/30000 (32135s) | R: -160.4 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8806677 | ep_time: 1.2s
+Ep 24550/30000 (32162s) | R: -169.2 | SWAPs: 297 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 8814098 | ep_time: 1.2s
+Ep 24575/30000 (32187s) | R: -154.1 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8821230 | ep_time: 0.9s
+Ep 24600/30000 (32212s) | R: -154.7 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 8828301 | ep_time: 1.0s
+Ep 24625/30000 (32238s) | R: -159.9 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8835529 | ep_time: 1.0s
+Ep 24650/30000 (32264s) | R: -162.3 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8842776 | ep_time: 1.0s
+Ep 24675/30000 (32290s) | R: -163.5 | SWAPs: 294 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 8850134 | ep_time: 1.2s
+Ep 24700/30000 (32316s) | R: -158.8 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.8 | ε: 0.100 | Steps: 8857292 | ep_time: 0.9s
+Ep 24725/30000 (32342s) | R: -155.9 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 8864398 | ep_time: 1.1s
+Ep 24750/30000 (32368s) | R: -165.9 | SWAPs: 292 | Gates: 100% | Done: 96% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8871688 | ep_time: 1.1s
+Ep 24775/30000 (32394s) | R: -166.7 | SWAPs: 294 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.8 | ε: 0.100 | Steps: 8879033 | ep_time: 1.1s
+Ep 24800/30000 (32419s) | R: -155.0 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 8886142 | ep_time: 1.0s
+Ep 24825/30000 (32445s) | R: -158.6 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 8893363 | ep_time: 0.9s
+Ep 24850/30000 (32470s) | R: -153.6 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 8900423 | ep_time: 1.0s
+Ep 24875/30000 (32497s) | R: -164.8 | SWAPs: 293 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.7 | ε: 0.100 | Steps: 8907760 | ep_time: 0.9s
+Ep 24900/30000 (32522s) | R: -164.5 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8915056 | ep_time: 1.0s
+Ep 24925/30000 (32546s) | R: -153.8 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 8922095 | ep_time: 1.0s
+Ep 24950/30000 (32570s) | R: -151.5 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.6 | ε: 0.100 | Steps: 8929150 | ep_time: 1.0s
+Ep 24975/30000 (32594s) | R: -161.9 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.6 | ε: 0.100 | Steps: 8936368 | ep_time: 0.9s
+Ep 25000/30000 (32618s) | R: -153.4 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8943433 | ep_time: 1.0s
+
+--- Evaluation at episode 25000 ---
+  EVAL | Agent: 232.9 SABRE: 187.4 | Ratio: 1.24 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep25000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep25000.pt
+Ep 25025/30000 (32662s) | R: -157.7 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.6 | ε: 0.100 | Steps: 8950645 | ep_time: 1.0s
+Ep 25050/30000 (32688s) | R: -158.5 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 8957890 | ep_time: 1.0s
+Ep 25075/30000 (32713s) | R: -153.9 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.7 | ε: 0.100 | Steps: 8964995 | ep_time: 1.1s
+Ep 25100/30000 (32738s) | R: -149.5 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 8972028 | ep_time: 1.0s
+Ep 25125/30000 (32764s) | R: -152.8 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 8979047 | ep_time: 0.8s
+Ep 25150/30000 (32790s) | R: -164.5 | SWAPs: 294 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 8986396 | ep_time: 1.0s
+Ep 25175/30000 (32816s) | R: -163.3 | SWAPs: 291 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.7 | ε: 0.100 | Steps: 8993679 | ep_time: 0.9s
+Ep 25200/30000 (32841s) | R: -150.4 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9000696 | ep_time: 1.0s
+Ep 25225/30000 (32865s) | R: -149.0 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.6 | ε: 0.100 | Steps: 9007655 | ep_time: 1.1s
+Ep 25250/30000 (32890s) | R: -157.3 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 9014788 | ep_time: 0.9s
+Ep 25275/30000 (32916s) | R: -155.3 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 9021956 | ep_time: 1.0s
+Ep 25300/30000 (32940s) | R: -145.5 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.8 | ε: 0.100 | Steps: 9028792 | ep_time: 1.0s
+Ep 25325/30000 (32966s) | R: -158.3 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.8 | ε: 0.100 | Steps: 9036001 | ep_time: 1.0s
+Ep 25350/30000 (32990s) | R: -144.2 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9042864 | ep_time: 1.0s
+Ep 25375/30000 (33016s) | R: -150.9 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.8 | ε: 0.100 | Steps: 9049915 | ep_time: 1.0s
+Ep 25400/30000 (33042s) | R: -159.1 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.7 | ε: 0.100 | Steps: 9057121 | ep_time: 1.1s
+Ep 25425/30000 (33067s) | R: -151.6 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 9064192 | ep_time: 1.0s
+Ep 25450/30000 (33092s) | R: -154.8 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9071301 | ep_time: 1.0s
+Ep 25475/30000 (33117s) | R: -144.3 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.7 | ε: 0.100 | Steps: 9078212 | ep_time: 1.1s
+Ep 25500/30000 (33143s) | R: -152.3 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 9085266 | ep_time: 1.0s
+
+--- Evaluation at episode 25500 ---
+  EVAL | Agent: 230.4 SABRE: 187.5 | Ratio: 1.23 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep25500.png
+Ep 25525/30000 (33185s) | R: -152.7 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.018 | Q: -12.7 | ε: 0.100 | Steps: 9092333 | ep_time: 1.1s
+Ep 25550/30000 (33211s) | R: -157.1 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.8 | ε: 0.100 | Steps: 9099485 | ep_time: 1.0s
+Ep 25575/30000 (33236s) | R: -150.1 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.7 | ε: 0.100 | Steps: 9106490 | ep_time: 1.0s
+Ep 25600/30000 (33261s) | R: -146.2 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.7 | ε: 0.100 | Steps: 9113389 | ep_time: 0.8s
+Ep 25625/30000 (33287s) | R: -159.1 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 9120603 | ep_time: 1.0s
+Ep 25650/30000 (33312s) | R: -146.4 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 9127518 | ep_time: 0.9s
+Ep 25675/30000 (33336s) | R: -143.7 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9134345 | ep_time: 1.2s
+Ep 25700/30000 (33362s) | R: -153.6 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.8 | ε: 0.100 | Steps: 9141445 | ep_time: 0.9s
+Ep 25725/30000 (33387s) | R: -147.7 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9148409 | ep_time: 1.0s
+Ep 25750/30000 (33411s) | R: -146.0 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.7 | ε: 0.100 | Steps: 9155322 | ep_time: 1.0s
+Ep 25775/30000 (33437s) | R: -155.7 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.018 | Q: -12.8 | ε: 0.100 | Steps: 9162427 | ep_time: 0.9s
+Ep 25800/30000 (33461s) | R: -158.5 | SWAPs: 287 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.9 | ε: 0.100 | Steps: 9169607 | ep_time: 0.9s
+Ep 25825/30000 (33486s) | R: -160.5 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9176851 | ep_time: 1.1s
+Ep 25850/30000 (33511s) | R: -151.3 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.8 | ε: 0.100 | Steps: 9183854 | ep_time: 0.8s
+Ep 25875/30000 (33536s) | R: -143.1 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.8 | ε: 0.100 | Steps: 9190665 | ep_time: 1.0s
+Ep 25900/30000 (33561s) | R: -149.2 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9197620 | ep_time: 0.9s
+Ep 25925/30000 (33586s) | R: -151.2 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9204672 | ep_time: 1.0s
+Ep 25950/30000 (33609s) | R: -153.1 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 9211692 | ep_time: 0.9s
+Ep 25975/30000 (33634s) | R: -150.3 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.7 | ε: 0.100 | Steps: 9218692 | ep_time: 1.0s
+Ep 26000/30000 (33659s) | R: -152.5 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9225767 | ep_time: 1.0s
+
+--- Evaluation at episode 26000 ---
+  EVAL | Agent: 228.0 SABRE: 190.4 | Ratio: 1.20 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep26000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep26000.pt
+Ep 26025/30000 (33702s) | R: -155.0 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.9 | ε: 0.100 | Steps: 9232865 | ep_time: 1.2s
+Ep 26050/30000 (33727s) | R: -145.4 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.8 | ε: 0.100 | Steps: 9239723 | ep_time: 0.9s
+Ep 26075/30000 (33752s) | R: -153.6 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9246770 | ep_time: 1.1s
+Ep 26100/30000 (33778s) | R: -161.0 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.8 | ε: 0.100 | Steps: 9253970 | ep_time: 1.0s
+Ep 26125/30000 (33802s) | R: -139.9 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 9260694 | ep_time: 1.0s
+Ep 26150/30000 (33828s) | R: -160.7 | SWAPs: 288 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9267896 | ep_time: 0.9s
+Ep 26175/30000 (33853s) | R: -148.8 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.8 | ε: 0.100 | Steps: 9274908 | ep_time: 1.0s
+Ep 26200/30000 (33878s) | R: -149.5 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9281939 | ep_time: 1.0s
+Ep 26225/30000 (33903s) | R: -152.0 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -12.9 | ε: 0.100 | Steps: 9288964 | ep_time: 1.0s
+Ep 26250/30000 (33929s) | R: -162.9 | SWAPs: 289 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.8 | ε: 0.100 | Steps: 9296199 | ep_time: 1.2s
+Ep 26275/30000 (33954s) | R: -150.8 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9303181 | ep_time: 0.9s
+Ep 26300/30000 (33979s) | R: -156.6 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9310254 | ep_time: 0.9s
+Ep 26325/30000 (34004s) | R: -150.1 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9317219 | ep_time: 0.9s
+Ep 26350/30000 (34029s) | R: -156.6 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.9 | ε: 0.100 | Steps: 9324326 | ep_time: 0.9s
+Ep 26375/30000 (34054s) | R: -142.9 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.9 | ε: 0.100 | Steps: 9331203 | ep_time: 1.0s
+Ep 26400/30000 (34079s) | R: -148.2 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9338168 | ep_time: 1.0s
+Ep 26425/30000 (34105s) | R: -155.0 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9345319 | ep_time: 1.0s
+Ep 26450/30000 (34129s) | R: -148.1 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.9 | ε: 0.100 | Steps: 9352233 | ep_time: 0.9s
+Ep 26475/30000 (34155s) | R: -152.9 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.9 | ε: 0.100 | Steps: 9359313 | ep_time: 1.1s
+Ep 26500/30000 (34180s) | R: -153.8 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.9 | ε: 0.100 | Steps: 9366407 | ep_time: 1.1s
+
+--- Evaluation at episode 26500 ---
+  EVAL | Agent: 233.9 SABRE: 186.1 | Ratio: 1.26 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep26500.png
+Ep 26525/30000 (34222s) | R: -160.9 | SWAPs: 290 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9373667 | ep_time: 1.0s
+Ep 26550/30000 (34247s) | R: -149.0 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -12.8 | ε: 0.100 | Steps: 9380578 | ep_time: 0.8s
+Ep 26575/30000 (34272s) | R: -154.9 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9387670 | ep_time: 1.1s
+Ep 26600/30000 (34299s) | R: -162.6 | SWAPs: 292 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9394976 | ep_time: 0.9s
+Ep 26625/30000 (34323s) | R: -145.6 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9401815 | ep_time: 1.0s
+Ep 26650/30000 (34348s) | R: -153.4 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9408871 | ep_time: 0.8s
+Ep 26675/30000 (34373s) | R: -150.6 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9415846 | ep_time: 0.8s
+Ep 26700/30000 (34397s) | R: -154.6 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.9 | ε: 0.100 | Steps: 9422948 | ep_time: 1.0s
+Ep 26725/30000 (34421s) | R: -145.7 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9429844 | ep_time: 1.0s
+Ep 26750/30000 (34445s) | R: -147.8 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9436773 | ep_time: 1.1s
+Ep 26775/30000 (34470s) | R: -142.1 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9443587 | ep_time: 1.0s
+Ep 26800/30000 (34495s) | R: -147.8 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9450605 | ep_time: 0.9s
+Ep 26825/30000 (34520s) | R: -156.1 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9457747 | ep_time: 1.0s
+Ep 26850/30000 (34543s) | R: -146.1 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -12.9 | ε: 0.100 | Steps: 9464675 | ep_time: 1.1s
+Ep 26875/30000 (34567s) | R: -146.0 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9471553 | ep_time: 1.0s
+Ep 26900/30000 (34593s) | R: -156.2 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9478671 | ep_time: 1.1s
+Ep 26925/30000 (34617s) | R: -143.2 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9485476 | ep_time: 1.0s
+Ep 26950/30000 (34642s) | R: -145.2 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9492354 | ep_time: 0.9s
+Ep 26975/30000 (34666s) | R: -134.4 | SWAPs: 264 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -13.1 | ε: 0.100 | Steps: 9498964 | ep_time: 0.9s
+Ep 27000/30000 (34690s) | R: -148.7 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -13.1 | ε: 0.100 | Steps: 9505911 | ep_time: 1.0s
+
+--- Evaluation at episode 27000 ---
+  EVAL | Agent: 233.3 SABRE: 188.3 | Ratio: 1.22 | Done: 98%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep27000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep27000.pt
+Ep 27025/30000 (34731s) | R: -138.9 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.0 | ε: 0.100 | Steps: 9512684 | ep_time: 1.0s
+Ep 27050/30000 (34754s) | R: -145.1 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9519594 | ep_time: 0.8s
+Ep 27075/30000 (34777s) | R: -143.8 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -13.1 | ε: 0.100 | Steps: 9526495 | ep_time: 1.1s
+Ep 27100/30000 (34801s) | R: -144.1 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -12.9 | ε: 0.100 | Steps: 9533361 | ep_time: 0.9s
+Ep 27125/30000 (34826s) | R: -143.4 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9540234 | ep_time: 1.0s
+Ep 27150/30000 (34851s) | R: -154.1 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.017 | Q: -12.9 | ε: 0.100 | Steps: 9547299 | ep_time: 0.8s
+Ep 27175/30000 (34876s) | R: -147.0 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -12.9 | ε: 0.100 | Steps: 9554209 | ep_time: 1.1s
+Ep 27200/30000 (34900s) | R: -139.7 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9560925 | ep_time: 0.9s
+Ep 27225/30000 (34924s) | R: -148.2 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9567844 | ep_time: 0.9s
+Ep 27250/30000 (34949s) | R: -146.0 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.0 | ε: 0.100 | Steps: 9574760 | ep_time: 0.9s
+Ep 27275/30000 (34973s) | R: -135.8 | SWAPs: 267 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9581439 | ep_time: 1.0s
+Ep 27300/30000 (34997s) | R: -141.5 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9588224 | ep_time: 1.1s
+Ep 27325/30000 (35022s) | R: -140.8 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -12.9 | ε: 0.100 | Steps: 9595008 | ep_time: 0.9s
+Ep 27350/30000 (35046s) | R: -141.0 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9601824 | ep_time: 1.0s
+Ep 27375/30000 (35071s) | R: -148.4 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.1 | ε: 0.100 | Steps: 9608794 | ep_time: 1.0s
+Ep 27400/30000 (35096s) | R: -148.7 | SWAPs: 280 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9615792 | ep_time: 1.0s
+Ep 27425/30000 (35120s) | R: -154.0 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.0 | ε: 0.100 | Steps: 9622882 | ep_time: 1.1s
+Ep 27450/30000 (35145s) | R: -145.8 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9629795 | ep_time: 1.0s
+Ep 27475/30000 (35170s) | R: -148.3 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9636740 | ep_time: 0.9s
+Ep 27500/30000 (35195s) | R: -141.3 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.1 | ε: 0.100 | Steps: 9643582 | ep_time: 1.0s
+
+--- Evaluation at episode 27500 ---
+  EVAL | Agent: 224.6 SABRE: 188.9 | Ratio: 1.19 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep27500.png
+Ep 27525/30000 (35235s) | R: -148.8 | SWAPs: 279 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9650547 | ep_time: 0.9s
+Ep 27550/30000 (35259s) | R: -142.7 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.1 | ε: 0.100 | Steps: 9657444 | ep_time: 0.9s
+Ep 27575/30000 (35283s) | R: -146.5 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.0 | ε: 0.100 | Steps: 9664404 | ep_time: 0.8s
+Ep 27600/30000 (35306s) | R: -141.3 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.1 | ε: 0.100 | Steps: 9671158 | ep_time: 1.0s
+Ep 27625/30000 (35330s) | R: -137.5 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -13.1 | ε: 0.100 | Steps: 9677934 | ep_time: 0.8s
+Ep 27650/30000 (35353s) | R: -142.8 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.0 | ε: 0.100 | Steps: 9684831 | ep_time: 0.8s
+Ep 27675/30000 (35377s) | R: -142.5 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.0 | ε: 0.100 | Steps: 9691659 | ep_time: 0.9s
+Ep 27700/30000 (35400s) | R: -145.9 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.0 | ε: 0.100 | Steps: 9698530 | ep_time: 0.9s
+Ep 27725/30000 (35423s) | R: -140.8 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9705299 | ep_time: 1.1s
+Ep 27750/30000 (35446s) | R: -133.4 | SWAPs: 263 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9711875 | ep_time: 0.9s
+Ep 27775/30000 (35471s) | R: -143.1 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.2 | ε: 0.100 | Steps: 9718728 | ep_time: 1.1s
+Ep 27800/30000 (35495s) | R: -141.5 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.1 | ε: 0.100 | Steps: 9725559 | ep_time: 1.1s
+Ep 27825/30000 (35520s) | R: -148.5 | SWAPs: 281 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9732575 | ep_time: 0.8s
+Ep 27850/30000 (35543s) | R: -145.9 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.1 | ε: 0.100 | Steps: 9739469 | ep_time: 1.2s
+Ep 27875/30000 (35568s) | R: -143.5 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.2 | ε: 0.100 | Steps: 9746298 | ep_time: 1.0s
+Ep 27900/30000 (35593s) | R: -147.6 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.1 | ε: 0.100 | Steps: 9753252 | ep_time: 1.0s
+Ep 27925/30000 (35618s) | R: -153.4 | SWAPs: 285 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.3 | ε: 0.100 | Steps: 9760383 | ep_time: 1.0s
+Ep 27950/30000 (35644s) | R: -155.1 | SWAPs: 286 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.2 | ε: 0.100 | Steps: 9767531 | ep_time: 1.0s
+Ep 27975/30000 (35669s) | R: -147.0 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.2 | ε: 0.100 | Steps: 9774426 | ep_time: 1.0s
+Ep 28000/30000 (35692s) | R: -129.1 | SWAPs: 259 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -13.1 | ε: 0.100 | Steps: 9780902 | ep_time: 1.0s
+
+--- Evaluation at episode 28000 ---
+  EVAL | Agent: 215.3 SABRE: 183.4 | Ratio: 1.18 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep28000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep28000.pt
+Ep 28025/30000 (35734s) | R: -143.1 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.2 | ε: 0.100 | Steps: 9787758 | ep_time: 0.9s
+Ep 28050/30000 (35758s) | R: -147.7 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.1 | ε: 0.100 | Steps: 9794703 | ep_time: 1.0s
+Ep 28075/30000 (35783s) | R: -147.9 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.2 | ε: 0.100 | Steps: 9801616 | ep_time: 1.1s
+Ep 28100/30000 (35808s) | R: -145.6 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.1 | ε: 0.100 | Steps: 9808518 | ep_time: 0.9s
+Ep 28125/30000 (35832s) | R: -142.1 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.2 | ε: 0.100 | Steps: 9815347 | ep_time: 1.0s
+Ep 28150/30000 (35856s) | R: -139.9 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.3 | ε: 0.100 | Steps: 9822151 | ep_time: 0.9s
+Ep 28175/30000 (35880s) | R: -142.1 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.2 | ε: 0.100 | Steps: 9828976 | ep_time: 0.9s
+Ep 28200/30000 (35904s) | R: -140.5 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.2 | ε: 0.100 | Steps: 9835796 | ep_time: 1.0s
+Ep 28225/30000 (35928s) | R: -145.2 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.2 | ε: 0.100 | Steps: 9842706 | ep_time: 1.0s
+Ep 28250/30000 (35953s) | R: -142.7 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.2 | ε: 0.100 | Steps: 9849554 | ep_time: 0.9s
+Ep 28275/30000 (35978s) | R: -145.7 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.1 | ε: 0.100 | Steps: 9856483 | ep_time: 1.0s
+Ep 28300/30000 (36002s) | R: -139.7 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.2 | ε: 0.100 | Steps: 9863237 | ep_time: 0.9s
+Ep 28325/30000 (36025s) | R: -145.0 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.4 | ε: 0.100 | Steps: 9870107 | ep_time: 0.9s
+Ep 28350/30000 (36050s) | R: -149.4 | SWAPs: 282 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.2 | ε: 0.100 | Steps: 9877154 | ep_time: 1.0s
+Ep 28375/30000 (36074s) | R: -136.4 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.2 | ε: 0.100 | Steps: 9883902 | ep_time: 1.0s
+Ep 28400/30000 (36098s) | R: -143.8 | SWAPs: 271 | Gates: 100% | Done: 96% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 9890665 | ep_time: 0.9s
+Ep 28425/30000 (36122s) | R: -140.3 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.2 | ε: 0.100 | Steps: 9897425 | ep_time: 0.8s
+Ep 28450/30000 (36147s) | R: -146.8 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.2 | ε: 0.100 | Steps: 9904336 | ep_time: 1.0s
+Ep 28475/30000 (36171s) | R: -146.4 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 9911265 | ep_time: 1.1s
+Ep 28500/30000 (36194s) | R: -137.5 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 9918028 | ep_time: 1.2s
+
+--- Evaluation at episode 28500 ---
+  EVAL | Agent: 214.1 SABRE: 182.0 | Ratio: 1.18 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep28500.png
+Ep 28525/30000 (36235s) | R: -146.5 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.2 | ε: 0.100 | Steps: 9924897 | ep_time: 1.0s
+Ep 28550/30000 (36259s) | R: -144.3 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 9931784 | ep_time: 0.9s
+Ep 28575/30000 (36284s) | R: -153.3 | SWAPs: 283 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 9938864 | ep_time: 0.9s
+Ep 28600/30000 (36309s) | R: -141.0 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.2 | ε: 0.100 | Steps: 9945680 | ep_time: 1.0s
+Ep 28625/30000 (36333s) | R: -138.9 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 9952419 | ep_time: 1.0s
+Ep 28650/30000 (36358s) | R: -145.0 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.2 | ε: 0.100 | Steps: 9959321 | ep_time: 1.1s
+Ep 28675/30000 (36382s) | R: -139.2 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 9966112 | ep_time: 0.9s
+Ep 28700/30000 (36406s) | R: -138.1 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.1 | ε: 0.100 | Steps: 9972846 | ep_time: 1.0s
+Ep 28725/30000 (36430s) | R: -138.1 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.2 | ε: 0.100 | Steps: 9979581 | ep_time: 1.0s
+Ep 28750/30000 (36455s) | R: -143.4 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.2 | ε: 0.100 | Steps: 9986481 | ep_time: 1.0s
+Ep 28775/30000 (36480s) | R: -141.2 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 9993267 | ep_time: 1.0s
+Ep 28800/30000 (36504s) | R: -132.6 | SWAPs: 267 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 9999938 | ep_time: 1.0s
+Ep 28825/30000 (36528s) | R: -144.4 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10006797 | ep_time: 1.0s
+Ep 28850/30000 (36553s) | R: -141.4 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 10013659 | ep_time: 0.9s
+Ep 28875/30000 (36578s) | R: -146.2 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10020534 | ep_time: 1.0s
+Ep 28900/30000 (36601s) | R: -136.1 | SWAPs: 266 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.3 | ε: 0.100 | Steps: 10027179 | ep_time: 1.0s
+Ep 28925/30000 (36626s) | R: -143.0 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.3 | ε: 0.100 | Steps: 10034031 | ep_time: 0.9s
+Ep 28950/30000 (36651s) | R: -144.0 | SWAPs: 276 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10040935 | ep_time: 1.0s
+Ep 28975/30000 (36675s) | R: -144.6 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.4 | ε: 0.100 | Steps: 10047791 | ep_time: 1.0s
+Ep 29000/30000 (36699s) | R: -137.8 | SWAPs: 268 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10054492 | ep_time: 0.8s
+
+--- Evaluation at episode 29000 ---
+  EVAL | Agent: 215.6 SABRE: 187.8 | Ratio: 1.15 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep29000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep29000.pt
+Ep 29025/30000 (36740s) | R: -135.2 | SWAPs: 266 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.3 | ε: 0.100 | Steps: 10061138 | ep_time: 0.9s
+Ep 29050/30000 (36764s) | R: -142.7 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.3 | ε: 0.100 | Steps: 10067978 | ep_time: 0.9s
+Ep 29075/30000 (36789s) | R: -140.5 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.4 | ε: 0.100 | Steps: 10074746 | ep_time: 0.9s
+Ep 29100/30000 (36813s) | R: -139.5 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.2 | ε: 0.100 | Steps: 10081513 | ep_time: 1.1s
+Ep 29125/30000 (36837s) | R: -139.5 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10088267 | ep_time: 0.9s
+Ep 29150/30000 (36861s) | R: -153.2 | SWAPs: 284 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10095364 | ep_time: 0.9s
+Ep 29175/30000 (36885s) | R: -143.1 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.3 | ε: 0.100 | Steps: 10102246 | ep_time: 1.0s
+Ep 29200/30000 (36909s) | R: -140.4 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.5 | ε: 0.100 | Steps: 10109031 | ep_time: 1.0s
+Ep 29225/30000 (36933s) | R: -142.1 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10115876 | ep_time: 0.8s
+Ep 29250/30000 (36957s) | R: -137.4 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.010 | Q: -13.4 | ε: 0.100 | Steps: 10122624 | ep_time: 1.1s
+Ep 29275/30000 (36981s) | R: -140.2 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.4 | ε: 0.100 | Steps: 10129364 | ep_time: 1.0s
+Ep 29300/30000 (37006s) | R: -142.8 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.3 | ε: 0.100 | Steps: 10136166 | ep_time: 0.8s
+Ep 29325/30000 (37030s) | R: -142.4 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.4 | ε: 0.100 | Steps: 10142958 | ep_time: 1.0s
+Ep 29350/30000 (37053s) | R: -129.0 | SWAPs: 259 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.3 | ε: 0.100 | Steps: 10149440 | ep_time: 0.9s
+Ep 29375/30000 (37077s) | R: -135.5 | SWAPs: 267 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10156106 | ep_time: 0.9s
+Ep 29400/30000 (37101s) | R: -147.1 | SWAPs: 278 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.4 | ε: 0.100 | Steps: 10163068 | ep_time: 0.9s
+Ep 29425/30000 (37124s) | R: -146.1 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.013 | Q: -13.4 | ε: 0.100 | Steps: 10169953 | ep_time: 0.9s
+Ep 29450/30000 (37146s) | R: -135.2 | SWAPs: 268 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10176649 | ep_time: 0.8s
+Ep 29475/30000 (37169s) | R: -140.0 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.5 | ε: 0.100 | Steps: 10183382 | ep_time: 0.8s
+Ep 29500/30000 (37192s) | R: -135.8 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.5 | ε: 0.100 | Steps: 10190108 | ep_time: 0.9s
+
+--- Evaluation at episode 29500 ---
+  EVAL | Agent: 214.3 SABRE: 185.4 | Ratio: 1.16 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep29500.png
+Ep 29525/30000 (37232s) | R: -141.1 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.3 | ε: 0.100 | Steps: 10196895 | ep_time: 0.8s
+Ep 29550/30000 (37256s) | R: -134.7 | SWAPs: 266 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10203557 | ep_time: 0.8s
+Ep 29575/30000 (37280s) | R: -140.0 | SWAPs: 272 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10210346 | ep_time: 0.9s
+Ep 29600/30000 (37305s) | R: -141.6 | SWAPs: 273 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.5 | ε: 0.100 | Steps: 10217166 | ep_time: 1.0s
+Ep 29625/30000 (37329s) | R: -133.2 | SWAPs: 266 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10223804 | ep_time: 1.0s
+Ep 29650/30000 (37353s) | R: -141.2 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.012 | Q: -13.4 | ε: 0.100 | Steps: 10230554 | ep_time: 0.9s
+Ep 29675/30000 (37376s) | R: -136.7 | SWAPs: 268 | Gates: 100% | Done: 100% | Loss: 0.011 | Q: -13.6 | ε: 0.100 | Steps: 10237252 | ep_time: 0.9s
+Ep 29700/30000 (37398s) | R: -135.5 | SWAPs: 267 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10243930 | ep_time: 0.8s
+Ep 29725/30000 (37420s) | R: -135.2 | SWAPs: 266 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.5 | ε: 0.100 | Steps: 10250579 | ep_time: 0.9s
+Ep 29750/30000 (37444s) | R: -134.7 | SWAPs: 265 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10257195 | ep_time: 1.0s
+Ep 29775/30000 (37468s) | R: -133.6 | SWAPs: 264 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.4 | ε: 0.100 | Steps: 10263798 | ep_time: 0.9s
+Ep 29800/30000 (37492s) | R: -139.8 | SWAPs: 270 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10270560 | ep_time: 0.9s
+Ep 29825/30000 (37516s) | R: -138.1 | SWAPs: 268 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.5 | ε: 0.100 | Steps: 10277264 | ep_time: 1.1s
+Ep 29850/30000 (37541s) | R: -146.7 | SWAPs: 277 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.5 | ε: 0.100 | Steps: 10284199 | ep_time: 1.0s
+Ep 29875/30000 (37566s) | R: -143.8 | SWAPs: 275 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.4 | ε: 0.100 | Steps: 10291079 | ep_time: 1.1s
+Ep 29900/30000 (37590s) | R: -142.0 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.016 | Q: -13.6 | ε: 0.100 | Steps: 10297933 | ep_time: 0.9s
+Ep 29925/30000 (37614s) | R: -141.2 | SWAPs: 271 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.5 | ε: 0.100 | Steps: 10304713 | ep_time: 0.9s
+Ep 29950/30000 (37638s) | R: -143.4 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.6 | ε: 0.100 | Steps: 10311560 | ep_time: 1.0s
+Ep 29975/30000 (37663s) | R: -143.6 | SWAPs: 274 | Gates: 100% | Done: 100% | Loss: 0.015 | Q: -13.4 | ε: 0.100 | Steps: 10318402 | ep_time: 0.9s
+Ep 30000/30000 (37687s) | R: -137.6 | SWAPs: 269 | Gates: 100% | Done: 100% | Loss: 0.014 | Q: -13.7 | ε: 0.100 | Steps: 10325121 | ep_time: 1.0s
+
+--- Evaluation at episode 30000 ---
+  EVAL | Agent: 216.5 SABRE: 185.9 | Ratio: 1.17 | Done: 100%
+Saved: outputs/run_011/figures/training_curves.png
+Saved: outputs/run_011/figures/eval_comparison_ep30000.png
+  Saved checkpoint: outputs/run_011/checkpoints/checkpoint_ep30000.pt
+Final checkpoint: outputs/run_011/checkpoints/checkpoint_final.pt
+Saved: outputs/run_011/figures/training_curves.png
+Training complete. 37707s total.
+All outputs in: outputs/run_011
+
+Training complete at Sat Mar 28 03:21:14 AM CET 2026
+WARNING: No final checkpoint at outputs/run_013/checkpoints/checkpoint_final.pt
+End time: Sat Mar 28 03:21:14 AM CET 2026
