@@ -257,6 +257,9 @@ class QubitRoutingEnv(gym.Env):
         self._same_edge_streak = 0
         self._no_progress_streak = 0
         self._episode_max_steps = int(max_steps)
+        self._cached_front_layer = None
+        self._cached_dag_depths = None
+        self._cache_valid = False
 
     def _build_topology_data(self, coupling_map, name):
         """Pre-compute all static data for a topology."""
@@ -393,6 +396,7 @@ class QubitRoutingEnv(gym.Env):
             self._same_edge_streak = 0
             self._no_progress_streak = 0
             self._episode_max_steps = 0
+            self._invalidate_cache()
             obs = self._compute_state()
             return obs, self._get_info(done=True)
 
@@ -540,6 +544,30 @@ class QubitRoutingEnv(gym.Env):
 
         return obs, reward, done, truncated, info
 
+    def _invalidate_cache(self):
+        """Mark cached front layer and dag depths as stale."""
+        self._cache_valid = False
+        self._cached_front_layer = None
+        self._cached_dag_depths = None
+
+    def _get_front_layer(self):
+        """Return cached front layer, recomputing only if invalidated."""
+        if not self._cache_valid:
+            self._cached_front_layer = compute_front_layer(
+                self.gates, self.executed, self.predecessors
+            )
+            self._cached_dag_depths = None  # depths depend on front layer
+            self._cache_valid = True
+        return self._cached_front_layer
+
+    def _get_dag_depths(self):
+        """Return cached dag depths, recomputing only if invalidated."""
+        if self._cached_dag_depths is None:
+            self._cached_dag_depths = compute_dag_depths(
+                self.gates, self.executed, self.predecessors, self.successors
+            )
+        return self._cached_dag_depths
+
     def _auto_execute_gates(self):
         """
         Execute all routable front-layer gates. Repeat until no more can execute.
@@ -568,6 +596,8 @@ class QubitRoutingEnv(gym.Env):
                 self.executed.add(gate_idx)
             total_executed += len(executed_this_round)
 
+        # Invalidate cache (front layer changed) and recompute fresh
+        self._invalidate_cache()
         self.total_gates_executed += total_executed
         return total_executed
 
@@ -594,9 +624,7 @@ class QubitRoutingEnv(gym.Env):
 
         # Channel 2: Depth-decayed gate demand
         if self.gates and not self._is_done():
-            depths = compute_dag_depths(
-                self.gates, self.executed, self.predecessors, self.successors
-            )
+            depths = self._get_dag_depths()
             for gate_idx, depth in depths.items():
                 q_a, q_b = self.gates[gate_idx]
                 p_a = self.mapping[q_a]
@@ -610,9 +638,7 @@ class QubitRoutingEnv(gym.Env):
 
             # Channel 3: Front-layer distance map
             dist_matrix = topo["distance_matrix"]
-            front = compute_front_layer(
-                self.gates, self.executed, self.predecessors
-            )
+            front = self._get_front_layer()
             for gate_idx in front:
                 q_a, q_b = self.gates[gate_idx]
                 p_a = self.mapping[q_a]
@@ -641,9 +667,7 @@ class QubitRoutingEnv(gym.Env):
             return 0.0
 
         dist_matrix = self._current_topo["distance_matrix"]
-        front = compute_front_layer(
-            self.gates, self.executed, self.predecessors
-        )
+        front = self._get_front_layer()
         total_dist = 0.0
         for gate_idx in front:
             q_a, q_b = self.gates[gate_idx]

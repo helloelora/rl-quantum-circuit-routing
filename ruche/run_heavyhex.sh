@@ -38,7 +38,7 @@ apptainer exec --nv --writable-tmpfs \
     --project-root "$RUN_DIR" \
     --run-name "$RUN_NAME" \
     --topologies "heavy_hex_19" \
-    --total-timesteps 10000000 \
+    --total-timesteps 8000000 \
     \
     --circuit-depth 16 \
     --matrix-size 27 \
@@ -49,6 +49,7 @@ apptainer exec --nv --writable-tmpfs \
     \
     --rollout-steps 4096 \
     --learning-rate 3e-4 \
+    --learning-rate-end 3e-5 \
     --gamma 0.995 \
     --gae-lambda 0.97 \
     --clip-range 0.15 \
