@@ -13,7 +13,7 @@
 
 ---
 
-**Ratio 0.991** (Beats SABRE) · **100% Completion** · **3 Hardware Topologies** · **Multi-Topology Generalization**
+**Ratio 0.969** (Beats SABRE by 3.1%) · **100% Completion** · **3 Hardware Topologies** · **Multi-Topology Generalization**
 
 [Results](#results) · [Architecture](#architecture) · [How It Works](#how-it-works) · [Getting Started](#getting-started) · [Training](#training) · [Documentation](#documentation)
 
@@ -65,33 +65,33 @@ The agent (blue) and SABRE (orange) route the same quantum circuit on heavy_hex_
 
 <div align="center">
 
-<img src="assets/routing_vs_sabre_run019.gif" width="700" alt="Agent vs SABRE routing on heavy_hex_19">
+<img src="assets/v6_run029_finetune/routing_vs_sabre_run030_finetune.gif" width="700" alt="Agent vs SABRE routing on heavy_hex_19">
 
-*Run 019 (best checkpoint, ep63k): Agent uses 189 SWAPs vs SABRE's 213 — ratio 0.887 on this circuit*
+*Run 029 / fine-tuned model (best checkpoint, ep17k): Agent uses 176 SWAPs vs SABRE's 200 — ratio 0.880 on this circuit*
 
 </div>
 
-### Best Single-Topology: Run 019 (heavy_hex_19, 80k episodes)
+### Best Result: Run 029 — Fine-Tuned (heavy_hex_19)
 
 | Metric | Value |
 |--------|-------|
-| **Best Swap Ratio** | **0.991** (beats SABRE by 1%) |
+| **Best Swap Ratio** | **0.969** (beats SABRE by 3.1%) |
 | **Completion Rate** | 100% (all circuits fully routed) |
-| Agent SWAPs (avg) | 183.3 |
-| SABRE SWAPs (avg) | 185.3 |
-| Sub-1.0 checkpoints | 8 out of 160 eval points |
+| Agent SWAPs (avg) | 180.2 |
+| SABRE SWAPs (avg) | 186.0 |
+| Method | Fine-tune Run 019 best checkpoint @ LR=1e-5 |
 
-Run 023 (curriculum + cosine LR) achieved ratio **0.994** in only **60k episodes** — 25% less training time than Run 019.
+Fine-tuning loads the best checkpoint from a full training run and refines it with a low learning rate — only 20k episodes / 4.5h wall time.
 
 <div align="center">
 
-<img src="assets/eval_comparison_run019.png" width="700" alt="Agent vs SABRE eval comparison">
+<img src="assets/v6_run029_finetune/eval_comparison_run030_finetune.png" width="700" alt="Agent vs SABRE eval comparison — fine-tuned model">
 
-*Best checkpoint evaluation (ep63k, ratio 0.991): per-circuit SWAP count comparison between agent (blue) and SABRE (orange)*
+*Fine-tuned model evaluation (ep17k, ratio 0.969): per-circuit SWAP count comparison between agent (blue) and SABRE (orange)*
 
 </div>
 
-### Best Multi-Topology: Run 018 (3 topologies, weighted sampling)
+### Best Multi-Topology: Run 026 (3 topologies, 100k episodes)
 
 A **single network** learns to route circuits across 3 different hardware topologies simultaneously:
 
@@ -99,8 +99,8 @@ A **single network** learns to route circuits across 3 different hardware topolo
 |----------|--------|-------|------------|----------|
 | linear_5 | 5 | 4 | **0.890** | **Beats SABRE by 11%** |
 | grid_3x3 | 9 | 12 | **1.008** | Matches SABRE |
-| heavy_hex_19 | 19 | 20 | 1.107 | 11% more SWAPs |
-| **Overall** | — | — | **0.999** | **Matches SABRE** |
+| heavy_hex_19 | 19 | 20 | 1.050 | 5% more SWAPs |
+| **Overall** | — | — | **0.996** | **Beats SABRE** |
 
 ### Progression Across Experiments
 
@@ -109,41 +109,75 @@ A **single network** learns to route circuits across 3 different hardware topolo
 | V1 | — | 0% completion | Q-value collapse |
 | V2 | Run 7 | 1.080 | 5-channel state, soft targets, eps=0.02 |
 | V3 | Run 15 | 1.014 | 60k episodes, standard net |
-| **V4** | **Run 19** | **0.991** | **80k episodes — first to beat SABRE** |
-| **V4** | **Run 23** | **0.994** | **Curriculum + cosine LR — beats SABRE in 60k eps** |
+| V4 | Run 19 | 0.991 | 80k episodes — first to beat SABRE |
+| V5 | Run 24 | 0.987 | 100k episodes — more training helps |
+| **V6** | **Run 29** | **0.969** | **Fine-tuning from best checkpoint — beats SABRE by 3.1%** |
 
-### Training Dashboard
+### Training Dashboards
 
 <div align="center">
 
-<img src="assets/training_curves_run019.png" width="800" alt="Training curves Run 019">
+<img src="assets/v6_run029_finetune/training_curves_run030_finetune.png" width="800" alt="Training curves Run 029 (fine-tune)">
 
-*Run 019 (80k episodes): Reward, completion rate, swap ratio, loss, Q-values, and epsilon over training. The characteristic "phase transition" at ep8k-12k is where the agent suddenly learns to complete circuits.*
+*Run 029 fine-tune (20k episodes): Starting from Run 019's best weights at ratio ~0.99, the low-LR refinement pushes down to 0.969.*
 
 </div>
+
+<details>
+<summary><b>Run 019 Training Dashboard (80k, original SABRE-beater)</b></summary>
+
+<div align="center">
+
+<img src="assets/v4_run019/training_curves_run019.png" width="800" alt="Training curves Run 019">
+
+*Run 019 (80k episodes): The characteristic "phase transition" at ep8k-12k is where the agent suddenly learns to complete circuits. Best ratio 0.991 at ep63k.*
+
+</div>
+</details>
+
+<details>
+<summary><b>Run 024 Training Dashboard (100k, brute force)</b></summary>
+
+<div align="center">
+
+<img src="assets/v5_run024/training_curves_run024.png" width="800" alt="Training curves Run 024">
+
+*Run 024 (100k episodes): Extended training pushes best ratio to 0.987 at ep77k. Confirms more training continues to help.*
+
+</div>
+</details>
 
 <details>
 <summary><b>Run 023 Training Dashboard (Curriculum + Cosine LR)</b></summary>
 
 <div align="center">
 
-<img src="assets/training_curves_run023.png" width="800" alt="Training curves Run 023">
+<img src="assets/v4_run023/training_curves_run023.png" width="800" alt="Training curves Run 023">
 
-*Run 023: Three curriculum phases are visible — depth 5 (ep0-9k), depth 10 (ep9k-21k), depth 20 (ep21k+). The swap curve dips during depth-10 phase because shallower circuits need fewer SWAPs.*
+*Run 023: Three curriculum phases visible — depth 5 (ep0-9k), depth 10 (ep9k-21k), depth 20 (ep21k+). Most sample-efficient path to beating SABRE from scratch.*
 
 </div>
 </details>
 
 <details>
-<summary><b>Additional Routing GIF</b></summary>
+<summary><b>Additional Routing GIFs</b></summary>
 
 <div align="center">
 
-<img src="assets/routing_vs_sabre_run019_2.gif" width="700" alt="Agent vs SABRE routing example 2">
+<img src="assets/v5_run024/routing_vs_sabre_run024.gif" width="700" alt="Run 024 routing">
 
-*Run 019 (best checkpoint, ep63k): Agent uses 163 SWAPs vs SABRE's 175 — ratio 0.931*
+*Run 024 (best checkpoint, ep77k): Agent uses 164 SWAPs vs SABRE's 193 — ratio 0.850*
 
 </div>
+
+<div align="center">
+
+<img src="assets/v4_run019/routing_vs_sabre_run019.gif" width="700" alt="Run 019 routing">
+
+*Run 019 (best checkpoint, ep63k): Agent uses 189 SWAPs vs SABRE's 213 — ratio 0.887*
+
+</div>
+
 </details>
 
 ---
@@ -310,7 +344,13 @@ sbatch experiment.slurm configs/run14_heavy_hex_60k.json
 sbatch experiment.slurm heavy_hex --episodes 80000 --seed 123
 ```
 
-The SLURM script automatically: trains the agent, evaluates the final checkpoint, and generates visualizations. All outputs land in `outputs/run_NNN/`.
+The SLURM script automatically: trains the agent, evaluates the final checkpoint, and generates visualizations. Outputs land in `outputs/<SLURM_JOB_ID>/` (or `outputs/run_NNN/` for local runs).
+
+**Fine-tuning from a checkpoint:**
+```bash
+sbatch experiment.slurm configs/run29_finetune_run019.json \
+    --finetune outputs/run_019/checkpoints/checkpoint_ep64000.pt
+```
 
 ---
 
@@ -401,7 +441,7 @@ rl-quantum-circuit-routing/
 | Document | Description |
 |----------|-------------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Complete technical reference (~1200 lines): MDP formulation with math, network architecture, D3QN+PER algorithm, training pipeline, multi-topology support, reward design, experimental findings, and paper references |
-| [outputs.md](outputs.md) | Full experiment log: every run's config, results, detailed analysis, and cross-run comparison. Covers V1-V4 findings (23 runs) and V5 plans |
+| [outputs.md](outputs.md) | Full experiment log: every run's config, results, detailed analysis, and cross-run comparison. Covers V1-V6 findings (31 runs), leaderboard, and ablation studies |
 
 ---
 
