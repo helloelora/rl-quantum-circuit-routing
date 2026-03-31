@@ -2,7 +2,7 @@
 #SBATCH --job-name=quantum_routing
 #SBATCH --output=/dev/null
 #SBATCH --error=/dev/null
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 #SBATCH --exclusive
 #SBATCH --partition=gpu_prod_long
 #SBATCH --exclude=sh07,sh[10-19]
