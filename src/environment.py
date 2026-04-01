@@ -461,6 +461,7 @@ class QubitRoutingEnv(gym.Env):
         self._no_progress_streak = 0
         self._episode_max_steps = self._resolve_episode_max_steps()
         self._action_history = np.zeros((self.N, self.N), dtype=np.float32)
+        self._invalidate_cache()
         self._auto_execute_gates()
 
         obs = self._compute_state()
