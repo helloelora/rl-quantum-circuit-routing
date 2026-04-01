@@ -13,9 +13,9 @@
 
 ---
 
-**Ratio 0.969** (Beats SABRE by 3.1%) · **100% Completion** · **3 Hardware Topologies** · **Multi-Topology Generalization**
+**Ratio 0.969** (Beats SABRE by 3.1%) · **Benchmark: 42% Wins / 19% Losses over 150 circuits** · **100% Completion** · **3 Hardware Topologies**
 
-[Results](#results) · [Architecture](#architecture) · [How It Works](#how-it-works) · [Getting Started](#getting-started) · [Training](#training) · [Documentation](#documentation)
+[Results](#results) · [Benchmark](#benchmark) · [Architecture](#architecture) · [How It Works](#how-it-works) · [Getting Started](#getting-started) · [Training](#training) · [Documentation](#documentation)
 
 </div>
 
@@ -179,6 +179,84 @@ A **single network** learns to route circuits across 3 different hardware topolo
 </div>
 
 </details>
+
+---
+
+## Benchmark
+
+### Full Benchmark: Agent vs SABRE on 150 Circuits
+
+We evaluate the best agent (Run 029, fine-tuned) on two independent test suites:
+
+- **Generated Suite** (110 circuits): QFT, VQE (linear/circular/full), GHZ, Bernstein-Vazirani, Quantum Volume, Structured (CNOT rings), and Random circuits at 4-19 qubits
+- **QASMBench Suite** (40 circuits): Real-world algorithms from the [QASMBench](https://github.com/pnnl/QASMBench) repository — Shor's, Grover's, QAOA, QEC, HHL, arithmetic, and more (filtered to ≤19 qubits with ≥1 two-qubit gate)
+
+<div align="center">
+
+<img src="assets/benchmark/combined_summary.png" width="900" alt="Full benchmark dashboard — Generated + QASMBench">
+
+*Full benchmark dashboard: per-category swap ratios, agent vs SABRE scatter, ratio distributions, and scaling trends across both test suites.*
+
+</div>
+
+#### Overall Results
+
+| Suite | Circuits | Mean Ratio | Agent Wins | Ties | SABRE Wins |
+|-------|----------|------------|------------|------|------------|
+| Generated | 110 (89 with SWAPs) | **0.989** | 37 (42%) | 34 (38%) | 18 (20%) |
+| QASMBench | 40 (24 with SWAPs) | **0.687** | 11 (46%) | 10 (42%) | 3 (12%) |
+| **Combined** | **150 (113 with SWAPs)** | **0.925** | **48 (42%)** | **44 (39%)** | **21 (19%)** |
+
+The agent wins **more than twice as often as it loses** across both suites.
+
+#### Per-Category Highlights
+
+**Generated circuits** — the agent is strongest on dense, structured algorithms:
+
+| Category | Ratio | Standout |
+|----------|-------|----------|
+| QFT | **0.890** | qft_4: 3 vs 5 SWAPs (0.600) |
+| VQE (full) | **0.909** | vqe_full_12q_1r: 55 vs 64 (0.859) |
+| Random (depth-20) | **0.988** | random_d20_s16: 163 vs 189 (0.862) |
+
+**QASMBench** — the agent dominates on real-world arithmetic/factoring circuits:
+
+| Circuit | Agent SWAPs | SABRE SWAPs | Ratio |
+|---------|-------------|-------------|-------|
+| square_root_n18 | 6 | 543 | **0.011** |
+| multiplier_n15 | 15 | 111 | **0.135** |
+| shor_n5 | 3 | 8 | **0.375** |
+| seca_n11 | 10 | 25 | **0.400** |
+| qft_n18 | 133 | 136 | **0.978** |
+
+<div align="center">
+
+<img src="assets/benchmark/combined_agent_vs_sabre.png" width="700" alt="Agent vs SABRE scatter — all circuits">
+
+*Agent vs SABRE SWAP counts across all 113 completed circuits. Points below the diagonal = agent wins. The agent consistently matches or beats SABRE, with dramatic wins on structured QASMBench circuits.*
+
+</div>
+
+<details>
+<summary><b>Suite Comparison (bar chart)</b></summary>
+
+<div align="center">
+
+<img src="assets/benchmark/combined_ratio_comparison.png" width="700" alt="Suite comparison — Generated vs QASMBench">
+
+*Side-by-side comparison of Generated and QASMBench suites: mean ratio, win rate, and loss rate.*
+
+</div>
+</details>
+
+The benchmark script (`scripts/benchmark_test.py`) generates 15 figures per run (6 per suite + 3 combined), detailed per-circuit JSON/Markdown results, and category-level statistics. Run with:
+
+```bash
+sbatch benchmark.slurm <checkpoint>                    # Both suites (default)
+sbatch benchmark.slurm <checkpoint> --no-qasmbench     # Generated only
+```
+
+Full results: [`outputs/tests/benchmark_002/benchmark_results.md`](outputs/tests/benchmark_002/benchmark_results.md)
 
 ---
 
@@ -429,6 +507,9 @@ rl-quantum-circuit-routing/
 ├── outputs/                    # All experiment outputs (auto-numbered, gitignored)
 ├── main.py                     # CLI entry point (train/evaluate/visualize)
 ├── experiment.slurm            # SLURM job script (train + eval + viz)
+├── benchmark.slurm             # SLURM benchmark script (agent vs SABRE on 150 circuits)
+├── scripts/
+│   └── benchmark_test.py       # Full benchmark: generated + QASMBench suites
 ├── ARCHITECTURE.md             # Detailed technical documentation
 ├── outputs.md                  # Full experiment log and analysis
 └── README.md
