@@ -1,0 +1,210 @@
+============================================================
+BENCHMARK TEST
+Checkpoint: outputs/run_030/checkpoints/checkpoint_final.pt
+Job ID:     166984
+Node:       sh20
+Extra args: 
+Start time: Wed Apr  1 02:46:50 PM CEST 2026
+============================================================
+============================================================
+  FULL BENCHMARK — D3QN Agent vs SABRE
+============================================================
+
+Config:     outputs/run_030/config.json
+Topology:   heavy_hex_19 (19 qubits, 20 edges)
+Checkpoint: outputs/run_030/checkpoints/checkpoint_final.pt
+Output:     outputs/tests/benchmark_002
+Max steps:  1000
+Agent:      11,988,277 parameters
+
+============================================================
+  SUITE A: Generated Algorithm Circuits
+============================================================
+  110 circuits across 7 categories
+
+  [  1/110] qft_4                                    (4q,   8 2q-gates) ... agent=   3  sabre=   5  ratio=  0.600  [OK]  (0.9s)
+  [  2/110] qft_8                                    (8q,  32 2q-gates) ... agent=  30  sabre=  33  ratio=  0.909  [OK]  (0.0s)
+  [  3/110] qft_12                                   (12q,  72 2q-gates) ... agent=  75  sabre=  78  ratio=  0.962  [OK]  (0.1s)
+  [  4/110] qft_16                                   (16q, 128 2q-gates) ... agent= 147  sabre= 154  ratio=  0.955  [OK]  (0.2s)
+  [  5/110] qft_19                                   (19q, 180 2q-gates) ... agent= 228  sabre= 223  ratio=  1.022  [OK]  (0.3s)
+  [  6/110] vqe_linear_4q_1r                         (4q,   3 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  7/110] vqe_linear_4q_3r                         (4q,   9 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  8/110] vqe_linear_4q_5r                         (4q,  15 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  9/110] vqe_linear_8q_1r                         (8q,   7 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 10/110] vqe_linear_8q_3r                         (8q,  21 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 11/110] vqe_linear_8q_5r                         (8q,  35 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 12/110] vqe_linear_12q_1r                        (12q,  11 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 13/110] vqe_linear_12q_3r                        (12q,  33 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 14/110] vqe_linear_12q_5r                        (12q,  55 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 15/110] vqe_linear_16q_1r                        (16q,  15 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 16/110] vqe_linear_16q_3r                        (16q,  45 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 17/110] vqe_linear_16q_5r                        (16q,  75 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 18/110] vqe_linear_19q_1r                        (19q,  18 2q-gates) ... agent=  12  sabre=  13  ratio=  0.923  [OK]  (0.0s)
+  [ 19/110] vqe_linear_19q_3r                        (19q,  54 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 20/110] vqe_linear_19q_5r                        (19q,  90 2q-gates) ... agent=  15  sabre=  15  ratio=  1.000  [OK]  (0.0s)
+  [ 21/110] vqe_circular_4q_1r                       (4q,   4 2q-gates) ... agent=   1  sabre=   1  ratio=  1.000  [OK]  (0.0s)
+  [ 22/110] vqe_circular_4q_3r                       (4q,  12 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 23/110] vqe_circular_4q_5r                       (4q,  20 2q-gates) ... agent=   9  sabre=  10  ratio=  0.900  [OK]  (0.0s)
+  [ 24/110] vqe_circular_8q_1r                       (8q,   8 2q-gates) ... agent=   4  sabre=   4  ratio=  1.000  [OK]  (0.0s)
+  [ 25/110] vqe_circular_8q_3r                       (8q,  24 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 26/110] vqe_circular_8q_5r                       (8q,  40 2q-gates) ... agent=  10  sabre=  10  ratio=  1.000  [OK]  (0.0s)
+  [ 27/110] vqe_circular_12q_1r                      (12q,  12 2q-gates) ... agent=   8  sabre=   8  ratio=  1.000  [OK]  (0.0s)
+  [ 28/110] vqe_circular_12q_3r                      (12q,  36 2q-gates) ... agent=  19  sabre=  17  ratio=  1.118  [OK]  (0.0s)
+  [ 29/110] vqe_circular_12q_5r                      (12q,  60 2q-gates) ... agent=  30  sabre=  31  ratio=  0.968  [OK]  (0.0s)
+  [ 30/110] vqe_circular_16q_1r                      (16q,  16 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 31/110] vqe_circular_16q_3r                      (16q,  48 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 32/110] vqe_circular_16q_5r                      (16q,  80 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 33/110] vqe_circular_19q_1r                      (19q,  19 2q-gates) ... agent=   3  sabre=   3  ratio=  1.000  [OK]  (0.0s)
+  [ 34/110] vqe_circular_19q_3r                      (19q,  57 2q-gates) ... agent=  32  sabre=  34  ratio=  0.941  [OK]  (0.1s)
+  [ 35/110] vqe_circular_19q_5r                      (19q,  95 2q-gates) ... agent=  27  sabre=  27  ratio=  1.000  [OK]  (0.1s)
+  [ 36/110] vqe_full_4q_1r                           (4q,   6 2q-gates) ... agent=   2  sabre=   2  ratio=  1.000  [OK]  (0.0s)
+  [ 37/110] vqe_full_4q_2r                           (4q,  12 2q-gates) ... agent=   3  sabre=   5  ratio=  0.600  [OK]  (0.0s)
+  [ 38/110] vqe_full_4q_3r                           (4q,  18 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 39/110] vqe_full_8q_1r                           (8q,  28 2q-gates) ... agent=  21  sabre=  20  ratio=  1.050  [OK]  (0.0s)
+  [ 40/110] vqe_full_8q_2r                           (8q,  56 2q-gates) ... agent=  44  sabre=  47  ratio=  0.936  [OK]  (0.1s)
+  [ 41/110] vqe_full_8q_3r                           (8q,  84 2q-gates) ... agent=  69  sabre=  77  ratio=  0.896  [OK]  (0.1s)
+  [ 42/110] vqe_full_12q_1r                          (12q,  66 2q-gates) ... agent=  55  sabre=  64  ratio=  0.859  [OK]  (0.1s)
+  [ 43/110] vqe_full_12q_2r                          (12q, 132 2q-gates) ... agent= 130  sabre= 143  ratio=  0.909  [OK]  (0.2s)
+  [ 44/110] vqe_full_12q_3r                          (12q, 198 2q-gates) ... agent= 220  sabre= 224  ratio=  0.982  [OK]  (0.3s)
+  [ 45/110] vqe_full_19q_1r                          (19q, 171 2q-gates) ... agent= 187  sabre= 209  ratio=  0.895  [OK]  (0.2s)
+  [ 46/110] vqe_full_19q_2r                          (19q, 342 2q-gates) ... agent= 395  sabre= 414  ratio=  0.954  [OK]  (0.7s)
+  [ 47/110] vqe_full_19q_3r                          (19q, 513 2q-gates) ... agent= 585  sabre= 608  ratio=  0.962  [OK]  (1.2s)
+  [ 48/110] ghz_4                                    (4q,   3 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 49/110] ghz_8                                    (8q,   7 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 50/110] ghz_12                                   (12q,  11 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 51/110] ghz_16                                   (16q,  15 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 52/110] ghz_19                                   (19q,  18 2q-gates) ... agent=   3  sabre=   2  ratio=  1.500  [OK]  (0.0s)
+  [ 53/110] bernstein_vazirani_4                     (4q,   3 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 54/110] bernstein_vazirani_8                     (8q,   7 2q-gates) ... agent=   5  sabre=   5  ratio=  1.000  [OK]  (0.0s)
+  [ 55/110] bernstein_vazirani_12                    (12q,  11 2q-gates) ... agent=   8  sabre=   7  ratio=  1.143  [OK]  (0.0s)
+  [ 56/110] bernstein_vazirani_16                    (16q,  15 2q-gates) ... agent=   9  sabre=   9  ratio=  1.000  [OK]  (0.0s)
+  [ 57/110] bernstein_vazirani_19                    (19q,  18 2q-gates) ... agent=  17  sabre=  18  ratio=  0.944  [OK]  (0.0s)
+  [ 58/110] quantum_volume_4_s0                      (4q,  18 2q-gates) ... agent=   1  sabre=   1  ratio=  1.000  [OK]  (0.0s)
+  [ 59/110] quantum_volume_4_s1                      (4q,  18 2q-gates) ... agent=   3  sabre=   3  ratio=  1.000  [OK]  (0.0s)
+  [ 60/110] quantum_volume_4_s2                      (4q,  18 2q-gates) ... agent=   1  sabre=   1  ratio=  1.000  [OK]  (0.0s)
+  [ 61/110] quantum_volume_4_s3                      (4q,  18 2q-gates) ... agent=   3  sabre=   3  ratio=  1.000  [OK]  (0.0s)
+  [ 62/110] quantum_volume_4_s4                      (4q,  18 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 63/110] quantum_volume_8_s0                      (8q,  36 2q-gates) ... agent=  10  sabre=  10  ratio=  1.000  [OK]  (0.0s)
+  [ 64/110] quantum_volume_8_s1                      (8q,  36 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 65/110] quantum_volume_8_s2                      (8q,  36 2q-gates) ... agent=   7  sabre=   7  ratio=  1.000  [OK]  (0.0s)
+  [ 66/110] quantum_volume_8_s3                      (8q,  36 2q-gates) ... agent=   5  sabre=   5  ratio=  1.000  [OK]  (0.0s)
+  [ 67/110] quantum_volume_8_s4                      (8q,  36 2q-gates) ... agent=   7  sabre=   7  ratio=  1.000  [OK]  (0.0s)
+  [ 68/110] quantum_volume_12_s0                     (12q,  54 2q-gates) ... agent=   6  sabre=   6  ratio=  1.000  [OK]  (0.0s)
+  [ 69/110] quantum_volume_12_s1                     (12q,  54 2q-gates) ... agent=  12  sabre=  10  ratio=  1.200  [OK]  (0.0s)
+  [ 70/110] quantum_volume_12_s2                     (12q,  54 2q-gates) ... agent=  11  sabre=  10  ratio=  1.100  [OK]  (0.0s)
+  [ 71/110] quantum_volume_12_s3                     (12q,  54 2q-gates) ... agent=  12  sabre=  12  ratio=  1.000  [OK]  (0.0s)
+  [ 72/110] quantum_volume_12_s4                     (12q,  54 2q-gates) ... agent=   8  sabre=   8  ratio=  1.000  [OK]  (0.0s)
+  [ 73/110] quantum_volume_19_s0                     (19q,  81 2q-gates) ... agent=  14  sabre=  14  ratio=  1.000  [OK]  (0.1s)
+  [ 74/110] quantum_volume_19_s1                     (19q,  81 2q-gates) ... agent=  14  sabre=  14  ratio=  1.000  [OK]  (0.0s)
+  [ 75/110] quantum_volume_19_s2                     (19q,  81 2q-gates) ... agent=  16  sabre=  16  ratio=  1.000  [OK]  (0.0s)
+  [ 76/110] quantum_volume_19_s3                     (19q,  81 2q-gates) ... agent=  21  sabre=  19  ratio=  1.105  [OK]  (0.1s)
+  [ 77/110] quantum_volume_19_s4                     (19q,  81 2q-gates) ... agent=  15  sabre=  15  ratio=  1.000  [OK]  (0.1s)
+  [ 78/110] cnot_ring_19_3rep                        (19q,  57 2q-gates) ... agent=  15  sabre=  15  ratio=  1.000  [OK]  (0.0s)
+  [ 79/110] cnot_ring_19_5rep                        (19q,  95 2q-gates) ... agent=  45  sabre=  45  ratio=  1.000  [OK]  (0.1s)
+  [ 80/110] cnot_ring_19_10rep                       (19q, 190 2q-gates) ... agent=  57  sabre=  57  ratio=  1.000  [OK]  (0.1s)
+  [ 81/110] random_d20_s0                            (19q, 135 2q-gates) ... agent= 194  sabre= 180  ratio=  1.078  [OK]  (0.2s)
+  [ 82/110] random_d20_s1                            (19q, 119 2q-gates) ... agent= 176  sabre= 182  ratio=  0.967  [OK]  (0.2s)
+  [ 83/110] random_d20_s2                            (19q, 140 2q-gates) ... agent= 189  sabre= 196  ratio=  0.964  [OK]  (0.2s)
+  [ 84/110] random_d20_s3                            (19q, 124 2q-gates) ... agent= 198  sabre= 180  ratio=  1.100  [OK]  (0.2s)
+  [ 85/110] random_d20_s4                            (19q, 137 2q-gates) ... agent= 212  sabre= 201  ratio=  1.055  [OK]  (0.3s)
+  [ 86/110] random_d20_s5                            (19q, 131 2q-gates) ... agent= 186  sabre= 193  ratio=  0.964  [OK]  (0.2s)
+  [ 87/110] random_d20_s6                            (19q, 121 2q-gates) ... agent= 163  sabre= 175  ratio=  0.931  [OK]  (0.2s)
+  [ 88/110] random_d20_s7                            (19q, 125 2q-gates) ... agent= 170  sabre= 171  ratio=  0.994  [OK]  (0.2s)
+  [ 89/110] random_d20_s8                            (19q, 136 2q-gates) ... agent= 195  sabre= 210  ratio=  0.929  [OK]  (0.2s)
+  [ 90/110] random_d20_s9                            (19q, 131 2q-gates) ... agent= 188  sabre= 194  ratio=  0.969  [OK]  (0.2s)
+  [ 91/110] random_d20_s10                           (19q, 121 2q-gates) ... agent= 159  sabre= 163  ratio=  0.975  [OK]  (0.2s)
+  [ 92/110] random_d20_s11                           (19q, 124 2q-gates) ... agent= 166  sabre= 176  ratio=  0.943  [OK]  (0.2s)
+  [ 93/110] random_d20_s12                           (19q, 127 2q-gates) ... agent= 172  sabre= 186  ratio=  0.925  [OK]  (0.2s)
+  [ 94/110] random_d20_s13                           (19q, 129 2q-gates) ... agent= 178  sabre= 180  ratio=  0.989  [OK]  (0.2s)
+  [ 95/110] random_d20_s14                           (19q, 132 2q-gates) ... agent= 177  sabre= 177  ratio=  1.000  [OK]  (0.2s)
+  [ 96/110] random_d20_s15                           (19q, 120 2q-gates) ... agent= 200  sabre= 171  ratio=  1.170  [OK]  (0.2s)
+  [ 97/110] random_d20_s16                           (19q, 128 2q-gates) ... agent= 163  sabre= 189  ratio=  0.862  [OK]  (0.2s)
+  [ 98/110] random_d20_s17                           (19q, 124 2q-gates) ... agent= 174  sabre= 180  ratio=  0.967  [OK]  (0.2s)
+  [ 99/110] random_d20_s18                           (19q, 130 2q-gates) ... agent= 163  sabre= 186  ratio=  0.876  [OK]  (0.2s)
+  [100/110] random_d20_s19                           (19q, 131 2q-gates) ... agent= 221  sabre= 194  ratio=  1.139  [OK]  (0.2s)
+  [101/110] random_d20_s20                           (19q, 120 2q-gates) ... agent= 149  sabre= 161  ratio=  0.925  [OK]  (0.2s)
+  [102/110] random_d20_s21                           (19q, 128 2q-gates) ... agent= 182  sabre= 194  ratio=  0.938  [OK]  (0.2s)
+  [103/110] random_d20_s22                           (19q, 131 2q-gates) ... agent= 179  sabre= 176  ratio=  1.017  [OK]  (0.2s)
+  [104/110] random_d20_s23                           (19q, 128 2q-gates) ... agent= 195  sabre= 186  ratio=  1.048  [OK]  (0.2s)
+  [105/110] random_d20_s24                           (19q, 136 2q-gates) ... agent= 187  sabre= 200  ratio=  0.935  [OK]  (0.2s)
+  [106/110] random_d20_s25                           (19q, 130 2q-gates) ... agent= 187  sabre= 195  ratio=  0.959  [OK]  (0.2s)
+  [107/110] random_d20_s26                           (19q, 139 2q-gates) ... agent= 219  sabre= 224  ratio=  0.978  [OK]  (0.3s)
+  [108/110] random_d20_s27                           (19q, 128 2q-gates) ... agent= 178  sabre= 175  ratio=  1.017  [OK]  (0.2s)
+  [109/110] random_d20_s28                           (19q, 135 2q-gates) ... agent= 198  sabre= 197  ratio=  1.005  [OK]  (0.2s)
+  [110/110] random_d20_s29                           (19q, 132 2q-gates) ... agent= 205  sabre= 200  ratio=  1.025  [OK]  (0.2s)
+  Suite 'Generated' done in 13.9s (110 circuits)
+
+  Generating Suite A figures...
+============================================================
+  SUITE B: QASMBench Circuits
+============================================================
+  40 usable circuits, 80 skipped
+
+  [  1/40] adder_n10                                (10q,   1 2q-gates) ... agent=   0  sabre=  21  ratio=  0.000  [OK]  (0.0s)
+  [  2/40] adder_n4                                 (4q,  10 2q-gates) ... agent=   2  sabre=   2  ratio=  1.000  [OK]  (0.1s)
+  [  3/40] basis_change_n3                          (3q,  10 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  4/40] basis_test_n4                            (4q,  34 2q-gates) ... agent=   0  sabre=   6  ratio=  0.000  [OK]  (0.0s)
+  [  5/40] bell_n4                                  (4q,   7 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  6/40] cat_state_n4                             (4q,   3 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  7/40] deutsch_n2                               (2q,   1 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  8/40] dnn_n2                                   (2q,  42 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [  9/40] dnn_n8                                   (8q, 192 2q-gates) ... agent=  10  sabre=  10  ratio=  1.000  [OK]  (0.1s)
+  [ 10/40] error_correctiond3_n5                    (5q,  49 2q-gates) ... agent=   4  sabre=   4  ratio=  1.000  [OK]  (0.0s)
+  [ 11/40] fredkin_n3                               (3q,   8 2q-gates) ... agent=   3  sabre=   3  ratio=  1.000  [OK]  (0.0s)
+  [ 12/40] grover_n2                                (2q,   2 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 13/40] hhl_n7                                   (7q, 196 2q-gates) ... agent=  49  sabre=  43  ratio=  1.140  [OK]  (0.1s)
+  [ 14/40] hs4_n4                                   (4q,   4 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 15/40] ipea_n2                                  (2q,  15 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 16/40] ising_n10                                (10q,  90 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 17/40] iswap_n2                                 (2q,   2 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 18/40] linearsolver_n3                          (3q,   4 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 19/40] lpn_n5                                   (5q,   2 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 20/40] pea_n5                                   (5q,  21 2q-gates) ... agent=   5  sabre=   5  ratio=  1.000  [OK]  (0.0s)
+  [ 21/40] qaoa_n3                                  (3q,   6 2q-gates) ... agent=   1  sabre=   1  ratio=  1.000  [OK]  (0.0s)
+  [ 22/40] qaoa_n6                                  (6q,  54 2q-gates) ... agent=  11  sabre=  10  ratio=  1.100  [OK]  (0.0s)
+  [ 23/40] qec_en_n5                                (5q,  10 2q-gates) ... agent=   2  sabre=   2  ratio=  1.000  [OK]  (0.0s)
+  [ 24/40] qft_n4                                   (4q,   6 2q-gates) ... agent=   3  sabre=   3  ratio=  1.000  [OK]  (0.0s)
+  [ 25/40] qpe_n9                                   (9q,  16 2q-gates) ... agent=  15  sabre=  15  ratio=  1.000  [OK]  (0.0s)
+  [ 26/40] quantumwalks_n2                          (2q,   3 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 27/40] shor_n5                                  (5q,   6 2q-gates) ... agent=   3  sabre=   8  ratio=  0.375  [OK]  (0.0s)
+  [ 28/40] simon_n6                                 (6q,   2 2q-gates) ... agent=   0  sabre=   5  ratio=  0.000  [OK]  (0.0s)
+  [ 29/40] teleportation_n3                         (3q,   2 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 30/40] toffoli_n3                               (3q,   6 2q-gates) ... agent=   1  sabre=   1  ratio=  1.000  [OK]  (0.0s)
+  [ 31/40] variational_n4                           (4q,  16 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 32/40] vqe_n4                                   (4q,   9 2q-gates) ... agent=   0  sabre=   0  ratio=  1.000  [OK]  (0.0s)
+  [ 33/40] wstate_n3                                (3q,   2 2q-gates) ... agent=   0  sabre=   3  ratio=  0.000  [OK]  (0.0s)
+  [ 34/40] multiplier_n15                           (15q,  30 2q-gates) ... agent=  15  sabre= 111  ratio=  0.135  [OK]  (0.1s)
+  [ 35/40] multiply_n13                             (13q,   4 2q-gates) ... agent=   8  sabre=  19  ratio=  0.421  [OK]  (0.0s)
+  [ 36/40] qec9xz_n17                               (17q,  32 2q-gates) ... agent=  38  sabre=  34  ratio=  1.118  [OK]  (0.1s)
+  [ 37/40] qf21_n15                                 (15q,  46 2q-gates) ... agent=  59  sabre=  73  ratio=  0.808  [OK]  (0.1s)
+  [ 38/40] qft_n18                                  (18q, 306 2q-gates) ... agent= 133  sabre= 136  ratio=  0.978  [OK]  (0.3s)
+  [ 39/40] seca_n11                                 (11q,  36 2q-gates) ... agent=  10  sabre=  25  ratio=  0.400  [OK]  (0.0s)
+  [ 40/40] square_root_n18                          (18q, 118 2q-gates) ... agent=   6  sabre= 543  ratio=  0.011  [OK]  (0.2s)
+  Suite 'QASMBench' done in 2.0s (40 circuits)
+
+  Generating Suite B figures...
+Generating combined figures...
+Writing results...
+
+============================================================
+  FULL BENCHMARK RESULTS
+============================================================
+  Total circuits:   150
+  Completed:        113
+  Mean ratio:       0.9245
+  Median ratio:     1.0000
+  Wins/Ties/Losses: 48/44/21
+  Total time:       14.2s
+
+  Generated     mean=0.9885  median=1.0000  W/T/L=37/34/18
+  QASMBench     mean=0.6869  median=1.0000  W/T/L=11/10/3
+
+  Output: outputs/tests/benchmark_002
+============================================================
+
+============================================================
+BENCHMARK COMPLETE
+  Exit code: 0
+  Output:    outputs/tests/benchmark_002
+  End time:  Wed Apr  1 02:48:52 PM CEST 2026
+============================================================

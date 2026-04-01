@@ -1,0 +1,178 @@
+{
+  "QFT": {
+    "mean": 0.8895192699677004,
+    "median": 0.9545454545454546,
+    "std": 0.14918621563611012,
+    "min": 0.6,
+    "max": 1.0224215246636772,
+    "wins": 4,
+    "ties": 0,
+    "losses": 1,
+    "n": 5
+  },
+  "VQE": {
+    "mean": 0.9590199791854169,
+    "median": 1.0,
+    "std": 0.08803639230804938,
+    "min": 0.6,
+    "max": 1.1176470588235294,
+    "wins": 13,
+    "ties": 12,
+    "losses": 2,
+    "n": 27
+  },
+  "GHZ": {
+    "mean": 1.5,
+    "median": 1.5,
+    "std": 0.0,
+    "min": 1.5,
+    "max": 1.5,
+    "wins": 0,
+    "ties": 0,
+    "losses": 1,
+    "n": 1
+  },
+  "Bernstein-Vazirani": {
+    "mean": 1.0218253968253967,
+    "median": 1.0,
+    "std": 0.07346630389513338,
+    "min": 0.9444444444444444,
+    "max": 1.1428571428571428,
+    "wins": 1,
+    "ties": 2,
+    "losses": 1,
+    "n": 4
+  },
+  "Quantum Volume": {
+    "mean": 1.0213296398891967,
+    "median": 1.0,
+    "std": 0.05253380625429833,
+    "min": 1.0,
+    "max": 1.2,
+    "wins": 0,
+    "ties": 16,
+    "losses": 3,
+    "n": 19
+  },
+  "Structured": {
+    "mean": 1.0,
+    "median": 1.0,
+    "std": 0.0,
+    "min": 1.0,
+    "max": 1.0,
+    "wins": 0,
+    "ties": 3,
+    "losses": 0,
+    "n": 3
+  },
+  "Random": {
+    "mean": 0.9881721595678069,
+    "median": 0.9722661438239201,
+    "std": 0.06874125398941666,
+    "min": 0.8624338624338624,
+    "max": 1.1695906432748537,
+    "wins": 19,
+    "ties": 1,
+    "losses": 10,
+    "n": 30
+  },
+  "QB:Factoring/Arithmetic": {
+    "mean": 0.39292238122188294,
+    "median": 0.375,
+    "std": 0.3603165623779383,
+    "min": 0.0,
+    "max": 1.0,
+    "wins": 6,
+    "ties": 1,
+    "losses": 0,
+    "n": 7
+  },
+  "QB:Other": {
+    "mean": 0.6,
+    "median": 0.7,
+    "std": 0.4242640687119285,
+    "min": 0.0,
+    "max": 1.0,
+    "wins": 2,
+    "ties": 2,
+    "losses": 0,
+    "n": 4
+  },
+  "QB:ML/Classification": {
+    "mean": 1.0,
+    "median": 1.0,
+    "std": 0.0,
+    "min": 1.0,
+    "max": 1.0,
+    "wins": 0,
+    "ties": 1,
+    "losses": 0,
+    "n": 1
+  },
+  "QB:Error Correction": {
+    "mean": 1.0392156862745099,
+    "median": 1.0,
+    "std": 0.05545935538718021,
+    "min": 1.0,
+    "max": 1.1176470588235294,
+    "wins": 0,
+    "ties": 2,
+    "losses": 1,
+    "n": 3
+  },
+  "QB:Linear Algebra": {
+    "mean": 1.1395348837209303,
+    "median": 1.1395348837209303,
+    "std": 0.0,
+    "min": 1.1395348837209303,
+    "max": 1.1395348837209303,
+    "wins": 0,
+    "ties": 0,
+    "losses": 1,
+    "n": 1
+  },
+  "QB:QFT/QPE": {
+    "mean": 0.9944852941176471,
+    "median": 1.0,
+    "std": 0.009551750777034265,
+    "min": 0.9779411764705882,
+    "max": 1.0,
+    "wins": 1,
+    "ties": 3,
+    "losses": 0,
+    "n": 4
+  },
+  "QB:VQE/Variational": {
+    "mean": 1.05,
+    "median": 1.05,
+    "std": 0.050000000000000044,
+    "min": 1.0,
+    "max": 1.1,
+    "wins": 0,
+    "ties": 1,
+    "losses": 1,
+    "n": 2
+  },
+  "QB:Search": {
+    "mean": 0.0,
+    "median": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "wins": 1,
+    "ties": 0,
+    "losses": 0,
+    "n": 1
+  },
+  "QB:State Prep": {
+    "mean": 0.0,
+    "median": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "wins": 1,
+    "ties": 0,
+    "losses": 0,
+    "n": 1
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "checkpoint": "outputs/run_030/checkpoints/checkpoint_final.pt",
+  "config": "outputs/run_030/config.json",
+  "topology": "heavy_hex_19",
+  "n_physical": 19,
+  "n_circuits": 110,
+  "total_time_s": 31.7,
+  "timestamp": "2026-03-31 11:22:31"
+}
