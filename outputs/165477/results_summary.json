@@ -1,0 +1,1060 @@
+{
+  "run_dir": "outputs/165477",
+  "topologies": [
+    "linear_5",
+    "grid_3x3",
+    "heavy_hex_19"
+  ],
+  "total_episodes": 100000,
+  "elapsed_seconds": 105723.4,
+  "elapsed_human": "29.4h",
+  "global_steps": 15586400,
+  "training": {
+    "total_logged_episodes": 100000,
+    "final_500ep": {
+      "mean_reward": -39.74,
+      "mean_swaps": 139.9,
+      "mean_gates_pct": 1.0,
+      "completion_rate": 1.0,
+      "mean_steps": 139.9
+    },
+    "final_epsilon": 0.02
+  },
+  "evaluations": {
+    "total_evals": 200,
+    "best": {
+      "episode": 85499,
+      "completion_rate": 1.0,
+      "mean_agent_swaps": 79.14666666666666,
+      "mean_sabre_swaps": 76.03333333333333,
+      "mean_swap_ratio": 1.019856661124284
+    },
+    "final": {
+      "episode": 99999,
+      "completion_rate": 1.0,
+      "mean_agent_swaps": 79.81333333333333,
+      "mean_sabre_swaps": 77.18666666666667,
+      "mean_swap_ratio": 1.0489689158396334
+    },
+    "progression": [
+      {
+        "episode": 499,
+        "completion_rate": 0.37333333333333335,
+        "mean_swap_ratio": 6.419021431668507
+      },
+      {
+        "episode": 999,
+        "completion_rate": 0.5466666666666666,
+        "mean_swap_ratio": 4.058035015550974
+      },
+      {
+        "episode": 1499,
+        "completion_rate": 0.6533333333333333,
+        "mean_swap_ratio": 2.239347595479263
+      },
+      {
+        "episode": 1999,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.5370271929576942
+      },
+      {
+        "episode": 2499,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.5954134605092156
+      },
+      {
+        "episode": 2999,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.2193322025635522
+      },
+      {
+        "episode": 3499,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.1349700976431063
+      },
+      {
+        "episode": 3999,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.0881156674554804
+      },
+      {
+        "episode": 4499,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.0868465670364504
+      },
+      {
+        "episode": 4999,
+        "completion_rate": 0.6733333333333333,
+        "mean_swap_ratio": 1.0845070340134457
+      },
+      {
+        "episode": 5499,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.0485698040812748
+      },
+      {
+        "episode": 5999,
+        "completion_rate": 0.6666666666666666,
+        "mean_swap_ratio": 1.0421700682494315
+      },
+      {
+        "episode": 6499,
+        "completion_rate": 0.6733333333333333,
+        "mean_swap_ratio": 1.0733206439682021
+      },
+      {
+        "episode": 6999,
+        "completion_rate": 0.6733333333333333,
+        "mean_swap_ratio": 1.0531241474454545
+      },
+      {
+        "episode": 7499,
+        "completion_rate": 0.6866666666666666,
+        "mean_swap_ratio": 1.0416159148891475
+      },
+      {
+        "episode": 7999,
+        "completion_rate": 0.68,
+        "mean_swap_ratio": 1.0420734918279684
+      },
+      {
+        "episode": 8499,
+        "completion_rate": 0.68,
+        "mean_swap_ratio": 1.0377185807742153
+      },
+      {
+        "episode": 8999,
+        "completion_rate": 0.6933333333333334,
+        "mean_swap_ratio": 1.0517490058576897
+      },
+      {
+        "episode": 9499,
+        "completion_rate": 0.6866666666666666,
+        "mean_swap_ratio": 1.0539108839346583
+      },
+      {
+        "episode": 9999,
+        "completion_rate": 0.7266666666666667,
+        "mean_swap_ratio": 1.0891800257010278
+      },
+      {
+        "episode": 10499,
+        "completion_rate": 0.7066666666666667,
+        "mean_swap_ratio": 1.06819109548369
+      },
+      {
+        "episode": 10999,
+        "completion_rate": 0.74,
+        "mean_swap_ratio": 1.1047166945133267
+      },
+      {
+        "episode": 11499,
+        "completion_rate": 0.7266666666666667,
+        "mean_swap_ratio": 1.1257040416365316
+      },
+      {
+        "episode": 11999,
+        "completion_rate": 0.7266666666666667,
+        "mean_swap_ratio": 1.0500633393991496
+      },
+      {
+        "episode": 12499,
+        "completion_rate": 0.7466666666666667,
+        "mean_swap_ratio": 1.093773365505084
+      },
+      {
+        "episode": 12999,
+        "completion_rate": 0.7466666666666667,
+        "mean_swap_ratio": 1.0911578848522705
+      },
+      {
+        "episode": 13499,
+        "completion_rate": 0.7533333333333333,
+        "mean_swap_ratio": 1.1003832601717036
+      },
+      {
+        "episode": 13999,
+        "completion_rate": 0.7333333333333333,
+        "mean_swap_ratio": 1.0595772876807028
+      },
+      {
+        "episode": 14499,
+        "completion_rate": 0.76,
+        "mean_swap_ratio": 1.102596126488743
+      },
+      {
+        "episode": 14999,
+        "completion_rate": 0.7933333333333333,
+        "mean_swap_ratio": 1.1253765314490294
+      },
+      {
+        "episode": 15499,
+        "completion_rate": 0.7866666666666666,
+        "mean_swap_ratio": 1.1142472735735451
+      },
+      {
+        "episode": 15999,
+        "completion_rate": 0.7733333333333333,
+        "mean_swap_ratio": 1.0880913651988857
+      },
+      {
+        "episode": 16499,
+        "completion_rate": 0.8133333333333334,
+        "mean_swap_ratio": 1.1130233517476362
+      },
+      {
+        "episode": 16999,
+        "completion_rate": 0.7733333333333333,
+        "mean_swap_ratio": 1.0955213639867847
+      },
+      {
+        "episode": 17499,
+        "completion_rate": 0.8266666666666667,
+        "mean_swap_ratio": 1.1338462642450167
+      },
+      {
+        "episode": 17999,
+        "completion_rate": 0.84,
+        "mean_swap_ratio": 1.1215248116201673
+      },
+      {
+        "episode": 18499,
+        "completion_rate": 0.8333333333333334,
+        "mean_swap_ratio": 1.1185189654347965
+      },
+      {
+        "episode": 18999,
+        "completion_rate": 0.8666666666666667,
+        "mean_swap_ratio": 1.151586071560465
+      },
+      {
+        "episode": 19499,
+        "completion_rate": 0.8666666666666667,
+        "mean_swap_ratio": 1.1253003697604298
+      },
+      {
+        "episode": 19999,
+        "completion_rate": 0.8733333333333333,
+        "mean_swap_ratio": 1.215348197971191
+      },
+      {
+        "episode": 20499,
+        "completion_rate": 0.8666666666666667,
+        "mean_swap_ratio": 1.131814595080033
+      },
+      {
+        "episode": 20999,
+        "completion_rate": 0.92,
+        "mean_swap_ratio": 1.2168724135576874
+      },
+      {
+        "episode": 21499,
+        "completion_rate": 0.9,
+        "mean_swap_ratio": 1.113531153468938
+      },
+      {
+        "episode": 21999,
+        "completion_rate": 0.9,
+        "mean_swap_ratio": 1.120080826378875
+      },
+      {
+        "episode": 22499,
+        "completion_rate": 0.9533333333333334,
+        "mean_swap_ratio": 1.154369084462309
+      },
+      {
+        "episode": 22999,
+        "completion_rate": 0.9,
+        "mean_swap_ratio": 1.1604605249025646
+      },
+      {
+        "episode": 23499,
+        "completion_rate": 0.9133333333333333,
+        "mean_swap_ratio": 1.1547768043653708
+      },
+      {
+        "episode": 23999,
+        "completion_rate": 0.94,
+        "mean_swap_ratio": 1.139301299298815
+      },
+      {
+        "episode": 24499,
+        "completion_rate": 0.96,
+        "mean_swap_ratio": 1.162266323161879
+      },
+      {
+        "episode": 24999,
+        "completion_rate": 0.9733333333333334,
+        "mean_swap_ratio": 1.1806714644679965
+      },
+      {
+        "episode": 25499,
+        "completion_rate": 0.96,
+        "mean_swap_ratio": 1.1411324252155044
+      },
+      {
+        "episode": 25999,
+        "completion_rate": 0.9533333333333334,
+        "mean_swap_ratio": 1.1435198696081832
+      },
+      {
+        "episode": 26499,
+        "completion_rate": 0.9666666666666667,
+        "mean_swap_ratio": 1.1432894619045963
+      },
+      {
+        "episode": 26999,
+        "completion_rate": 0.96,
+        "mean_swap_ratio": 1.1176286791039183
+      },
+      {
+        "episode": 27499,
+        "completion_rate": 0.9733333333333334,
+        "mean_swap_ratio": 1.1254777973165642
+      },
+      {
+        "episode": 27999,
+        "completion_rate": 0.96,
+        "mean_swap_ratio": 1.1416874884631834
+      },
+      {
+        "episode": 28499,
+        "completion_rate": 0.9333333333333333,
+        "mean_swap_ratio": 1.130048263126896
+      },
+      {
+        "episode": 28999,
+        "completion_rate": 0.98,
+        "mean_swap_ratio": 1.1477680158279464
+      },
+      {
+        "episode": 29499,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.1526375506993325
+      },
+      {
+        "episode": 29999,
+        "completion_rate": 0.9666666666666667,
+        "mean_swap_ratio": 1.1889900460590181
+      },
+      {
+        "episode": 30499,
+        "completion_rate": 0.9733333333333334,
+        "mean_swap_ratio": 1.1373370836784347
+      },
+      {
+        "episode": 30999,
+        "completion_rate": 0.96,
+        "mean_swap_ratio": 1.1261754542677183
+      },
+      {
+        "episode": 31499,
+        "completion_rate": 0.98,
+        "mean_swap_ratio": 1.1307231217386897
+      },
+      {
+        "episode": 31999,
+        "completion_rate": 0.9733333333333334,
+        "mean_swap_ratio": 1.2256091379733856
+      },
+      {
+        "episode": 32499,
+        "completion_rate": 0.9733333333333334,
+        "mean_swap_ratio": 1.1365463058379883
+      },
+      {
+        "episode": 32999,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.1162849362661862
+      },
+      {
+        "episode": 33499,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.1070515373166185
+      },
+      {
+        "episode": 33999,
+        "completion_rate": 0.98,
+        "mean_swap_ratio": 1.1294128834348887
+      },
+      {
+        "episode": 34499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.114448903302034
+      },
+      {
+        "episode": 34999,
+        "completion_rate": 0.98,
+        "mean_swap_ratio": 1.1233287957804423
+      },
+      {
+        "episode": 35499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.1095804729704548
+      },
+      {
+        "episode": 35999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.1163238538460534
+      },
+      {
+        "episode": 36499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.09422842414742
+      },
+      {
+        "episode": 36999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0976324866839187
+      },
+      {
+        "episode": 37499,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.0970043165398617
+      },
+      {
+        "episode": 37999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0814953782341636
+      },
+      {
+        "episode": 38499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0696546434115746
+      },
+      {
+        "episode": 38999,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.0802584595842422
+      },
+      {
+        "episode": 39499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.092178557725372
+      },
+      {
+        "episode": 39999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0909790896368234
+      },
+      {
+        "episode": 40499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0547994484431973
+      },
+      {
+        "episode": 40999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0753473017001427
+      },
+      {
+        "episode": 41499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0667506172610066
+      },
+      {
+        "episode": 41999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0574943787653208
+      },
+      {
+        "episode": 42499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0628544202509402
+      },
+      {
+        "episode": 42999,
+        "completion_rate": 0.9866666666666667,
+        "mean_swap_ratio": 1.0573922413128831
+      },
+      {
+        "episode": 43499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.039570888814957
+      },
+      {
+        "episode": 43999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0609686771531543
+      },
+      {
+        "episode": 44499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0669768329771236
+      },
+      {
+        "episode": 44999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0606289061960472
+      },
+      {
+        "episode": 45499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0946615927201888
+      },
+      {
+        "episode": 45999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.055612707023148
+      },
+      {
+        "episode": 46499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0567227696214723
+      },
+      {
+        "episode": 46999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0998183864299116
+      },
+      {
+        "episode": 47499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0417490325290324
+      },
+      {
+        "episode": 47999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0854323747362007
+      },
+      {
+        "episode": 48499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0577621834455966
+      },
+      {
+        "episode": 48999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0706160234799773
+      },
+      {
+        "episode": 49499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.2151267223638846
+      },
+      {
+        "episode": 49999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0573518097984766
+      },
+      {
+        "episode": 50499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0735060832193077
+      },
+      {
+        "episode": 50999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0463250052491166
+      },
+      {
+        "episode": 51499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0578589505403926
+      },
+      {
+        "episode": 51999,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0702201240101372
+      },
+      {
+        "episode": 52499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0833756869288862
+      },
+      {
+        "episode": 52999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.036087247530058
+      },
+      {
+        "episode": 53499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.071641086375484
+      },
+      {
+        "episode": 53999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.1927325328636131
+      },
+      {
+        "episode": 54499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.0562149786414683
+      },
+      {
+        "episode": 54999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0589207406876808
+      },
+      {
+        "episode": 55499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.107114986268631
+      },
+      {
+        "episode": 55999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0359620437554888
+      },
+      {
+        "episode": 56499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0362295282007354
+      },
+      {
+        "episode": 56999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.062919078857465
+      },
+      {
+        "episode": 57499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0812632481933482
+      },
+      {
+        "episode": 57999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.075692764223121
+      },
+      {
+        "episode": 58499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0540333574725507
+      },
+      {
+        "episode": 58999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0458387990253668
+      },
+      {
+        "episode": 59499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0550348349698107
+      },
+      {
+        "episode": 59999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0316314151843888
+      },
+      {
+        "episode": 60499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0464316733687058
+      },
+      {
+        "episode": 60999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0266731660982287
+      },
+      {
+        "episode": 61499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0445262250833565
+      },
+      {
+        "episode": 61999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0647380355663434
+      },
+      {
+        "episode": 62499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.066915637174119
+      },
+      {
+        "episode": 62999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0381720521270053
+      },
+      {
+        "episode": 63499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.074950657877153
+      },
+      {
+        "episode": 63999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0823011406615077
+      },
+      {
+        "episode": 64499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0244819798666376
+      },
+      {
+        "episode": 64999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0801419181693117
+      },
+      {
+        "episode": 65499,
+        "completion_rate": 0.9933333333333333,
+        "mean_swap_ratio": 1.046514150974284
+      },
+      {
+        "episode": 65999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0483268648251463
+      },
+      {
+        "episode": 66499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0847955407561902
+      },
+      {
+        "episode": 66999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0875799278218339
+      },
+      {
+        "episode": 67499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.056517685842242
+      },
+      {
+        "episode": 67999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0675792586713357
+      },
+      {
+        "episode": 68499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0605187095257471
+      },
+      {
+        "episode": 68999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.032652326153029
+      },
+      {
+        "episode": 69499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0478170487300846
+      },
+      {
+        "episode": 69999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0565222269161807
+      },
+      {
+        "episode": 70499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.055190828108052
+      },
+      {
+        "episode": 70999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0401659439936541
+      },
+      {
+        "episode": 71499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.087440055643641
+      },
+      {
+        "episode": 71999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.057801940612022
+      },
+      {
+        "episode": 72499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0594224327315187
+      },
+      {
+        "episode": 72999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0710657075697227
+      },
+      {
+        "episode": 73499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0261616123736401
+      },
+      {
+        "episode": 73999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0384674474833375
+      },
+      {
+        "episode": 74499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0532885007308865
+      },
+      {
+        "episode": 74999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0420859480278262
+      },
+      {
+        "episode": 75499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0560578542806716
+      },
+      {
+        "episode": 75999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0499499553700375
+      },
+      {
+        "episode": 76499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0583329595597286
+      },
+      {
+        "episode": 76999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0493630394071911
+      },
+      {
+        "episode": 77499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0385810904977026
+      },
+      {
+        "episode": 77999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0825662148727067
+      },
+      {
+        "episode": 78499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0488347343890383
+      },
+      {
+        "episode": 78999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0740625086515856
+      },
+      {
+        "episode": 79499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0748278558127322
+      },
+      {
+        "episode": 79999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0470539593583825
+      },
+      {
+        "episode": 80499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0461386492966402
+      },
+      {
+        "episode": 80999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0628580345334246
+      },
+      {
+        "episode": 81499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.046821927539546
+      },
+      {
+        "episode": 81999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0636476698800217
+      },
+      {
+        "episode": 82499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.062768838897149
+      },
+      {
+        "episode": 82999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.04673595431256
+      },
+      {
+        "episode": 83499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0334361238501746
+      },
+      {
+        "episode": 83999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0732844872043061
+      },
+      {
+        "episode": 84499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0843579369893497
+      },
+      {
+        "episode": 84999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.060442579117832
+      },
+      {
+        "episode": 85499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.019856661124284
+      },
+      {
+        "episode": 85999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0775255071057714
+      },
+      {
+        "episode": 86499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0537736829580053
+      },
+      {
+        "episode": 86999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0567796701118275
+      },
+      {
+        "episode": 87499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0563426005136416
+      },
+      {
+        "episode": 87999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.036982158244894
+      },
+      {
+        "episode": 88499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0493524219109867
+      },
+      {
+        "episode": 88999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.035394040672763
+      },
+      {
+        "episode": 89499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.06213844209471
+      },
+      {
+        "episode": 89999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.046101080465287
+      },
+      {
+        "episode": 90499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0363578495857226
+      },
+      {
+        "episode": 90999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0578617753031434
+      },
+      {
+        "episode": 91499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0273868150128167
+      },
+      {
+        "episode": 91999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0708646976733853
+      },
+      {
+        "episode": 92499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0912885535936732
+      },
+      {
+        "episode": 92999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0707093160860854
+      },
+      {
+        "episode": 93499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0606612715658876
+      },
+      {
+        "episode": 93999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.054128457671988
+      },
+      {
+        "episode": 94499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0599535466323229
+      },
+      {
+        "episode": 94999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0786351507917387
+      },
+      {
+        "episode": 95499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0624179225265111
+      },
+      {
+        "episode": 95999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0658134524915923
+      },
+      {
+        "episode": 96499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.1252132417895477
+      },
+      {
+        "episode": 96999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.1039911779276854
+      },
+      {
+        "episode": 97499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0507216623609332
+      },
+      {
+        "episode": 97999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0635285226407543
+      },
+      {
+        "episode": 98499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.086875512264072
+      },
+      {
+        "episode": 98999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0569129575308982
+      },
+      {
+        "episode": 99499,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0755276325732843
+      },
+      {
+        "episode": 99999,
+        "completion_rate": 1.0,
+        "mean_swap_ratio": 1.0489689158396334
+      }
+    ]
+  },
+  "config": {
+    "lr": 0.0001,
+    "epsilon_end": 0.02,
+    "epsilon_decay_steps": 6000000,
+    "conv_channels": [
+      64,
+      128,
+      64
+    ],
+    "dueling_hidden": 512,
+    "batch_size": 128,
+    "buffer_capacity": 500000,
+    "initial_mapping_strategy": "random",
+    "distance_reward_coeff": 0.1,
+    "repetition_penalty": -0.5,
+    "tau": 0.005,
+    "target_update_freq": 500
+  }
+}
