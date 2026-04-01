@@ -651,7 +651,7 @@ class QubitRoutingEnv(gym.Env):
         Channel 1: Mapping permutation matrix
         Channel 2: Depth-decayed gate demand
         Channel 3: Front-layer distance map (1/distance for each front-layer gate)
-        Channel 4: Action history (decayed map of recent SWAPs)
+        Channel 4: Stagnation signal (uniform steps_since_last_gate / max_steps)
         """
         topo = self._current_topo
         state = np.zeros((5, self.N, self.N), dtype=np.float32)
@@ -691,8 +691,12 @@ class QubitRoutingEnv(gym.Env):
                     state[3, p_a, p_b] = max(state[3, p_a, p_b], val)
                     state[3, p_b, p_a] = max(state[3, p_b, p_a], val)
 
-            # Channel 4: Action history (recent SWAPs with decay)
-            state[4] = self._action_history
+            # Channel 4: Stagnation signal
+            if self._episode_max_steps > 0:
+                stagnation = min(
+                    self._no_progress_streak / self._episode_max_steps, 1.0
+                )
+                state[4, :, :] = stagnation
 
         return state
 
