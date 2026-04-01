@@ -872,12 +872,27 @@ V6 applies the best findings from V4+V5. Key innovation: **fine-tuning** from be
 
 **Note**: SLURM time limit raised to 48h. Output directories now use SLURM job IDs instead of run_NNN.
 
-### Run 28 — Curriculum + Cosine + 100k (Job 165476, dir: 165476) — RUNNING
+### Run 28 — Curriculum + Cosine + 100k (Job 165476, dir: 165476) — DONE ✓ ★
 
 Combines Run 023's winning curriculum+cosine schedule with Run 024's 100k episode budget.
 - Curriculum depths [5, 10, 20], milestones [0.15, 0.35], cosine LR 1e-4→1e-5
 - 100,000 episodes, buffer 500k, eps decay 6M
-- **Hypothesis**: Run 023 beat SABRE in 60k with curriculum+cosine. 100k episodes gives 40k more refinement time post-curriculum → ratio should drop below 0.99.
+- Wall time: 22.7h
+
+| Episode | Completion | Ratio | Note |
+|---------|-----------|-------|------|
+| 10,000 | 0% | — | Still in curriculum phase (depth 5→10) |
+| 30,000 | 100% | ~1.05 | Completing circuits post-curriculum |
+| 50,000 | 100% | ~1.00 | Approaching SABRE |
+| **73,000** | **100%** | **0.977** | **★ Best checkpoint — beats SABRE by 2.3%** |
+| 98,000 | 100% | 0.986 | Oscillating in late training |
+| 100,000 | 100% | 1.006 | Final (regression from best) |
+
+**Top 5 checkpoints**: ep73k (0.977), ep93.5k (0.984), ep71.5k (0.984), ep98k (0.986), ep76k (0.990)
+
+**Verdict**: **Second-best single-topology result (0.977).** Curriculum+cosine+100k works — it achieves a better best-checkpoint ratio than Run 024 (0.987) and Run 023 (0.994). However, it doesn't beat the fine-tuned Run 029 (0.969). The late-training oscillation (ratio bouncing 0.98-1.01 after ep73k) suggests curriculum+cosine converges faster but doesn't hold its peak as stably.
+
+**Key insight**: This run is an excellent candidate for **fine-tuning**. Its best checkpoint (ep73k, 0.977) is better than Run 019's ep64k (0.991) which produced our overall best (0.969) after fine-tuning. Fine-tuning Run 28's ep73k could potentially push below 0.96.
 
 ### Run 29 — Fine-Tune from Run 019 Best Checkpoint (Job 164850, run_030) — DONE ✓ ★★ NEW BEST
 
@@ -898,21 +913,46 @@ Loads Run 019's best weights (ep64k, near the 0.991 eval window), trains 20k mor
 
 This is the strongest evidence yet that our RL agent genuinely learns routing strategies that SABRE misses. At 0.969, the agent saves ~6 SWAPs per circuit on average compared to SABRE.
 
-### Run 30 — Curriculum + Cosine Multi-Topo Bignet (Job 165477, dir: 165477) — RUNNING
+### Run 30 — Curriculum + Cosine Multi-Topo Bignet (Job 165477, dir: 165477) — DONE ✓
 
 Applies Run 023's curriculum+cosine schedule to multi-topology training with the bignet architecture.
 - Topologies [linear_5, grid_3x3, heavy_hex_19], weights [0.10, 0.30, 0.60]
 - Conv channels [64, 128, 64], dueling hidden 512 (~24M params)
 - Curriculum + cosine LR, 100k episodes
-- **Goal**: Can the best single-topo schedule transfer to multi-topo and push it consistently below 1.0?
+- Wall time: 29.4h
 
-### Run 31 — Curriculum + N-Step=2 (Job 165478, dir: 165478) — RUNNING
+| Episode | Completion | Ratio | Note |
+|---------|-----------|-------|------|
+| 60,000 | 100% | ~1.027 | Mid-training |
+| **85,500** | **100%** | **1.020** | **Best checkpoint** |
+| 100,000 | 100% | 1.049 | Final (regression) |
+
+**Top 5 checkpoints**: ep85.5k (1.020), ep64.5k (1.025), ep73.5k (1.026), ep61k (1.027), ep91.5k (1.027)
+
+**Verdict**: **Underperformed.** Never beat SABRE (best ratio 1.020). The bignet+curriculum+cosine combination for multi-topology didn't deliver. Run 026 (stdnet, no curriculum, 100k, ratio 0.996) remains our best multi-topology result by a wide margin. The bignet's ~24M parameters are too many for this task even with curriculum stabilization — consistent with our single-topo findings where stdnet beats bignet.
+
+**Why it failed**: The bignet needs more training time to converge on multi-topology. 29.4h wall time but the ratio was still improving at ep85k before regressing. The late oscillation (1.020 → 1.049) suggests the cosine LR decay was too aggressive — the learning rate dropped too low before the model finished learning.
+
+### Run 31 — Curriculum + N-Step=2 (Job 165478, dir: 165478) — DONE ✓ — FAILED
 
 Rehabilitates n-step with curriculum stabilization and a milder n=2.
 - Curriculum depths [5, 10, 20], cosine LR, n_step=2
 - 60k episodes, same as Run 023 but with 2-step returns
-- **Goal**: Run 025 showed n-step=3 alone is catastrophic. Can curriculum stabilize early training so that n-step's faster reward propagation helps in late training?
-- **Early signal (ep6.7k)**: Struggling at 0% completion with 400 SWAPs, but curriculum hasn't ramped to depth-20 yet. Similar to Run 023's early phase.
+- Wall time: 21.7h
+
+| Episode | Completion | Ratio | Note |
+|---------|-----------|-------|------|
+| 30,000 | ~70% | — | Slow to converge |
+| **57,000** | **100%** | **1.120** | **Best checkpoint** |
+| 60,000 | 100% | 1.168 | Final |
+
+**Top 5 checkpoints**: ep57k (1.120), ep57.5k (1.140), ep59.5k (1.149), ep59k (1.151), ep58k (1.152)
+
+Only 36/120 evals achieved 100% completion. Final 500-episode training completion was 99.4% — the agent still occasionally fails to route circuits even at the end.
+
+**Verdict**: **Failed.** N-step=2 with curriculum is still catastrophic. Best ratio of 1.120 is worse than every other run except Run 022 (n-step=3, ratio 1.331). The 2-step bootstrap creates too much variance in Q-target estimates, which curriculum can't fully stabilize.
+
+**N-step is a dead end for this problem.** Both n=2 (Run 31: 1.120) and n=3 (Run 022: 1.331) fail badly, even with curriculum stabilization. Standard 1-step TD is optimal for quantum circuit routing where episodes are long (~200 steps) and the reward structure (−1 per step + gate bonuses) already provides dense per-step feedback. N-step's faster credit assignment isn't needed and the bootstrap variance hurts.
 
 ---
 
@@ -920,10 +960,10 @@ Rehabilitates n-step with curriculum stabilization and a milder n=2.
 
 | Run | Dir | Config | Topology | Key Change | Final Ratio | Best Ratio | Status |
 |-----|-----|--------|----------|------------|-------------|------------|--------|
-| 28 | 165476 | curriculum_cosine_100k | heavy_hex | curriculum+cosine+100k | — | — | running |
+| 28 | 165476 | curriculum_cosine_100k | heavy_hex | curriculum+cosine+100k | 1.006 | **0.977 ★** | done |
 | 29 | run_030 | finetune_run019 | heavy_hex | finetune ep64k, LR=1e-5 | 0.980 | **0.969 ★★** | done |
-| 30 | 165477 | curriculum_cosine_multi_bignet | multi | curriculum+cosine+bignet | — | — | running |
-| 31 | 165478 | curriculum_nstep2 | heavy_hex | curriculum+cosine+n-step=2 | — | — | running |
+| 30 | 165477 | curriculum_cosine_multi_bignet | multi | curriculum+cosine+bignet | 1.049 | 1.020 | done |
+| 31 | 165478 | curriculum_nstep2 | heavy_hex | curriculum+cosine+n-step=2 | 1.168 | 1.120 | done — failed |
 
 ---
 
@@ -987,6 +1027,7 @@ Run 6 (LR=3e-4): ratio 1.17 vs baseline (LR=1e-4): 1.12.
 | V4 | 0.991 (Run 019) | 80k episodes — first to beat SABRE |
 | V4 | 0.994 (Run 023) | Curriculum+cosine — beats SABRE in 60k |
 | V5 | 0.987 (Run 024) | 100k episodes — more training helps |
+| V6 | 0.977 (Run 028) | Curriculum+cosine 100k — 2nd best single-topo |
 | **V6** | **0.969 (Run 029)** | **Fine-tuning — beats SABRE by 3.1%** |
 
 **We have decisively beaten SABRE.** Run 029's ratio of 0.969 means the agent uses ~6 fewer SWAPs per circuit on average. The fine-tuning approach proves that the learned routing strategies are genuine and can be refined further with targeted low-LR training.
@@ -998,12 +1039,13 @@ Run 6 (LR=3e-4): ratio 1.17 vs baseline (LR=1e-4): 1.12.
 | Rank | Run | Version | Dir | Ratio | Config Summary |
 |------|-----|---------|-----|-------|----------------|
 | **1** | **29** | **V6** | **run_030** | **0.969** | **Finetune Run019 ep64k @ LR=1e-5, 20k eps** |
-| 2 | 24 | V5 | run_024 | 0.987 | Heavy hex 100k brute force |
-| 3 | 19 | V4 | run_019 | 0.991 | Heavy hex 80k (original champion) |
-| 4 | 23 | V4 | run_023 | 0.994 | Curriculum+cosine 60k |
-| 5 | 26 | V5 | run_026 | 0.996 | Multi-topo stdnet 100k (best multi-topo) |
-| 6 | 18 | V3 | run_018 | 0.999 | Multi-topo bignet weighted 60k |
-| 7 | 27 | V5 | run_027 | 1.003 | No distance shaping ablation |
+| 2 | 28 | V6 | 165476 | 0.977 | Curriculum+cosine 100k — finetune candidate |
+| 3 | 24 | V5 | run_024 | 0.987 | Heavy hex 100k brute force |
+| 4 | 19 | V4 | run_019 | 0.991 | Heavy hex 80k (original champion) |
+| 5 | 23 | V4 | run_023 | 0.994 | Curriculum+cosine 60k |
+| 6 | 26 | V5 | run_026 | 0.996 | Multi-topo stdnet 100k (best multi-topo) |
+| 7 | 18 | V3 | run_018 | 0.999 | Multi-topo bignet weighted 60k |
+| 8 | 27 | V5 | run_027 | 1.003 | No distance shaping ablation |
 
 ---
 
