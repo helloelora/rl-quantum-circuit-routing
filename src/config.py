@@ -24,8 +24,11 @@ class TrainConfig:
     gate_execution_reward: float = 1.0  # reward per gate routed (default matches original behavior)
 
     # --- Network ---
+    net_type: str = "standard"  # "standard" (original DuelingCNN) or "deep" (DeepDuelingCNN)
     conv_channels: list = field(default_factory=lambda: [32, 64, 32])
+    block_channels: list = field(default_factory=lambda: [64, 128, 64])  # for deep net
     dueling_hidden: int = 256
+    pool_output_size: int = 3  # spatial size after adaptive pool (deep net only)
 
     # --- DQN ---
     gamma: float = 0.99
