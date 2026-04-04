@@ -5,7 +5,7 @@ import torch
 import torch.nn.functional as F
 from pathlib import Path
 
-from networks import DuelingCNN
+from networks import DuelingCNN, DeepDuelingCNN
 from replay_buffer import PrioritizedReplayBuffer
 
 
@@ -28,19 +28,26 @@ class D3QNAgent:
             self.device = torch.device(config.device)
 
         # Networks
-        self.online_net = DuelingCNN(
-            matrix_size=config.matrix_size,
-            num_actions=num_actions,
-            conv_channels=config.conv_channels,
-            dueling_hidden=config.dueling_hidden,
-        ).to(self.device)
-
-        self.target_net = DuelingCNN(
-            matrix_size=config.matrix_size,
-            num_actions=num_actions,
-            conv_channels=config.conv_channels,
-            dueling_hidden=config.dueling_hidden,
-        ).to(self.device)
+        net_type = getattr(config, "net_type", "standard")
+        if net_type == "deep":
+            net_kwargs = dict(
+                matrix_size=config.matrix_size,
+                num_actions=num_actions,
+                block_channels=getattr(config, "block_channels", [64, 128, 64]),
+                dueling_hidden=config.dueling_hidden,
+                pool_output_size=getattr(config, "pool_output_size", 3),
+            )
+            self.online_net = DeepDuelingCNN(**net_kwargs).to(self.device)
+            self.target_net = DeepDuelingCNN(**net_kwargs).to(self.device)
+        else:
+            net_kwargs = dict(
+                matrix_size=config.matrix_size,
+                num_actions=num_actions,
+                conv_channels=config.conv_channels,
+                dueling_hidden=config.dueling_hidden,
+            )
+            self.online_net = DuelingCNN(**net_kwargs).to(self.device)
+            self.target_net = DuelingCNN(**net_kwargs).to(self.device)
         self.target_net.load_state_dict(self.online_net.state_dict())
         self.target_net.eval()
 
