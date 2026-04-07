@@ -11,6 +11,7 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{titlesec}
+\usepackage{tikz}
 
 % Tighten float and caption spacing
 \setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
@@ -58,7 +59,46 @@ We chose this problem because it is a real nisq bottleneck, has a natural mdp st
 
 \section{Environment}
 
-The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by both agents. We support three hardware topologies: \texttt{linear\_5} (5 qubits, 4 edges), \texttt{grid\_3x3} (9 qubits, 12 edges) and \texttt{heavy\_hex\_19} (19 qubits, 22 edges).
+The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by both agents. We support three hardware topologies: \texttt{linear\_5} (5 qubits, 4 edges), \texttt{grid\_3x3} (9 qubits, 12 edges) and \texttt{heavy\_hex\_19} (19 qubits, 22 edges), shown in Figure~\ref{fig:topologies}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    q/.style={circle, draw=blue!70!black, fill=blue!15, inner sep=0pt,
+              minimum size=7pt, line width=0.5pt},
+    lbl/.style={font=\scriptsize, blue!70!black}
+  ]
+  % -- linear_5 --
+  \foreach \i in {0,...,4}{ \node[q] (l\i) at (\i*0.55, 0) {}; }
+  \draw (l0)--(l1)--(l2)--(l3)--(l4);
+  \node[lbl] at (1.1,-0.5) {\texttt{linear\_5}};
+  % -- grid_3x3 --
+  \foreach \c in {0,1,2}{
+    \foreach \r in {0,1,2}{
+      \node[q] (g\r\c) at ({3.5+\c*0.55},{-\r*0.55}) {};
+    }
+  }
+  \foreach \r in {0,1,2}{ \draw (g\r0)--(g\r1)--(g\r2); }
+  \foreach \c in {0,1,2}{ \draw (g0\c)--(g1\c)--(g2\c); }
+  \node[lbl] at (4.05,-1.55) {\texttt{grid\_3x3}};
+  % -- heavy_hex_19 --
+  \foreach \i in {0,...,4}{ \node[q] (h0\i) at ({7.0+\i*0.5}, 0) {}; }
+  \foreach \i in {0,...,3}{ \node[q] (h1\i) at ({7.25+\i*0.5}, -0.45) {}; }
+  \foreach \i in {0,...,4}{ \node[q] (h2\i) at ({7.0+\i*0.5}, -0.9) {}; }
+  \foreach \i in {0,...,3}{ \node[q] (h3\i) at ({7.25+\i*0.5}, -1.35) {}; }
+  \node[q] (h40) at (7.75, -1.8) {};
+  \foreach \i in {0,...,3}{ \pgfmathtruncatemacro{\j}{\i+1} \draw (h0\i)--(h0\j); }
+  \foreach \i in {0,...,3}{ \pgfmathtruncatemacro{\j}{\i+1} \draw (h2\i)--(h2\j); }
+  \draw (h01)--(h10); \draw (h02)--(h11); \draw (h03)--(h12); \draw (h04)--(h13);
+  \draw (h10)--(h21); \draw (h11)--(h22); \draw (h12)--(h23); \draw (h13)--(h24);
+  \draw (h21)--(h30); \draw (h22)--(h31); \draw (h23)--(h32); \draw (h24)--(h33);
+  \draw (h31)--(h40);
+  \node[lbl] at (8.0,-2.15) {\texttt{heavy\_hex\_19}};
+\end{tikzpicture}
+\caption{The three hardware topologies used in our experiments.}
+\label{fig:topologies}
+\end{figure}
+\vspace{-1em}
 
 \paragraph{State space.} The state is a $5 \times 27 \times 27$ float tensor, padded to 27 to fit all topologies in the same network. The five channels encode: (0) hardware adjacency (binary, constant per episode), (1) qubit mapping as a permutation matrix, (2) depth-decayed gate demand $\gamma^{\text{depth}}$ with $\gamma=0.5$, (3) front-layer distance map ($1/d$ for each ready gate's two qubits), (4) stagnation signal (uniform $\text{steps\_since\_last\_gate} / \text{max\_steps}$). Channels 0--2 are the original 3-channel state. Channels 3--4 were added because the 3-channel version caused q-value collapse.
 
