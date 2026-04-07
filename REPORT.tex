@@ -1,20 +1,13 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[runningheads]{llncs}
 
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english]{babel}
-\usepackage{lmodern}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{hyperref}
+\usepackage{amsmath,amssymb}
 \usepackage{enumitem}
-\usepackage{listings}
 \usepackage{xcolor}
-\usepackage{caption}
-\usepackage{titling}
 
 \hypersetup{
   colorlinks=true,
@@ -23,307 +16,116 @@
   citecolor=blue!60!black,
 }
 
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
-  breaklines=true,
-  frame=single,
-  xleftmargin=0.5cm,
-  xrightmargin=0.5cm,
-}
+\begin{document}
 
 \title{Reinforcement learning for quantum circuit routing}
-\author{Elora Drouilhet \and Ali Dor}
-\date{MSc reinforcement learning, CentraleSupélec, 2026}
+\titlerunning{RL for quantum circuit routing}
 
-\begin{document}
+\author{Elora Drouilhet \and Ali Dor}
+\authorrunning{E. Drouilhet, A. Dor}
+\institute{CentraleSupélec, MSc reinforcement learning project, 2026 \\
+\email{elora.drouilhet@student-cs.fr, ali.dor@student-cs.fr}\\
+\url{https://github.com/helloelora/rl-quantum-circuit-routing}}
 
 \maketitle
 
-\begin{center}
-\small
-\textbf{Repository:} \url{https://github.com/helloelora/rl-quantum-circuit-routing} \\
-\textbf{D3QN branch:} \url{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev} \\
-\textbf{PPO branch:} \url{https://github.com/helloelora/rl-quantum-circuit-routing/tree/elora-ruche}
-\end{center}
+\begin{abstract}
+We tackle the quantum circuit routing problem with two deep reinforcement learning agents sharing the same gymnasium environment. Quantum hardware can only execute two-qubit gates between adjacent qubits, so the compiler inserts SWAP gates to bring qubits next to each other. The goal is to minimise SWAP overhead against IBM's SABRE baseline. We implement an off-policy d3qn+per agent (Ali, \texttt{ali-dev} branch) and an on-policy ppo agent with a symmetric score map (Elora, \texttt{elora-ruche} branch). The shared environment uses a 5-channel spatial state and an action mask over hardware edges. The d3qn agent beats SABRE on \texttt{heavy\_hex\_19} (ratio 0.969 after fine-tuning). The ppo agent beats SABRE by 12.9\% on \texttt{linear\_5} (ratio 0.871). We discuss why off-policy methods dominate on the hardest topology and what design choices matter.
 
-\vspace{0.5cm}
+\keywords{Reinforcement learning \and Quantum compilation \and PPO \and D3QN \and Combinatorial optimisation.}
+\end{abstract}
 
-\section{Motivation}
+\section{Motivation and problem}
 
-Quantum computers can only execute two-qubit gates between physically adjacent qubits. Real circuits contain gates between arbitrary qubit pairs. The compiler must therefore insert SWAP gates to bring qubits next to each other before each two-qubit gate can run. Each SWAP costs 3 CNOTs. More CNOTs means more decoherence and lower fidelity, so the goal is to minimise the number of inserted SWAPs.
+Quantum computers can only execute two-qubit gates between physically adjacent qubits. Real circuits contain gates between arbitrary qubit pairs. The compiler must therefore insert SWAP gates to bring qubits next to each other before each two-qubit gate can run. Each SWAP costs 3 CNOTs. More CNOTs means more decoherence, so the goal is to minimise the number of inserted SWAPs.
 
-This is the \textbf{qubit routing problem}. It is np-hard in the general case (siraichi et al., 2018). The industry baseline is \textbf{SABRE} (li et al., 2019), a bidirectional greedy heuristic shipped with ibm qiskit. SABRE is fast but greedy, so it can miss globally optimal routes.
+This is the qubit routing problem. It is np-hard in the general case~\cite{siraichi2018}. The industry baseline is SABRE~\cite{li2019sabre}, a bidirectional greedy heuristic shipped with ibm qiskit. SABRE is fast but greedy, so it can miss globally optimal routes.
 
-We chose this problem for three reasons. First, it is a real bottleneck in current nisq hardware. Second, it has a natural mdp structure: each state is a partial routing, each action is a swap. Third, it is a hard combinatorial problem where rl can plausibly beat hand-crafted heuristics, which is one of the few clean wins for rl over classical algorithms.
+We chose this problem for three reasons. First, it is a real bottleneck in current nisq hardware. Second, it has a natural mdp structure: each state is a partial routing, each action is a swap. Third, it is a hard combinatorial problem where rl can plausibly beat hand-crafted heuristics.
 
-We implemented two agents to compare on-policy and off-policy methods on the same environment. Ali built a \textbf{d3qn + per} (off-policy, value-based) agent on the \texttt{ali-dev} branch. Elora built a \textbf{ppo} (on-policy, actor-critic) agent on the \texttt{elora-ruche} branch. Both share the same gymnasium environment.
+We implemented two agents to compare on-policy and off-policy methods on the same environment.
 
 \section{Environment}
 
-The environment is a custom gymnasium env: \texttt{QubitRoutingEnv}. It is shared between both agents.
+The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by both agents. We support three hardware topologies: \texttt{linear\_5} (5 qubits, 4 edges), \texttt{grid\_3x3} (9 qubits, 12 edges) and \texttt{heavy\_hex\_19} (19 qubits, 22 edges).
 
-\subsection{State space}
+\paragraph{State space.} The state is a $5 \times 27 \times 27$ float tensor, padded to 27 to fit all topologies in the same network. The five channels encode: (0) hardware adjacency (binary, constant per episode), (1) qubit mapping as a permutation matrix, (2) depth-decayed gate demand $\gamma^{\text{depth}}$ with $\gamma=0.5$, (3) front-layer distance map ($1/d$ for each ready gate's two qubits), (4) stagnation signal (uniform $\text{steps\_since\_last\_gate} / \text{max\_steps}$). Channels 0--2 are the original 3-channel state. Channels 3--4 were added because the 3-channel version caused q-value collapse.
 
-The state is a $5 \times 27 \times 27$ float tensor. The matrix is padded to 27 to support all topologies with the same network. The five channels are:
+\paragraph{Action space.} \texttt{Discrete(max\_edges)}. Each action selects one hardware edge for a swap. Two qubits cannot be swapped if they do not share a hardware edge. Invalid edges (beyond the current topology) get $-\infty$ logits/q-values before softmax/argmax.
 
-\begin{table}[h]
-\centering
-\small
-\begin{tabularx}{\textwidth}{c X l}
-\toprule
-\textbf{Channel} & \textbf{Encodes} & \textbf{Updated} \\
-\midrule
-0 & hardware adjacency (binary) & constant per episode \\
-1 & qubit mapping (permutation matrix, 1 at $[q, p]$ if logical qubit $q$ is at physical position $p$) & every swap \\
-2 & depth-decayed gate demand ($\gamma^{\text{depth}}$ accumulated, $\gamma = 0.5$) & when gates execute \\
-3 & front-layer distance map ($1/\text{distance}$ for each ready gate's two qubits) & every swap \\
-4 & stagnation signal ($\text{steps\_since\_last\_gate} / \text{max\_steps}$, uniform) & every swap \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\paragraph{Reward.} The per-step reward combines a sparse progress signal with shaping terms:
+\begin{align*}
+r &= \text{gates\_executed} \cdot 1.0 + 0.1 \cdot \Delta\text{distance} - 0.05 \\
+&\quad + \text{repetition penalties} + \text{completion/timeout bonus}
+\end{align*}
+The completion bonus is $+15$ (ppo) or $+5$ (d3qn). The timeout penalty is $-8$ (ppo) or $-10$ (d3qn). Additional small penalties handle edge repetition (reverse swap $-0.2$, progressive same-edge $-0.2 \times \text{streak}$ capped at $-2.0$) and stagnation ($-0.03 \times \text{streak}$ capped at $-1.5$). These were critical: without them the agent learns to oscillate between two swaps for a small distance shaping reward.
 
-Channels 0--2 are the original 3-channel state. Channels 3--4 were added later because the 3-channel version caused q-value collapse --- the network gave the same value to every state and the policy degenerated. Channel 3 gives a direct signal on which gates are close to executable. Channel 4 tells the agent it is stuck and should change strategy.
-
-\subsection{Action space}
-
-The action space is \texttt{Discrete(max\_edges)}, where \texttt{max\_edges} is the largest edge count across all supported topologies. Each action selects one hardware edge on which to perform a swap. Actions beyond the current topology's edge count are masked: their logits / q-values are set to $-\infty$ before the softmax / argmax. Two qubits cannot be swapped if they do not share a hardware edge.
-
-\subsection{Reward}
-
-The per-step reward combines a sparse progress signal with several shaping terms:
-
-\begin{lstlisting}
-r = gates_executed * gate_reward            # +1 per gate routed
-  + distance_coeff * delta_distance         # pozzi-style distance shaping
-  + step_penalty                            # -0.05 per step
-  + reverse_swap_penalty                    # -0.2 if same swap as previous
-  + repeat_swap_penalty                     # -0.2 * streak (capped at -2.0)
-  + no_progress_penalty                     # -0.03 * streak (capped at -1.5)
-  + completion_bonus (if all gates routed)  # +15 (ppo) / +5 (d3qn)
-  + timeout_penalty (if truncated)          # -8 (ppo) / -10 (d3qn)
-\end{lstlisting}
-
-The repetition and stagnation penalties are critical. Without them the agent learns to repeat one swap forever or oscillate between two swaps, since both give a small distance shaping reward.
-
-\subsection{Episode flow}
-
-\begin{enumerate}[leftmargin=*]
-\item \textbf{Reset:} pick a topology, generate a random circuit (depth 5--20 depending on the curriculum stage), set an initial mapping (80\% random, 20\% sabre).
-\item \textbf{Step:} the agent picks an edge. The swap is applied. All front-layer gates whose two qubits are now adjacent execute automatically (with cascading if a gate execution unlocks the next layer).
-\item \textbf{Terminate:} when all gates are routed (success), or after \texttt{max\_steps} (timeout), or after a no-progress streak (early truncation).
-\end{enumerate}
-
-The maximum number of steps per episode is dynamic: $\text{max\_steps} = 10 \times \text{num\_two\_qubit\_gates}$, clamped between 60 and 450. Easy circuits get tighter budgets, hard circuits get more room.
+\paragraph{Episode flow.} On reset, we pick a topology, generate a random circuit, and set an initial mapping (80\% random, 20\% sabre). On each step, the agent picks an edge, the swap is applied, then all front-layer gates whose two qubits are now adjacent execute automatically (with cascading). The episode ends when all gates are routed (success), after \texttt{max\_steps}, or after a no-progress streak. The max steps per episode is dynamic: $10 \times \text{num\_gates}$, clamped to $[60, 450]$.
 
 \section{Agents}
 
-\subsection{D3QN + PER (Ali, off-policy)}
+Both agents share the same cnn backbone: \texttt{Conv2d(5,32) -> Conv2d(32,64) -> Conv2d(64,32)}, all $3 \times 3$ with relu, then a flatten to 23{,}328 features.
 
-The d3qn agent is a \textbf{double dueling deep q-network} with \textbf{prioritized experience replay}. Full code, configs, and results live on the \texttt{ali-dev} branch: \url{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}.
+\subsection{D3QN + PER (off-policy)}
 
-\paragraph{Network.} The 5-channel state goes through the shared cnn backbone (\texttt{Conv2d(5,32) -> Conv2d(32,64) -> Conv2d(64,32)}, all $3 \times 3$ with relu). Then a flatten feeds two heads:
+The d3qn agent uses double dueling deep q-learning with prioritized experience replay~\cite{wang2016dueling,vanhasselt2016double,schaul2016per}. After the backbone, two heads produce $V(s)$ and $A(s, a)$, combined as $Q(s,a) = V(s) + A(s,a) - \text{mean}(A)$. Action selection is $\epsilon$-greedy over the masked q-values, with $\epsilon$ decaying from 1.0 to 0.02.
 
-\begin{itemize}[leftmargin=*]
-\item \textbf{Value stream:} \texttt{linear(23328, 256) -> relu -> linear(256, 1)} $\to V(s)$.
-\item \textbf{Advantage stream:} \texttt{linear(23328, 256) -> relu -> linear(256, num\_edges)} $\to A(s, a)$.
-\end{itemize}
+Training stores transitions in a sumtree-based per buffer (capacity 300--500k). Every 4 environment steps we sample a minibatch of 128 weighted by td error, compute the double dqn target, and minimise huber loss with importance-sampling correction. The target network is soft-updated with $\tau = 0.005$ every 500 steps.
 
-The dueling combination is $Q(s, a) = V(s) + A(s, a) - \text{mean}(A)$. The mean subtraction is what makes the decomposition identifiable (otherwise $V$ and $A$ could shift by an arbitrary constant). The advantage stream learns "which swap is best given the state", and the value stream learns "how good is this state in general". This separation converges much faster than learning q-values directly, especially when many actions have similar values.
+The replay buffer reuses each transition $\sim$50 times. Per focuses sampling on transitions with high td error, which tend to be the hard, rare cases (gates near the end of a circuit, awkward mappings). This is exactly where the value function needs the most updates.
 
-\paragraph{Training loop.}
+\subsection{PPO with symmetric score map (on-policy)}
 
-\begin{enumerate}[leftmargin=*]
-\item Collect a transition $(s, a, r, s')$ via epsilon-greedy exploration. Epsilon decays from 1.0 to 0.02 over 4--6m steps.
-\item Store it in a prioritized replay buffer (sumtree, capacity 300--500k). New transitions get the maximum priority so they are sampled at least once.
-\item Every 4 environment steps, sample a minibatch of 128 transitions weighted by td error.
-\item Compute the \textbf{double dqn target}: pick the action with the online network, evaluate it with the target network. This eliminates the q-value overestimation bias of vanilla dqn.
-\item Minimise huber loss weighted by the per importance-sampling correction (beta annealed from 0.4 to 1.0).
-\item Soft-update the target network with polyak averaging ($\tau = 0.005$ every 500 steps).
-\end{enumerate}
+The ppo agent~\cite{schulman2017ppo} uses the same backbone with an actor-critic head. The policy head is a $1 \times 1$ convolution producing a $27 \times 27$ score map, then symmetrised: $S = (S + S^T) / 2$. This bakes in $\text{swap}(i, j) = \text{swap}(j, i)$ at the architecture level. Edge logits are gathered at hardware edge positions, masked to $-\infty$ on invalid edges, then softmaxed. The value head is a small mlp giving $V(s)$.
 
-\paragraph{Why off-policy works here.} The replay buffer reuses each transition $\sim$50 times. Per focuses sampling on transitions with high td error, which tend to be the hard, rare cases (gates near the end of a circuit, awkward mappings). This is exactly where the value function needs the most updates.
+Training collects rollouts of 4096 steps, computes gae advantages ($\lambda = 0.97$), then runs 8 epochs of clipped ppo updates on minibatches of 256. Hyperparameters: lr $3 \times 10^{-4}$ (annealed to $3 \times 10^{-5}$), $\gamma = 0.995$, clip range 0.15, entropy coef $0.003 \to 0.0001$.
 
-\subsection{PPO with symmetric score map (Elora, on-policy)}
-
-The ppo agent is a \textbf{proximal policy optimisation} actor-critic. Code lives on the \texttt{elora-ruche} branch.
-
-\paragraph{Network.} Same shared cnn backbone as d3qn. Then two heads:
-
-\begin{itemize}[leftmargin=*]
-\item \textbf{Policy head:} \texttt{Conv2d(32, 1, 1x1)} produces a $27 \times 27$ spatial score map. The map is symmetrised: $S = (S + S^T) / 2$. This bakes in the constraint $\text{swap}(i, j) = \text{swap}(j, i)$ at the architecture level. Edge logits are gathered from the symmetric score at the position of each hardware edge. Invalid edges get $-\infty$. A softmax gives the action distribution.
-\item \textbf{Value head:} \texttt{Linear(23328, 256) -> relu -> Linear(256, 1)} $\to V(s)$.
-\end{itemize}
-
-\paragraph{Training loop.}
-
-\begin{enumerate}[leftmargin=*]
-\item Collect a rollout of 4096 environment steps with the current policy. The policy is frozen during collection.
-\item Compute \textbf{gae advantages} ($\lambda = 0.97$) for every step in the rollout, using $V(s)$ as the baseline.
-\item For 8 epochs, shuffle the rollout into minibatches of 256, compute the clipped ppo objective, and gradient-step on \texttt{policy\_loss + 0.5 * value\_loss - entropy\_coef * entropy}.
-\item Throw the rollout away. Collect a new one with the updated policy. Ppo is on-policy: old data is no longer valid because the policy that generated it has changed.
-\end{enumerate}
-
-\paragraph{Anti-collapse engineering.} Vanilla ppo collapses on this combinatorial action space. The policy converges to spamming a single swap, since the entropy bonus is too weak to prevent it on a 22-action space and the action distribution can become very peaked. We added several fixes:
-
-\begin{itemize}[leftmargin=*]
-\item \textbf{Reverse-swap penalty} ($-0.2$) for choosing the same edge as the previous step.
-\item \textbf{Progressive same-edge penalty} ($-0.2 \times \text{streak}$, capped at $-2.0$).
-\item \textbf{No-progress termination}: kill the episode after 30--50 steps without any gate executed.
-\item \textbf{Action-repeat logit penalty} ($-0.20$) subtracted from the logit of the previous action during the forward pass. This is a soft anti-loop bias at the policy level.
-\item \textbf{Symmetric score map} in the policy head, as described above.
-\end{itemize}
-
-Without these, ppo on \texttt{linear\_5} had a 75\% timeout rate. With them, it converged to a stable 0\% timeout in under 2m steps.
-
-\paragraph{Hyperparameters used.}
-
-\begin{itemize}[leftmargin=*]
-\item Learning rate: $3 \times 10^{-4}$ (annealed to $3 \times 10^{-5}$ with linear schedule on most runs)
-\item $\gamma$: 0.995, gae $\lambda$: 0.97
-\item Clip range: 0.15
-\item Update epochs: 8, minibatch size: 256
-\item Entropy coef: $0.003 \to 0.0001$
-\item Distance reward coef: $0.03 \to 0.015$ (annealed to reduce shaping bias late in training)
-\end{itemize}
+\paragraph{Anti-collapse engineering.} Vanilla ppo collapses on this combinatorial action space: the policy spams a single swap. We added (i) a reverse-swap penalty, (ii) a progressive same-edge penalty, (iii) early termination on no-progress streaks, (iv) an action-repeat logit penalty subtracted from the previous action's logit during the forward pass, and (v) the symmetric score map mentioned above. Without these, ppo on \texttt{linear\_5} had a 75\% timeout rate. With them, it converged to 0\% timeout in under 2m steps.
 
 \section{Results}
 
-\subsection{PPO results (elora-ruche branch)}
-
-\begin{table}[h]
+\begin{table}[t]
 \centering
+\caption{Results per topology. Ratio = agent SWAPs / SABRE SWAPs (lower is better, $<1.0$ beats SABRE).}
+\label{tab:results}
 \small
-\begin{tabular}{lcccc}
+\begin{tabularx}{\textwidth}{l c c c c c}
 \toprule
-\textbf{Topology} & \textbf{Steps} & \textbf{Best ratio} & \textbf{Win rate} & \textbf{Completion} \\
+\textbf{Topology} & \textbf{Agent} & \textbf{Steps/episodes} & \textbf{Ratio} & \textbf{Win rate} & \textbf{Completion} \\
 \midrule
-\texttt{linear\_5} & 2M & \textbf{0.871} & 94\% & 100\% \\
-\texttt{grid\_3x3} (lr annealing) & 10M & 1.096 & 38\% & 100\% \\
-\texttt{heavy\_hex\_19} (curriculum) & 5M (killed at 24h) & not converged & --- & --- \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Linear\_5 is solved.} ppo uses 14.1 swaps on average vs sabre's 16.2. That is a 12.9\% improvement, with 94\% win rate and 0\% timeout. The agent converged in under 250k steps and stayed stable for the rest of the training.
-
-\textbf{Grid\_3x3 plateaus.} The first run (5m steps, constant lr) reached $-24\%$ improvement at update 1100 then regressed to $-29\%$ by 5m. The lr annealing run (10m steps, $3 \times 10^{-4} \to 3 \times 10^{-5}$) eliminated the regression: it converged to a stable plateau at $-10\%$ improvement (ratio 1.096) for the last 6m steps. The agent completes 100\% of grid circuits but uses $\sim$3 extra swaps per circuit compared to sabre.
-
-\textbf{Heavy\_hex\_19 is unsolved.} Several attempts:
-\begin{itemize}[leftmargin=*]
-\item 8m steps single-stage: policy stayed near-uniform (entropy 2.99/3.0), 100\% timeout, no learning.
-\item 10m steps curriculum (depth 5 $\to$ 10 $\to$ 16): stage 1 and 2 made some progress (entropy dropped to $\sim$2.0), stage 3 timed out at 24h before convergence.
-\item 10m steps curriculum (depth 5 $\to$ 10 $\to$ 20, aligned with ali's config): same pattern. Killed at 24h after $\sim$5m steps.
-\end{itemize}
-
-The fundamental issue is \textbf{sample efficiency}. ppo throws away each rollout after 8 epochs, while d3qn reuses transitions $\sim$50 times via the replay buffer. To match ali's 24m environment steps, we would need either a much longer wall-clock budget or vectorised environments to batch the inference.
-
-\subsection{D3QN results (ali-dev branch)}
-
-Best single-topology run on \texttt{heavy\_hex\_19}: \textbf{ratio 0.991} (run 019, 80k episodes $\approx$ 24m env steps). The agent uses 183.3 swaps on average vs sabre's 185.3.
-
-The fine-tuning approach (run 029) reloaded run 019's best checkpoint and continued training with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$. It reached \textbf{ratio 0.969} in 20k additional episodes --- the best result of the entire project.
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabularx}{\textwidth}{l l c X}
-\toprule
-\textbf{Run} & \textbf{Topology} & \textbf{Ratio vs sabre} & \textbf{Notes} \\
-\midrule
-019 & \texttt{heavy\_hex\_19} & \textbf{0.991} & 80k episodes, standard d3qn \\
-023 & \texttt{heavy\_hex\_19} & 0.994 & curriculum + cosine lr, 60k episodes (25\% less time) \\
-018 & multi-topo (3 topologies) & 0.999 overall & linear 0.890, grid 1.008, heavy\_hex 1.107 \\
-029 & \texttt{heavy\_hex\_19} (finetune) & \textbf{0.969} & best result, 2-stage training \\
+\texttt{linear\_5}      & PPO  & 2M steps  & \textbf{0.871} & 94\% & 100\% \\
+\texttt{linear\_5}      & D3QN & multi-topo run & 0.890 & --- & 100\% \\
+\texttt{grid\_3x3}      & PPO  & 10M steps & 1.096 & 38\% & 100\% \\
+\texttt{grid\_3x3}      & D3QN & multi-topo run & 1.008 & --- & 100\% \\
+\texttt{heavy\_hex\_19} & PPO  & 5M steps (24h cap) & not converged & --- & --- \\
+\texttt{heavy\_hex\_19} & D3QN & 80k episodes & 0.991 & 94\% & 100\% \\
+\texttt{heavy\_hex\_19} & D3QN (finetune) & +20k episodes & \textbf{0.969} & --- & 100\% \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Full training curves, eval comparison plots, routing gifs, and per-run reports are on the \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}{\texttt{ali-dev} branch}.
+Table~\ref{tab:results} summarises the headline numbers. Ppo beats SABRE by 12.9\% on \texttt{linear\_5} (14.1 vs 16.2 swaps), and converges in under 250k steps. On \texttt{grid\_3x3}, learning rate annealing eliminated late-training regression and ppo plateaus at $-10\%$ improvement (ratio 1.096) with 100\% completion. Heavy\_hex\_19 was attempted with three configurations (single-stage 8m, depth curriculum $5 \to 10 \to 16$, and depth curriculum $5 \to 10 \to 20$); none converged within the 24h slurm limit. The policy entropy stayed near uniform on the 22-action space.
 
-\subsection{Side-by-side comparison}
+D3qn solved heavy\_hex with brute force: run 019 (80k episodes, $\approx$ 24m env steps) reaches ratio 0.991, the first single forward pass to beat SABRE. The fine-tuning run reloads run 019's best checkpoint and continues with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$, reaching ratio 0.969 in 20k more episodes --- the project's best result. A single multi-topology d3qn agent (run 018) matches SABRE overall (0.999) and beats it on \texttt{linear\_5}. Full d3qn results are on the \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}{\texttt{ali-dev}} branch.
 
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lccc}
-\toprule
-\textbf{Topology} & \textbf{PPO best ratio} & \textbf{D3QN best ratio} & \textbf{Winner} \\
-\midrule
-\texttt{linear\_5} & \textbf{0.871} & 0.890 & ppo \\
-\texttt{grid\_3x3} & 1.096 & \textbf{1.008} & d3qn \\
-\texttt{heavy\_hex\_19} & not converged & \textbf{0.969} (finetune) & d3qn \\
-\bottomrule
-\end{tabular}
-\end{table}
+\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy. D3qn dominates on the larger topologies thanks to its sample-efficient replay buffer. This matches the conventional wisdom: on-policy methods need abundant fresh data, off-policy methods are better when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4 and both converged with them. Pozzi-style distance shaping~\cite{pozzi2022} removed about 15k episodes of d3qn warm-up. Lr annealing and curriculum learning gave a 25\% training-time saving on d3qn.
 
-Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy. D3qn dominates on the larger topologies thanks to its sample-efficient replay buffer. This matches the conventional wisdom: on-policy methods are better when you have abundant fresh data and a small action space; off-policy methods are better when sample efficiency matters and the action space is large.
+The fundamental limit of our ppo runs on heavy\_hex is wall-clock: at $\sim$430k env steps per hour we cannot match d3qn's 24m steps in 24h. Vectorised environments would batch the inference and likely close the gap. We tried several attempts that did not work: replacing the stagnation channel with a per-position action history channel (regression on grid), n-step returns for d3qn (catastrophic divergence), and doubling the gate reward (the agent optimised for gate throughput instead of routing efficiency).
 
-\subsection{Discussion}
+\paragraph{Future work.} Vectorised environments for ppo to match d3qn's effective batch size; transfer learning from a converged grid\_3x3 model to heavy\_hex; larger topologies (\texttt{heavy\_hex\_27}); hybrid rl + mcts at inference for an extra optimisation pass.
 
-\paragraph{What worked.}
-\begin{itemize}[leftmargin=*]
-\item The 5-channel state was the single biggest contribution. Both agents collapsed without channels 3--4, and both converged with them.
-\item Ppo's symmetric score map enforces the swap symmetry at the architecture level instead of relying on the network to learn it.
-\item D3qn's per is a major sample efficiency win on hard topologies.
-\item Lr annealing prevents late-training regression on grid\_3x3 for ppo.
-\item Curriculum learning (depth ramp) gives a 25\% training time saving on d3qn for heavy\_hex.
-\item Fine-tuning a converged checkpoint with a much lower lr is the highest-impact technique we found ($0.991 \to 0.969$ for d3qn).
-\end{itemize}
+\section{Code}
 
-\paragraph{What didn't work.}
-\begin{itemize}[leftmargin=*]
-\item The original 3-channel state caused q-value collapse on both agents.
-\item Vanilla ppo without anti-collapse engineering spammed one action.
-\item Replacing the stagnation channel with a per-position action history channel hurt grid\_3x3 performance, so we reverted.
-\item N-step returns for d3qn caused catastrophic divergence (run 25, q-values dropped to $-123$).
-\item Doubling the gate reward to 2.0 degraded d3qn ratio from 1.014 to 1.377 --- the agent optimised for gate throughput instead of routing efficiency.
-\end{itemize}
+The implementation is split across two branches. The shared gymnasium environment, the ppo agent, the cnn architecture, and the la ruche slurm scripts are on \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/elora-ruche}{\texttt{elora-ruche}} (\texttt{src/environment.py}, \texttt{src/agent.py}, \texttt{src/main.py}, \texttt{src/visualize.py}, \texttt{src/circuit\_utils.py}, \texttt{ruche/}). The full d3qn+per implementation, configs, training curves, eval comparisons, and routing gifs are on \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}{\texttt{ali-dev}}.
 
-\paragraph{Limitations.}
-\begin{itemize}[leftmargin=*]
-\item Ppo on heavy\_hex remains an open problem with our current step budget. Vectorised environments would likely close the gap.
-\item Both agents struggle with the largest available topology (\texttt{heavy\_hex\_27}, 27 qubits) because the action space grows.
-\item Training is sensitive to the reward magnitude. Doubling any single component breaks the policy.
-\item The "win rate" metric is misleading when the agent times out --- it can show 75\% wins while never completing a circuit (we hit this several times).
-\end{itemize}
-
-\paragraph{Future work.}
-\begin{itemize}[leftmargin=*]
-\item Vectorised environments for ppo to match d3qn's effective batch size.
-\item Transfer learning: warm-start ppo on heavy\_hex from a converged grid\_3x3 model.
-\item Larger topologies (\texttt{heavy\_hex\_27}) with the same architecture.
-\item Hybrid rl + mcts at inference time for an extra optimisation pass.
-\end{itemize}
-
-\section{Code structure}
-
-The code is split across two branches:
-
-\paragraph{\texttt{elora-ruche} (ppo):}
-\begin{itemize}[leftmargin=*]
-\item \texttt{src/environment.py} --- gymnasium environment shared by both agents
-\item \texttt{src/agent.py} --- ppo agent with symmetric cnn actor-critic
-\item \texttt{src/main.py} --- cli entry point and curriculum runner
-\item \texttt{src/visualize.py} --- training curves and eval comparison plots
-\item \texttt{src/circuit\_utils.py} --- dag, front layer, coupling maps, sabre baseline
-\item \texttt{ruche/} --- slurm scripts and apptainer image definition for the la ruche cluster
-\item \texttt{docs/architecture\_explained.md} --- notes on ppo vs d3qn, channels, training loop
-\item \texttt{docs/poster.tex} --- final poster source
-\end{itemize}
-
-\paragraph{\texttt{ali-dev} (d3qn + per):} full d3qn implementation, configs, results, and \texttt{ARCHITECTURE.md}. See \url{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}.
-
-\section*{References}
-
-\begin{itemize}[leftmargin=*,label={}]
-\item Li, g., Ding, y., \& Xie, y. (2019). \textit{Tackling the qubit mapping problem for nisq-era quantum devices.} ASPLOS.
-\item Siraichi, m. y., et al. (2018). \textit{Qubit allocation.} CGO.
-\item Schulman, j., et al. (2017). \textit{Proximal policy optimization algorithms.} arXiv:1707.06347.
-\item Wang, z., et al. (2016). \textit{Dueling network architectures for deep reinforcement learning.} ICML.
-\item Van hasselt, h., Guez, a., \& Silver, d. (2016). \textit{Deep reinforcement learning with double q-learning.} AAAI.
-\item Schaul, t., et al. (2016). \textit{Prioritized experience replay.} ICLR.
-\item Pozzi, m. g., et al. (2022). \textit{Using reinforcement learning to perform qubit routing in quantum compilers.} ACM Computing Surveys.
-\item Bengio, y., et al. (2009). \textit{Curriculum learning.} ICML.
-\end{itemize}
+\begin{thebibliography}{8}
+\bibitem{li2019sabre} Li, G., Ding, Y., Xie, Y.: Tackling the qubit mapping problem for nisq-era quantum devices. In: ASPLOS (2019)
+\bibitem{siraichi2018} Siraichi, M.Y., et al.: Qubit allocation. In: CGO (2018)
+\bibitem{schulman2017ppo} Schulman, J., et al.: Proximal policy optimization algorithms. arXiv:1707.06347 (2017)
+\bibitem{wang2016dueling} Wang, Z., et al.: Dueling network architectures for deep reinforcement learning. In: ICML (2016)
+\bibitem{vanhasselt2016double} van Hasselt, H., Guez, A., Silver, D.: Deep reinforcement learning with double q-learning. In: AAAI (2016)
+\bibitem{schaul2016per} Schaul, T., et al.: Prioritized experience replay. In: ICLR (2016)
+\bibitem{pozzi2022} Pozzi, M.G., et al.: Using reinforcement learning to perform qubit routing in quantum compilers. ACM Computing Surveys (2022)
+\end{thebibliography}
 
 \end{document}
