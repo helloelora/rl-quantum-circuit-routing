@@ -8,6 +8,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{enumitem}
 \usepackage{xcolor}
+\usepackage{float}
 
 \hypersetup{
   colorlinks=true,
@@ -53,9 +54,9 @@ The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by b
 
 \paragraph{Episode flow.} On reset we pick a topology, generate a random circuit, and set an initial mapping (80\% random, 20\% sabre). On each step, the agent picks an edge, the swap is applied, then all front-layer gates whose two qubits are now adjacent execute automatically (with cascading). The episode ends when all gates are routed, after \texttt{max\_steps}, or after a no-progress streak. Max steps is dynamic: $10 \times \text{num\_gates}$, clamped to $[60, 450]$.
 
-\begin{figure}[!ht]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{D3QNImages/Environment.png}
+\includegraphics[width=0.82\textwidth]{D3QNImages/Environment.png}
 \caption{Routing state during a \texttt{heavy\_hex\_19} episode. Left: hardware graph with current qubit mapping. Centre: agent vs SABRE swap counts so far. Right: remaining gates to route.}
 \label{fig:env}
 \end{figure}
@@ -72,7 +73,7 @@ Vanilla ppo collapses on this combinatorial action space: the policy spams one s
 
 \section{Results}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 \caption{Results per topology. Ratio = agent SWAPs / SABRE SWAPs ($<1.0$ beats SABRE).}
 \label{tab:results}
@@ -94,21 +95,29 @@ Vanilla ppo collapses on this combinatorial action space: the policy spams one s
 
 Table~\ref{tab:results} summarises the headline numbers. Ppo beats SABRE by 12.9\% on \texttt{linear\_5} (14.1 vs 16.2 swaps), converging in under 250k steps. On \texttt{grid\_3x3}, lr annealing eliminated late-training regression and ppo plateaus at ratio 1.096 with 100\% completion. Heavy\_hex\_19 was attempted with three configurations (single-stage 8m, curriculum $5\to 10\to 16$, curriculum $5\to 10\to 20$); none converged within 24h. The policy entropy stayed near uniform on the 22-action space. D3qn solved heavy\_hex with brute force: run 019 (80k episodes, $\approx$ 24m env steps) reaches ratio 0.991. The fine-tuning run reloads its best checkpoint and continues with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$, reaching \textbf{ratio 0.969} in 20k more episodes. A single multi-topology d3qn agent (run 018) matches SABRE overall (0.999) and beats it on \texttt{linear\_5}.
 
-\begin{figure}[!ht]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.78\textwidth]{D3QNImages/trainingbest.png}
-\caption{D3qn training dashboard, run 019. The phase transition around episodes 8k--12k is where the agent suddenly starts completing circuits.}
+\caption{D3qn training dashboard, run 019 on \texttt{heavy\_hex\_19}. The phase transition around episodes 8k--12k is where completion rate jumps from 0\% to 100\% in a few thousand episodes. Before that, the agent collects mostly timeouts; after, it converges quickly to a policy that competes with SABRE.}
 \label{fig:training}
 \end{figure}
 
-\begin{figure}[!ht]
+Figure~\ref{fig:training} shows the characteristic d3qn learning curve: a long warm-up phase (negative reward, no completion), then a sharp phase transition where the q-function starts to discriminate good swaps. This is when the swap count crosses the SABRE baseline. The remaining 65k episodes refine the policy down from $\sim$200 swaps per circuit to the final 183.
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.92\textwidth]{D3QNImages/image (1).png}
-\caption{Full d3qn benchmark vs SABRE, 156 circuits (generated + QASMBench): 42\% wins, 28\% ties, 30\% losses. Mean ratio per category, win/tie/loss pie, ratio histogram, ratio vs complexity and qubit count.}
+\caption{Full d3qn benchmark vs SABRE, 156 circuits (generated + QASMBench): 42\% wins, 28\% ties, 30\% losses. Mean ratio per category (top-left), win/tie/loss pie (top-centre), ratio histogram (top-right), ratio vs circuit complexity (bottom-left) and qubit count (bottom-centre).}
 \label{fig:benchmark}
 \end{figure}
 
-\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy. D3qn dominates on larger topologies thanks to its sample-efficient replay buffer: on-policy methods need abundant fresh data, off-policy methods win when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution; both agents collapsed without channels 3--4. Distance shaping~\cite{pozzi2022} removed $\sim$15k episodes of d3qn warm-up; lr annealing and curriculum learning gave a 25\% training-time saving on d3qn. The fundamental limit of our ppo runs on heavy\_hex is wall-clock ($\sim$430k env steps/hour cannot match d3qn's 24m in 24h); vectorised environments would close the gap. Failed attempts: action history channel (regression on grid), n-step returns for d3qn (divergence), doubling gate reward (agent optimised throughput, not efficiency). Future work: vectorised envs for ppo, transfer learning from grid to heavy\_hex, larger topologies (\texttt{heavy\_hex\_27}), hybrid rl+mcts at inference.
+Figure~\ref{fig:benchmark} confirms the agent generalises beyond the training distribution. On QASMBench (real circuits the agent has never seen) it ties or wins on most workloads. The few losses concentrate on circuits with very low complexity ($<10$ two-qubit gates), where SABRE's lookahead heuristic is already near-optimal and the rl agent has nothing to optimise away.
+
+\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy, while d3qn dominates on larger topologies thanks to its sample-efficient replay buffer. On-policy methods need abundant fresh data; off-policy methods win when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4. The front-layer distance map (channel 3) gives a direct gradient towards executable gates, and the stagnation channel (channel 4) lets the value function detect dead-end loops. Distance shaping~\cite{pozzi2022} removed $\sim$15k episodes of d3qn warm-up; lr annealing and curriculum learning gave a 25\% training-time saving on d3qn. Fine-tuning a converged checkpoint at lr $10^{-5}$ improved ratio from 0.991 to 0.969 in only 20k episodes --- the highest-impact technique we found, and the only one that pushed the agent meaningfully below SABRE.
+
+The fundamental limit of our ppo runs on heavy\_hex is wall-clock: $\sim$430k env steps per hour cannot match d3qn's 24m steps in a 24h slurm slot, and the 22-action space dilutes the policy gradient too much for on-policy convergence. Vectorised environments would close most of the gap. Several attempts failed: replacing stagnation with a per-position action history channel regressed grid by 3 ratio points, n-step returns for d3qn diverged catastrophically (q-values collapsed to $-123$), and doubling the gate reward made the agent optimise gate throughput instead of routing efficiency (ratio 1.014 $\to$ 1.377). The reward magnitudes are surprisingly fragile.
+
+\paragraph{Future work.} Vectorised environments for ppo to match d3qn's effective batch size, transfer learning from a converged grid model to heavy\_hex, larger topologies (\texttt{heavy\_hex\_27}), and hybrid rl+mcts at inference for an extra optimisation pass.
 
 
 \begin{thebibliography}{8}
