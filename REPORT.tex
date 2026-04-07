@@ -32,7 +32,7 @@
 \begin{abstract}
 We tackle the quantum circuit routing problem with two deep reinforcement learning agents sharing the same gymnasium environment. Quantum hardware can only execute two-qubit gates between adjacent qubits, so the compiler inserts SWAP gates to bring qubits next to each other. The goal is to minimise SWAP overhead against IBM's SABRE baseline. We implement an off-policy d3qn+per agent (Ali, \texttt{ali-dev} branch) and an on-policy ppo agent with a symmetric score map (Elora, \texttt{elora-ruche} branch). The shared environment uses a 5-channel spatial state and an action mask over hardware edges. The d3qn agent beats SABRE on \texttt{heavy\_hex\_19} (ratio 0.969 after fine-tuning). The ppo agent beats SABRE by 12.9\% on \texttt{linear\_5} (ratio 0.871). We discuss why off-policy methods dominate on the hardest topology and what design choices matter.
 
-\keywords{Reinforcement learning \and Quantum compilation \and PPO \and D3QN \and Combinatorial optimisation.}
+\keywords{Reinforcement learning \and Quantum compilation \and PPO \and D3QN \and Combinatorial optimisation \and SWAP.}
 \end{abstract}
 
 \section{Motivation and problem}
@@ -61,6 +61,13 @@ r &= \text{gates\_executed} \cdot 1.0 + 0.1 \cdot \Delta\text{distance} - 0.05 \
 The completion bonus is $+15$ (ppo) or $+5$ (d3qn). The timeout penalty is $-8$ (ppo) or $-10$ (d3qn). Additional small penalties handle edge repetition (reverse swap $-0.2$, progressive same-edge $-0.2 \times \text{streak}$ capped at $-2.0$) and stagnation ($-0.03 \times \text{streak}$ capped at $-1.5$). These were critical: without them the agent learns to oscillate between two swaps for a small distance shaping reward.
 
 \paragraph{Episode flow.} On reset, we pick a topology, generate a random circuit, and set an initial mapping (80\% random, 20\% sabre). On each step, the agent picks an edge, the swap is applied, then all front-layer gates whose two qubits are now adjacent execute automatically (with cascading). The episode ends when all gates are routed (success), after \texttt{max\_steps}, or after a no-progress streak. The max steps per episode is dynamic: $10 \times \text{num\_gates}$, clamped to $[60, 450]$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{Environment.png}
+\caption{Routing state during a \texttt{heavy\_hex\_19} episode. Left: hardware graph with the current qubit mapping. Centre: agent vs SABRE swap counts so far. Right: remaining gates to route. After each swap, all front-layer gates whose two qubits are now adjacent execute automatically.}
+\label{fig:env}
+\end{figure}
 
 \section{Agents}
 
@@ -108,15 +115,24 @@ Table~\ref{tab:results} summarises the headline numbers. Ppo beats SABRE by 12.9
 
 D3qn solved heavy\_hex with brute force: run 019 (80k episodes, $\approx$ 24m env steps) reaches ratio 0.991, the first single forward pass to beat SABRE. The fine-tuning run reloads run 019's best checkpoint and continues with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$, reaching ratio 0.969 in 20k more episodes --- the project's best result. A single multi-topology d3qn agent (run 018) matches SABRE overall (0.999) and beats it on \texttt{linear\_5}. Full d3qn results are on the \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}{\texttt{ali-dev}} branch.
 
-\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy. D3qn dominates on the larger topologies thanks to its sample-efficient replay buffer. This matches the conventional wisdom: on-policy methods need abundant fresh data, off-policy methods are better when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4 and both converged with them. Pozzi-style distance shaping~\cite{pozzi2022} removed about 15k episodes of d3qn warm-up. Lr annealing and curriculum learning gave a 25\% training-time saving on d3qn.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{trainingbest.png}
+\caption{D3qn training dashboard for run 019 (\texttt{heavy\_hex\_19}, 80k episodes). The phase transition around episodes 8k--12k is where the agent suddenly starts completing circuits. Bottom row shows the huber loss, $\epsilon$ schedule, and q-value / td-error evolution.}
+\label{fig:training}
+\end{figure}
 
-The fundamental limit of our ppo runs on heavy\_hex is wall-clock: at $\sim$430k env steps per hour we cannot match d3qn's 24m steps in 24h. Vectorised environments would batch the inference and likely close the gap. We tried several attempts that did not work: replacing the stagnation channel with a per-position action history channel (regression on grid), n-step returns for d3qn (catastrophic divergence), and doubling the gate reward (the agent optimised for gate throughput instead of routing efficiency).
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{image1.png}
+\caption{Full benchmark of the d3qn agent vs SABRE across 156 circuits from generated and QASMBench suites: 42\% wins, 28\% ties, 30\% losses. Top-left: mean ratio per circuit category. Top-centre: win/tie/loss distribution. Top-right: ratio histogram. Bottom: ratio vs circuit complexity (number of 2-qubit gates) and qubit count.}
+\label{fig:benchmark}
+\end{figure}
+
+\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy. D3qn dominates on the larger topologies thanks to its sample-efficient replay buffer. On-policy methods need abundant fresh data; off-policy methods are better when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4. Pozzi-style distance shaping~\cite{pozzi2022} removed about 15k episodes of d3qn warm-up, and lr annealing plus curriculum learning gave a 25\% training-time saving on d3qn. The fundamental limit of our ppo runs on heavy\_hex is wall-clock: at $\sim$430k env steps per hour we cannot match d3qn's 24m steps in 24h. Several attempts failed: replacing stagnation with a per-position action history channel (regression on grid), n-step returns for d3qn (catastrophic divergence), and doubling the gate reward (the agent optimised for gate throughput instead of routing efficiency).
 
 \paragraph{Future work.} Vectorised environments for ppo to match d3qn's effective batch size; transfer learning from a converged grid\_3x3 model to heavy\_hex; larger topologies (\texttt{heavy\_hex\_27}); hybrid rl + mcts at inference for an extra optimisation pass.
 
-\section{Code}
-
-The implementation is split across two branches. The shared gymnasium environment, the ppo agent, the cnn architecture, and the la ruche slurm scripts are on \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/elora-ruche}{\texttt{elora-ruche}} (\texttt{src/environment.py}, \texttt{src/agent.py}, \texttt{src/main.py}, \texttt{src/visualize.py}, \texttt{src/circuit\_utils.py}, \texttt{ruche/}). The full d3qn+per implementation, configs, training curves, eval comparisons, and routing gifs are on \href{https://github.com/helloelora/rl-quantum-circuit-routing/tree/ali-dev}{\texttt{ali-dev}}.
 
 \begin{thebibliography}{8}
 \bibitem{li2019sabre} Li, G., Ding, Y., Xie, Y.: Tackling the qubit mapping problem for nisq-era quantum devices. In: ASPLOS (2019)
