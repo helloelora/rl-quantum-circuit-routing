@@ -63,10 +63,10 @@ The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by b
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
+\begin{tikzpicture}[scale=0.55,
     q/.style={circle, draw=blue!70!black, fill=blue!15, inner sep=0pt,
-              minimum size=7pt, line width=0.5pt},
-    lbl/.style={font=\scriptsize, blue!70!black}
+              minimum size=5pt, line width=0.4pt},
+    lbl/.style={font=\tiny, blue!70!black}
   ]
   % -- linear_5 --
   \foreach \i in {0,...,4}{ \node[q] (l\i) at (\i*0.55, 0) {}; }
@@ -95,6 +95,7 @@ The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by b
   \draw (h31)--(h40);
   \node[lbl] at (8.0,-2.15) {\texttt{heavy\_hex\_19}};
 \end{tikzpicture}
+\vspace{-2pt}
 \caption{The three hardware topologies used in our experiments.}
 \label{fig:topologies}
 \end{figure}
