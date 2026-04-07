@@ -1,9 +1,34 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.env
 *.egg-info/
 dist/
 build/
 .venv/
+
+# Environment
+.env
+
+# Datasets
 QASMBench/
+
+# Workspace artifacts
+.claude/
+*-LAPTOP-Elo.*
+*-LAPTOP-Elo
+
+# Local scratch / planning files
+how.txt
+improvement_plan.md
+post_run8_plan.md
+
+# Results and runs (too large for git)
+results/
+benchmarks/
+runs/
+*.sif
+
+# IDE
+.idea/
+.vscode/
