@@ -70,8 +70,9 @@ The environment is a custom gymnasium env, \texttt{QubitRoutingEnv}, shared by b
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{D3QNImages/Environment.png}
-\caption{Routing state during a \texttt{heavy\_hex\_19} episode. Left: hardware graph with current qubit mapping. Centre: agent vs SABRE swap counts so far. Right: remaining gates to route.}
+\includegraphics[width=0.78\textwidth]{D3QNImages/Environment.png}
+\vspace{-2pt}
+\caption{Routing state during a \texttt{heavy\_hex\_19} episode. Left: hardware graph with current mapping. Centre: agent vs SABRE swap counts. Right: remaining gates.}
 \label{fig:env}
 \end{figure}
 
@@ -105,43 +106,53 @@ Vanilla ppo collapses on this combinatorial action space: the policy spams one s
 \bottomrule
 \end{tabularx}
 \end{table}
-Table~\ref{tab:results} summarises the headline numbers. Ppo beats SABRE by 12.9\% on \texttt{linear\_5} (14.1 vs 16.2 swaps), converging in under 250k steps. On \texttt{grid\_3x3}, lr annealing eliminated late-training regression and ppo plateaus at ratio 1.096 with 100\% completion. Heavy\_hex\_19 was attempted with three configurations (single-stage 8m, curriculum $5\to 10\to 16$, curriculum $5\to 10\to 20$); none converged within 24h. The policy entropy stayed near uniform on the 22-action space. D3qn solved heavy\_hex with brute force: run 019 (80k episodes, $\approx$ 24m env steps) reaches ratio 0.991. The fine-tuning run reloads its best checkpoint and continues with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$, reaching \textbf{ratio 0.969} in 20k more episodes. A single multi-topology d3qn agent (run 018) matches SABRE overall (0.999) and beats it on \texttt{linear\_5}.
+\vspace{-1.5em}
+\noindent Table~\ref{tab:results} summarises the headline numbers. Ppo beats SABRE by 12.9\% on \texttt{linear\_5} (14.1 vs 16.2 swaps), converging in under 250k steps. On \texttt{grid\_3x3}, lr annealing eliminated late-training regression and ppo plateaus at ratio 1.096 with 100\% completion. Heavy\_hex\_19 was attempted with three configurations (single-stage 8m, curriculum $5\to 10\to 16$, curriculum $5\to 10\to 20$); none converged within 24h. The policy entropy stayed near uniform on the 22-action space. D3qn solved heavy\_hex with brute force: run 019 (80k episodes, $\approx$ 24m env steps) reaches ratio 0.991. The fine-tuning run reloads its best checkpoint and continues with $\text{lr} = 10^{-5}$ and $\epsilon = 0.05 \to 0.01$, reaching \textbf{ratio 0.969} in 20k more episodes. A single multi-topology d3qn agent (run 018) matches SABRE overall (0.999) and beats it on \texttt{linear\_5}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\textwidth]{D3QNImages/trainingbest.png}
-\caption{D3qn training dashboard, run 019 on \texttt{heavy\_hex\_19}. Phase transition around episodes 8k--12k where completion rate jumps from 0\% to 100\%. Before: mostly timeouts. After: convergence to a policy competing with SABRE.}
+\includegraphics[width=0.76\textwidth]{D3QNImages/trainingbest.png}
+\vspace{-2pt}
+\caption{D3qn training dashboard, run 019 on \texttt{heavy\_hex\_19}. Phase transition around episodes 8k--12k where completion jumps from 0\% to 100\%.}
 \label{fig:training}
 \end{figure}
-Figure~\ref{fig:training} shows the characteristic d3qn learning curve: a long warm-up phase (negative reward, no completion), then a sharp phase transition where the q-function starts to discriminate good swaps. This is when the swap count crosses the SABRE baseline. The remaining 65k episodes refine the policy down from $\sim$200 swaps per circuit to the final 183.
+\vspace{-1.5em}
+\noindent Figure~\ref{fig:training} shows the characteristic d3qn learning curve: a long warm-up (negative reward, no completion), then a sharp phase transition where the q-function starts to discriminate good swaps and the swap count crosses the SABRE baseline. The remaining 65k episodes refine the policy from $\sim$200 swaps per circuit to the final 183.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth]{D3QNImages/image (1).png}
-\caption{Full d3qn benchmark vs SABRE, 156 circuits (generated + QASMBench): 42\% wins, 28\% ties, 30\% losses. Mean ratio per category (top-left), win/tie/loss pie (top-centre), ratio histogram (top-right), ratio vs complexity and qubit count (bottom).}
+\includegraphics[width=0.86\textwidth]{D3QNImages/image (1).png}
+\vspace{-2pt}
+\caption{Full d3qn benchmark vs SABRE, 156 circuits: 42\% wins, 28\% ties, 30\% losses. Mean ratio per category, win/tie/loss pie, ratio histogram, ratio vs complexity and qubit count.}
 \label{fig:benchmark}
 \end{figure}
+\vspace{-1.2em}
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\textwidth]{D3QNImages/AgentVsSabreEvalCircs.png}
-\caption{Mean swap ratio per circuit category, split between generated random circuits (blue) and QASMBench (purple). The dashed red line is the SABRE baseline; bars below 1.0 mean the agent uses fewer swaps than SABRE.}
+\includegraphics[width=0.90\textwidth]{D3QNImages/AgentVsSabreEvalCircs.png}
+\vspace{-2pt}
+\caption{Mean swap ratio per circuit category: generated random circuits (blue) vs QASMBench (purple). The dashed line is SABRE = 1.0; bars below mean the agent wins.}
 \label{fig:per_category}
 \end{figure}
-Figures~\ref{fig:benchmark} and~\ref{fig:per_category} confirm the agent generalises beyond the training distribution. On QASMBench (real circuits the agent has never seen) it ties or wins on most workloads. Some QASMBench categories show large wins --- linear algebra, classification, and search benefit from the agent's longer lookahead. The few losses concentrate on very simple circuits ($<10$ gates), where SABRE's heuristic is already near-optimal.
+\vspace{-1.5em}
+\noindent Figures~\ref{fig:benchmark} and~\ref{fig:per_category} confirm the agent generalises beyond the training distribution. On QASMBench (real circuits the agent has never seen) it ties or wins on most workloads. Some QASMBench categories show large wins --- linear algebra, classification, and search benefit from the agent's longer lookahead. The few losses concentrate on very simple circuits ($<10$ gates), where SABRE's heuristic is already near-optimal.
 
 \paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy, while d3qn dominates on larger topologies thanks to its sample-efficient replay buffer. On-policy methods need abundant fresh data; off-policy methods win when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4. The front-layer distance map gives a direct gradient towards executable gates and the stagnation channel lets the value function detect dead-end loops. Distance shaping~\cite{pozzi2022} removed $\sim$15k episodes of d3qn warm-up; lr annealing and curriculum learning gave a 25\% training-time saving. Fine-tuning a converged checkpoint at lr $10^{-5}$ improved ratio from 0.991 to 0.969 in only 20k episodes --- the highest-impact technique we found.
 
 The fundamental limit of our ppo runs on heavy\_hex is wall-clock: $\sim$430k env steps/hour cannot match d3qn's 24m steps in a 24h slurm slot, and the 22-action space dilutes the policy gradient too much for on-policy convergence. Failed attempts: action history channel (regression on grid), n-step returns for d3qn (q-values collapsed to $-123$), doubling gate reward (ratio 1.014 $\to$ 1.377). Future work: vectorised envs for ppo, transfer learning from grid to heavy\_hex, larger topologies (\texttt{heavy\_hex\_27}), hybrid rl+mcts at inference.
 
 
+{\footnotesize
 \begin{thebibliography}{8}
-\bibitem{li2019sabre} Li, G., Ding, Y., Xie, Y.: Tackling the qubit mapping problem for nisq-era quantum devices. In: ASPLOS (2019)
-\bibitem{siraichi2018} Siraichi, M.Y., et al.: Qubit allocation. In: CGO (2018)
-\bibitem{schulman2017ppo} Schulman, J., et al.: Proximal policy optimization algorithms. arXiv:1707.06347 (2017)
-\bibitem{wang2016dueling} Wang, Z., et al.: Dueling network architectures for deep reinforcement learning. In: ICML (2016)
-\bibitem{vanhasselt2016double} van Hasselt, H., Guez, A., Silver, D.: Deep reinforcement learning with double q-learning. In: AAAI (2016)
-\bibitem{schaul2016per} Schaul, T., et al.: Prioritized experience replay. In: ICLR (2016)
-\bibitem{pozzi2022} Pozzi, M.G., et al.: Using reinforcement learning to perform qubit routing in quantum compilers. ACM Computing Surveys (2022)
+\setlength{\itemsep}{0pt}
+\bibitem{li2019sabre} Li, G., Ding, Y., Xie, Y.: Tackling the qubit mapping problem for NISQ devices. ASPLOS (2019)
+\bibitem{siraichi2018} Siraichi, M.Y. et al.: Qubit allocation. CGO (2018)
+\bibitem{schulman2017ppo} Schulman, J. et al.: Proximal policy optimization algorithms. arXiv:1707.06347 (2017)
+\bibitem{wang2016dueling} Wang, Z. et al.: Dueling network architectures for deep RL. ICML (2016)
+\bibitem{vanhasselt2016double} van Hasselt, H., Guez, A., Silver, D.: Deep RL with double Q-learning. AAAI (2016)
+\bibitem{schaul2016per} Schaul, T. et al.: Prioritized experience replay. ICLR (2016)
+\bibitem{pozzi2022} Pozzi, M.G. et al.: Using RL to perform qubit routing in quantum compilers. ACM CSUR (2022)
 \end{thebibliography}
+}
 
 \end{document}
