@@ -157,25 +157,23 @@ Figure~\ref{fig:training} shows the characteristic d3qn learning curve: a long w
 \label{fig:training}
 \end{figure}
 \vspace{-1em}
-\noindent Figure~\ref{fig:benchmark} shows the full d3qn benchmark vs SABRE across 156 circuits: 42\% wins, 28\% ties, 30\% losses. The agent generalises beyond the training distribution: on QASMBench (real circuits never seen during training) it ties or wins on most workloads, with losses concentrated on very simple circuits ($<10$ gates) where SABRE's heuristic is already near-optimal.
+\noindent Figure~\ref{fig:benchmark} shows the full d3qn benchmark vs SABRE across 156 circuits: 42\% wins, 28\% ties, 30\% losses. The agent generalises beyond the training distribution: on QASMBench (real circuits never seen during training) it ties or wins on most workloads. Figure~\ref{fig:per_category} breaks the result down per circuit category: the agent dominates on linear-algebra workloads but loses on the simplest synthetic circuits, where our routing margins are smallest.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{D3QNImages/image (1).png}
+\includegraphics[width=0.82\textwidth]{D3QNImages/image (1).png}
 \caption{Full d3qn benchmark vs SABRE, 156 circuits (generated + QASMBench): mean ratio per category, win/tie/loss pie, ratio histogram, ratio vs complexity and qubit count.}
 \label{fig:benchmark}
 \end{figure}
 \vspace{-1em}
-
-\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy; d3qn dominates on larger topologies thanks to its sample-efficient replay buffer. On-policy methods need abundant fresh data, off-policy methods win when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4. The front-layer distance map gives a direct gradient towards executable gates and the stagnation channel lets the value function detect dead-end loops. Distance shaping~\cite{pozzi2022} removed $\sim$15k episodes of d3qn warm-up; lr annealing and curriculum learning gave a 25\% training-time saving. Fine-tuning a converged checkpoint at lr $10^{-5}$ improved ratio from 0.991 to 0.969 in only 20k episodes --- the highest-impact technique we found. Figure~\ref{fig:per_category} breaks down the win/loss rate per circuit category: the agent dominates on linear-algebra workloads but loses on the simplest synthetic circuits, where our routing margins are smallest.
-
-The fundamental limit of our ppo runs on heavy\_hex is wall-clock: $\sim$430k env steps/hour cannot match d3qn's 24m steps in a 24h slot. Failed attempts: action history channel (regression on grid), n-step returns for d3qn ($Q$ collapsed to $-123$), doubling gate reward (ratio 1.014 $\to$ 1.377). Future work: vectorised envs for ppo, transfer learning from grid to heavy\_hex, hybrid rl+mcts at inference.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\textwidth]{D3QNImages/AgentVsSabreEvalCircs.png}
+\includegraphics[width=0.74\textwidth]{D3QNImages/AgentVsSabreEvalCircs.png}
 \caption{Mean swap ratio per circuit category: generated random circuits (blue) vs QASMBench (purple). The dashed line is SABRE = 1.0; bars below mean the agent uses fewer swaps than SABRE.}
 \label{fig:per_category}
 \end{figure}
 \vspace{-1em}
+
+\paragraph{Discussion.} Ppo wins on the smallest topology where the 4-action space is easy to explore on-policy; d3qn dominates on larger topologies thanks to its sample-efficient replay buffer. On-policy methods need fresh data; off-policy methods win when sample efficiency matters and the action space is large. The 5-channel state was the single biggest contribution: both agents collapsed without channels 3--4. The front-layer distance map gives a direct gradient towards executable gates and the stagnation channel lets the value function detect dead-end loops. Distance shaping~\cite{pozzi2022} removed $\sim$15k episodes of d3qn warm-up; lr annealing and curriculum learning gave a 25\% training-time saving. Fine-tuning a converged checkpoint at lr $10^{-5}$ improved ratio from 0.991 to 0.969 in 20k episodes --- the highest-impact technique we found. The limit of our ppo runs on heavy\_hex is wall-clock: $\sim$430k env steps/hour cannot match d3qn's 24m steps in a 24h slot. Failed attempts: action history channel (grid regression), n-step returns for d3qn ($Q$ collapsed to $-123$), doubling gate reward (ratio 1.014 $\to$ 1.377). Future work: vectorised envs for ppo, transfer from grid to heavy\_hex, hybrid rl+mcts.
 
 
 {\footnotesize
